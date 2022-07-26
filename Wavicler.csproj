@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net6.0-windows</TargetFrameworks>
+        <OutputType>WinExe</OutputType>
+        <UseWindowsForms>true</UseWindowsForms>
+        <Version>$([System.DateTime]::UtcNow.ToString(yy.MM.dd))</Version>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Description>Audio Bag Of Tricks</Description>
+        <Copyright>MIT License</Copyright>
+        <RootNamespace>Wavicler</RootNamespace>
+        <AssemblyName>Wavicler</AssemblyName>
+        <OutputPath>bin\</OutputPath>
+        <!-- <DefineConstants>DEBUG;TRACE</DefineConstants> -->
+        <WarningLevel>4</WarningLevel>
+        <NoWarn>CS1591</NoWarn>
+        <Nullable>enable</Nullable>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+        <!-- en none -->
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="lib\**" />
+      <Compile Remove="submodules\**" />
+      <Compile Remove="todo\**" />
+      <EmbeddedResource Remove="lib\**" />
+      <EmbeddedResource Remove="submodules\**" />
+      <EmbeddedResource Remove="todo\**" />
+      <None Remove="lib\**" />
+      <None Remove="submodules\**" />
+      <None Remove="todo\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove=".gitignore" />
+      <None Remove=".gitmodules" />
+      <None Remove="abot.sublime-project" />
+      <None Remove="abot.sublime-workspace" />
+      <None Remove="LICENSE" />
+      <None Remove="wavicler.sublime-project" />
+      <None Remove="wavicler.sublime-workspace" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NAudio" Version="2.1.0" />
+        <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="AudioLib">
+        <HintPath>lib\AudioLib.dll</HintPath>
+      </Reference>
+      <Reference Include="NBagOfTricks">
+        <HintPath>lib\NBagOfTricks.dll</HintPath>
+      </Reference>
+      <Reference Include="NBagOfUis">
+        <HintPath>lib\NBagOfUis.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
