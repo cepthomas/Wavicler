@@ -22,24 +22,17 @@
 
     <ItemGroup>
       <Compile Remove="lib\**" />
-      <Compile Remove="submodules\**" />
       <Compile Remove="todo\**" />
       <EmbeddedResource Remove="lib\**" />
-      <EmbeddedResource Remove="submodules\**" />
       <EmbeddedResource Remove="todo\**" />
       <None Remove="lib\**" />
-      <None Remove="submodules\**" />
       <None Remove="todo\**" />
     </ItemGroup>
 
     <ItemGroup>
       <None Remove=".gitignore" />
       <None Remove=".gitmodules" />
-      <None Remove="abot.sublime-project" />
-      <None Remove="abot.sublime-workspace" />
       <None Remove="LICENSE" />
-      <None Remove="wavicler.sublime-project" />
-      <None Remove="wavicler.sublime-workspace" />
     </ItemGroup>
 
     <ItemGroup>
@@ -48,15 +41,35 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="AudioLib">
-        <HintPath>lib\AudioLib.dll</HintPath>
-      </Reference>
+      <ProjectReference Include="..\AudioLib\AudioLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
       <Reference Include="NBagOfTricks">
         <HintPath>lib\NBagOfTricks.dll</HintPath>
       </Reference>
       <Reference Include="NBagOfUis">
         <HintPath>lib\NBagOfUis.dll</HintPath>
       </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Properties\Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Properties\Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Resources\" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-﻿using AudioLib;
-using NBagOfUis;
+﻿using NBagOfUis;
+using AudioLib;
 
 namespace Wavicler
 {
@@ -10,18 +10,6 @@ namespace Wavicler
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
 
         #region Windows Form Designer generated code
 
@@ -33,7 +21,6 @@ namespace Wavicler
         {
             this.components = new System.ComponentModel.Container();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.chkRunBars = new System.Windows.Forms.CheckBox();
             this.timeBar = new AudioLib.TimeBar();
             this.meterDots = new NBagOfUis.Meter();
             this.meterLog = new NBagOfUis.Meter();
@@ -44,40 +31,30 @@ namespace Wavicler
             this.volume1 = new NBagOfUis.Slider();
             this.waveViewer1 = new AudioLib.WaveViewer();
             this.waveViewer2 = new AudioLib.WaveViewer();
-            this.btnSettings = new System.Windows.Forms.Button();
-            this.txtInfo = new System.Windows.Forms.RichTextBox();
+            this.txtInfo = new NBagOfUis.TextViewer();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.ddFile = new System.Windows.Forms.ToolStripDropDownButton();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnSettings = new System.Windows.Forms.ToolStripButton();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
             // 
             this.timer1.Tick += new System.EventHandler(this.Timer1_Tick);
             // 
-            // chkRunBars
-            // 
-            this.chkRunBars.AutoSize = true;
-            this.chkRunBars.BackColor = System.Drawing.Color.Pink;
-            this.chkRunBars.Checked = true;
-            this.chkRunBars.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkRunBars.Font = new System.Drawing.Font("Cooper Black", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.chkRunBars.Location = new System.Drawing.Point(755, 21);
-            this.chkRunBars.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.chkRunBars.Name = "chkRunBars";
-            this.chkRunBars.Size = new System.Drawing.Size(101, 21);
-            this.chkRunBars.TabIndex = 25;
-            this.chkRunBars.Text = "Run Bars";
-            this.chkRunBars.UseVisualStyleBackColor = false;
-            // 
             // timeBar
             // 
             this.timeBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.timeBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.timeBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.timeBar.Location = new System.Drawing.Point(755, 56);
+            this.timeBar.Location = new System.Drawing.Point(23, 243);
             this.timeBar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.timeBar.MarkerColor = System.Drawing.Color.Black;
             this.timeBar.Name = "timeBar";
             this.timeBar.ProgressColor = System.Drawing.Color.Orange;
-            this.timeBar.Size = new System.Drawing.Size(353, 64);
+            this.timeBar.Size = new System.Drawing.Size(1156, 64);
             this.timeBar.SnapMsec = 0;
             this.timeBar.TabIndex = 24;
             // 
@@ -86,7 +63,7 @@ namespace Wavicler
             this.meterDots.BackColor = System.Drawing.Color.Gainsboro;
             this.meterDots.DrawColor = System.Drawing.Color.Violet;
             this.meterDots.Label = "meter dots";
-            this.meterDots.Location = new System.Drawing.Point(306, 16);
+            this.meterDots.Location = new System.Drawing.Point(306, 159);
             this.meterDots.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.meterDots.Maximum = 10D;
             this.meterDots.MeterType = NBagOfUis.MeterType.ContinuousDots;
@@ -116,10 +93,13 @@ namespace Wavicler
             this.volume2.BackColor = System.Drawing.Color.Gainsboro;
             this.volume2.DrawColor = System.Drawing.Color.SlateBlue;
             this.volume2.Label = "Vertical";
-            this.volume2.Location = new System.Drawing.Point(685, 16);
+            this.volume2.Location = new System.Drawing.Point(673, 89);
             this.volume2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.volume2.Maximum = 10D;
+            this.volume2.Minimum = 0D;
             this.volume2.Name = "volume2";
             this.volume2.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.volume2.Resolution = 0.1D;
             this.volume2.Size = new System.Drawing.Size(42, 133);
             this.volume2.TabIndex = 21;
             this.volume2.Value = 0.60000000000000009D;
@@ -128,7 +108,7 @@ namespace Wavicler
             // 
             this.pan1.BackColor = System.Drawing.Color.Gainsboro;
             this.pan1.DrawColor = System.Drawing.Color.Crimson;
-            this.pan1.Location = new System.Drawing.Point(111, 89);
+            this.pan1.Location = new System.Drawing.Point(123, 89);
             this.pan1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pan1.Name = "pan1";
             this.pan1.Size = new System.Drawing.Size(175, 60);
@@ -156,7 +136,7 @@ namespace Wavicler
             this.pot1.DrawColor = System.Drawing.Color.Green;
             this.pot1.ForeColor = System.Drawing.Color.Black;
             this.pot1.Label = "p99";
-            this.pot1.Location = new System.Drawing.Point(14, 56);
+            this.pot1.Location = new System.Drawing.Point(14, 89);
             this.pot1.Margin = new System.Windows.Forms.Padding(5, 6, 5, 6);
             this.pot1.Maximum = 50D;
             this.pot1.Minimum = 25D;
@@ -173,10 +153,13 @@ namespace Wavicler
             this.volume1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.volume1.DrawColor = System.Drawing.Color.Orange;
             this.volume1.Label = "Horizontal";
-            this.volume1.Location = new System.Drawing.Point(512, 16);
+            this.volume1.Location = new System.Drawing.Point(512, 159);
             this.volume1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.volume1.Maximum = 10D;
+            this.volume1.Minimum = 0D;
             this.volume1.Name = "volume1";
             this.volume1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.volume1.Resolution = 0.1D;
             this.volume1.Size = new System.Drawing.Size(153, 60);
             this.volume1.TabIndex = 18;
             this.volume1.Value = 0.30000000000000004D;
@@ -185,59 +168,92 @@ namespace Wavicler
             // 
             this.waveViewer1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.waveViewer1.DrawColor = System.Drawing.Color.Orange;
-            this.waveViewer1.Location = new System.Drawing.Point(14, 174);
+            this.waveViewer1.Location = new System.Drawing.Point(23, 328);
             this.waveViewer1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.waveViewer1.Marker1 = -1;
             this.waveViewer1.Marker2 = -1;
             this.waveViewer1.MarkerColor = System.Drawing.Color.Black;
             this.waveViewer1.Mode = AudioLib.WaveViewer.DrawMode.Envelope;
             this.waveViewer1.Name = "waveViewer1";
-            this.waveViewer1.Size = new System.Drawing.Size(353, 87);
+            this.waveViewer1.Size = new System.Drawing.Size(1156, 143);
             this.waveViewer1.TabIndex = 26;
             // 
             // waveViewer2
             // 
             this.waveViewer2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.waveViewer2.DrawColor = System.Drawing.Color.Orange;
-            this.waveViewer2.Location = new System.Drawing.Point(391, 174);
+            this.waveViewer2.Location = new System.Drawing.Point(23, 479);
             this.waveViewer2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.waveViewer2.Marker1 = -1;
             this.waveViewer2.Marker2 = -1;
             this.waveViewer2.MarkerColor = System.Drawing.Color.Black;
             this.waveViewer2.Mode = AudioLib.WaveViewer.DrawMode.Envelope;
             this.waveViewer2.Name = "waveViewer2";
-            this.waveViewer2.Size = new System.Drawing.Size(353, 87);
+            this.waveViewer2.Size = new System.Drawing.Size(1156, 143);
             this.waveViewer2.TabIndex = 27;
-            // 
-            // btnSettings
-            // 
-            this.btnSettings.Location = new System.Drawing.Point(881, 16);
-            this.btnSettings.Name = "btnSettings";
-            this.btnSettings.Size = new System.Drawing.Size(94, 29);
-            this.btnSettings.TabIndex = 28;
-            this.btnSettings.Text = "Settings";
-            this.btnSettings.UseVisualStyleBackColor = true;
-            this.btnSettings.Click += new System.EventHandler(this.Settings_Click);
             // 
             // txtInfo
             // 
             this.txtInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtInfo.Location = new System.Drawing.Point(784, 145);
+            this.txtInfo.Location = new System.Drawing.Point(770, 89);
+            this.txtInfo.MaxText = 50000;
             this.txtInfo.Name = "txtInfo";
-            this.txtInfo.Size = new System.Drawing.Size(395, 120);
+            this.txtInfo.Prompt = "";
+            this.txtInfo.Size = new System.Drawing.Size(395, 133);
             this.txtInfo.TabIndex = 29;
-            this.txtInfo.Text = "";
+            this.txtInfo.WordWrap = true;
             // 
-            // TestHost
+            // toolStrip1
+            // 
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSeparator1,
+            this.ddFile,
+            this.btnSettings});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(1191, 27);
+            this.toolStrip1.TabIndex = 30;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 27);
+            // 
+            // ddFile
+            // 
+            this.ddFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.ddFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openToolStripMenuItem});
+            this.ddFile.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ddFile.Name = "ddFile";
+            this.ddFile.Size = new System.Drawing.Size(46, 24);
+            this.ddFile.Text = "File";
+            // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.openToolStripMenuItem.Text = "Open";
+            // 
+            // btnSettings
+            // 
+            this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.Size = new System.Drawing.Size(66, 24);
+            this.btnSettings.Text = "Settings";
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1191, 281);
+            this.ClientSize = new System.Drawing.Size(1191, 632);
+            this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.txtInfo);
-            this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.waveViewer2);
             this.Controls.Add(this.waveViewer1);
-            this.Controls.Add(this.chkRunBars);
             this.Controls.Add(this.timeBar);
             this.Controls.Add(this.meterDots);
             this.Controls.Add(this.meterLog);
@@ -247,8 +263,10 @@ namespace Wavicler
             this.Controls.Add(this.pot1);
             this.Controls.Add(this.volume1);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Name = "TestHost";
-            this.Text = "TestHost";
+            this.Name = "MainForm";
+            this.Text = "  ";
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -256,7 +274,6 @@ namespace Wavicler
 
         #endregion
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.CheckBox chkRunBars;
         private TimeBar timeBar;
         private Meter meterDots;
         private Meter meterLog;
@@ -267,7 +284,11 @@ namespace Wavicler
         private Slider volume1;
         private WaveViewer waveViewer1;
         private WaveViewer waveViewer2;
-        private System.Windows.Forms.Button btnSettings;
-        private System.Windows.Forms.RichTextBox txtInfo;
+        private NBagOfUis.TextViewer txtInfo;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripDropDownButton ddFile;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton btnSettings;
     }
 }

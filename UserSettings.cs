@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 using NAudio.Wave;
 using NAudio.Midi;
 using NBagOfTricks;
-//using NBagOfUis;
+using NBagOfUis;
 using NBagOfTricks.Slog;
 using AudioLib;
 
@@ -20,7 +20,7 @@ using AudioLib;
 namespace Wavicler
 {
     [Serializable]
-    public class UserSettings// : Settings
+    public class UserSettings : Settings
     {
         #region Persisted Editable Properties
         //[DisplayName("Root Directories")]
@@ -45,15 +45,15 @@ namespace Wavicler
         // [Browsable(true)]
         // public int TempoResolution { get; set; } = 5;
 
-        // [DisplayName("File Log Level")]
-        // [Description("Log level for file write.")]
-        // [Browsable(true)]
-        // public LogLevel FileLogLevel { get; set; } = LogLevel.Trace;
+        [DisplayName("File Log Level")]
+        [Description("Log level for file write.")]
+        [Browsable(true)]
+        public LogLevel FileLogLevel { get; set; } = LogLevel.Trace;
 
-        // [DisplayName("File Log Level")]
-        // [Description("Log level for UI notification.")]
-        // [Browsable(true)]
-        // public LogLevel NotifLogLevel { get; set; } = LogLevel.Debug;
+        [DisplayName("File Log Level")]
+        [Description("Log level for UI notification.")]
+        [Browsable(true)]
+        public LogLevel NotifLogLevel { get; set; } = LogLevel.Debug;
 
         [DisplayName("Audio Settings")]
         [Description("Edit audio settings.")]
