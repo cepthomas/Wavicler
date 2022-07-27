@@ -10,7 +10,6 @@ namespace Wavicler
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -33,10 +32,13 @@ namespace Wavicler
             this.waveViewer2 = new AudioLib.WaveViewer();
             this.txtInfo = new NBagOfUis.TextViewer();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.ddFile = new System.Windows.Forms.ToolStripDropDownButton();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.btnSettings = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnRewind = new System.Windows.Forms.Button();
+            this.chkPlay = new System.Windows.Forms.CheckBox();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -93,16 +95,16 @@ namespace Wavicler
             this.volume2.BackColor = System.Drawing.Color.Gainsboro;
             this.volume2.DrawColor = System.Drawing.Color.SlateBlue;
             this.volume2.Label = "Vertical";
-            this.volume2.Location = new System.Drawing.Point(673, 89);
+            this.volume2.Location = new System.Drawing.Point(655, 89);
             this.volume2.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.volume2.Maximum = 10D;
             this.volume2.Minimum = 0D;
             this.volume2.Name = "volume2";
             this.volume2.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.volume2.Resolution = 0.1D;
-            this.volume2.Size = new System.Drawing.Size(42, 133);
+            this.volume2.Size = new System.Drawing.Size(66, 130);
             this.volume2.TabIndex = 21;
-            this.volume2.Value = 0.60000000000000009D;
+            this.volume2.Value = 6D;
             // 
             // pan1
             // 
@@ -113,14 +115,14 @@ namespace Wavicler
             this.pan1.Name = "pan1";
             this.pan1.Size = new System.Drawing.Size(175, 60);
             this.pan1.TabIndex = 20;
-            this.pan1.Value = 0D;
+            this.pan1.Value = 0.5D;
             // 
             // meterLinear
             // 
             this.meterLinear.BackColor = System.Drawing.Color.Gainsboro;
             this.meterLinear.DrawColor = System.Drawing.Color.Orange;
             this.meterLinear.Label = "meter lin";
-            this.meterLinear.Location = new System.Drawing.Point(512, 89);
+            this.meterLinear.Location = new System.Drawing.Point(494, 89);
             this.meterLinear.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.meterLinear.Maximum = 100D;
             this.meterLinear.MeterType = NBagOfUis.MeterType.Linear;
@@ -153,14 +155,14 @@ namespace Wavicler
             this.volume1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.volume1.DrawColor = System.Drawing.Color.Orange;
             this.volume1.Label = "Horizontal";
-            this.volume1.Location = new System.Drawing.Point(512, 159);
+            this.volume1.Location = new System.Drawing.Point(123, 159);
             this.volume1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.volume1.Maximum = 10D;
             this.volume1.Minimum = 0D;
             this.volume1.Name = "volume1";
             this.volume1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.volume1.Resolution = 0.1D;
-            this.volume1.Size = new System.Drawing.Size(153, 60);
+            this.volume1.Size = new System.Drawing.Size(175, 60);
             this.volume1.TabIndex = 18;
             this.volume1.Value = 0.30000000000000004D;
             // 
@@ -195,11 +197,11 @@ namespace Wavicler
             // txtInfo
             // 
             this.txtInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtInfo.Location = new System.Drawing.Point(770, 89);
+            this.txtInfo.Location = new System.Drawing.Point(740, 89);
             this.txtInfo.MaxText = 50000;
             this.txtInfo.Name = "txtInfo";
             this.txtInfo.Prompt = "";
-            this.txtInfo.Size = new System.Drawing.Size(395, 133);
+            this.txtInfo.Size = new System.Drawing.Size(439, 133);
             this.txtInfo.TabIndex = 29;
             this.txtInfo.WordWrap = true;
             // 
@@ -207,19 +209,15 @@ namespace Wavicler
             // 
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripSeparator1,
             this.ddFile,
-            this.btnSettings});
+            this.toolStripSeparator1,
+            this.btnSettings,
+            this.toolStripSeparator2});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1191, 27);
             this.toolStrip1.TabIndex = 30;
             this.toolStrip1.Text = "toolStrip1";
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 27);
             // 
             // ddFile
             // 
@@ -237,6 +235,11 @@ namespace Wavicler
             this.openToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.openToolStripMenuItem.Text = "Open";
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 27);
+            // 
             // btnSettings
             // 
             this.btnSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -245,11 +248,37 @@ namespace Wavicler
             this.btnSettings.Size = new System.Drawing.Size(66, 24);
             this.btnSettings.Text = "Settings";
             // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 27);
+            // 
+            // btnRewind
+            // 
+            this.btnRewind.Location = new System.Drawing.Point(391, 30);
+            this.btnRewind.Name = "btnRewind";
+            this.btnRewind.Size = new System.Drawing.Size(54, 46);
+            this.btnRewind.TabIndex = 32;
+            this.btnRewind.Text = "<<";
+            this.btnRewind.UseVisualStyleBackColor = true;
+            // 
+            // chkPlay
+            // 
+            this.chkPlay.Appearance = System.Windows.Forms.Appearance.Button;
+            this.chkPlay.Location = new System.Drawing.Point(317, 30);
+            this.chkPlay.Name = "chkPlay";
+            this.chkPlay.Size = new System.Drawing.Size(47, 46);
+            this.chkPlay.TabIndex = 33;
+            this.chkPlay.Text = ">";
+            this.chkPlay.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1191, 632);
+            this.Controls.Add(this.chkPlay);
+            this.Controls.Add(this.btnRewind);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.txtInfo);
             this.Controls.Add(this.waveViewer2);
@@ -273,22 +302,26 @@ namespace Wavicler
         }
 
         #endregion
+        
         private System.Windows.Forms.Timer timer1;
         private TimeBar timeBar;
         private Meter meterDots;
         private Meter meterLog;
+        private Meter meterLinear;
+        private Slider volume1;
         private Slider volume2;
         private Pan pan1;
-        private Meter meterLinear;
         private Pot pot1;
-        private Slider volume1;
         private WaveViewer waveViewer1;
         private WaveViewer waveViewer2;
-        private NBagOfUis.TextViewer txtInfo;
+        private TextViewer txtInfo;
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripDropDownButton ddFile;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton btnSettings;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.Button btnRewind;
+        private System.Windows.Forms.CheckBox chkPlay;
     }
 }

@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Drawing.Design;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.Json.Serialization;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
+using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
-using NAudio.Wave;
-using NBagOfTricks.Slog;
-using NAudio.Wave.SampleProviders;
+
 
 namespace Wavicler
 {
@@ -48,31 +45,27 @@ namespace Wavicler
         const int READ_BUFF_SIZE = 1000000;
         #endregion
 
-
-        CheckBox chkPlay = new();
-        Slider sldVolume = new();
-        CheckBox btnLoop = new();
-
+        bool _loop = false;
 
         #region Events
         /// <inheritdoc />
         public event EventHandler? PlaybackCompleted;
         #endregion
 
-
         #region Lifecycle
         /// <summary>
-        /// 
+        /// Normal constructor.
         /// </summary>
         public MainForm()
         {
+            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
+
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
             _settings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
             // Tell the libs about their settings.
             AudioSettings.LibSettings = _settings.AudioSettings;
 
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
             InitializeComponent();
 
             Icon = Properties.Resources.tiger;
@@ -100,21 +93,29 @@ namespace Wavicler
             _player.PlaybackStopped += Player_PlaybackStopped;
 
 
+            btnRewind.Click += (_, __) => { UpdateState(AppState.Rewind); };
 
             //////////////////////// from demo/test /////////////////////////////
+            pot1.ValueChanged += (_, __) => { meterLog.AddValue(pot1.Value); };
+            pan1.ValueChanged += (_, __) => { meterLog.AddValue(pan1.Value * 50.0 + 50.0); };
+            volume1.ValueChanged += (_, __) => { meterLinear.AddValue(volume1.Value * 100.0); };
+            volume2.ValueChanged += (_, __) => { meterDots.AddValue(volume2.Value * 20.0 - 10.0); };
+            //////////////////////// from demo/test /////////////////////////////
 
-            ///// Misc controls.
-            pot1.ValueChanged += Pot1_ValueChanged;
 
-            pan1.ValueChanged += Pan1_ValueChanged;
+            //DummyData();
 
-            volume1.ValueChanged += Volume1_ValueChanged;
+            OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
 
-            volume2.ValueChanged += Volume2_ValueChanged;
+            // Go-go-go.
+            timer1.Enabled = true;
+        }
 
+        void DummyData()
+        {
             ///// Wave viewer.
             // Simple sin.
-            float[] data1 = new float[150];
+            float[] data1 = new float[waveViewer1.ClientSize.Width];
             for (int i = 0; i < data1.Length; i++)
             {
                 data1[i] = (float)Math.Sin(Math.PI * i / 180.0);
@@ -133,7 +134,7 @@ namespace Wavicler
                 data2[i] = float.Parse(sdata[i]);
             }
             waveViewer2.Mode = WaveViewer.DrawMode.Envelope;
-            waveViewer2.DrawColor = Color.Green;
+            waveViewer2.DrawColor = Color.Blue;
             waveViewer2.Init(data2, 1.0f);
             waveViewer2.Marker1 = -1; // hide
             waveViewer2.Marker2 = data2.Length / 2;
@@ -146,9 +147,6 @@ namespace Wavicler
             timeBar.CurrentTimeChanged += TimeBar_CurrentTimeChanged1;
             timeBar.ProgressColor = Color.CornflowerBlue;
             timeBar.BackColor = Color.Salmon;
-
-            // Go-go-go.
-            timer1.Enabled = true;
         }
 
         /// <summary>
@@ -197,30 +195,10 @@ namespace Wavicler
         /// </summary>
         void EditSettings()
         {
-            PropertyGrid pg = new()
-            {
-                Dock = DockStyle.Fill,
-                PropertySort = PropertySort.Categorized,
-                SelectedObject = AudioSettings.LibSettings
-            };
-
-            using Form f = new()
-            {
-                ClientSize = new(450, 450),
-                AutoScaleMode = AutoScaleMode.None,
-                Location = Cursor.Position,
-                StartPosition = FormStartPosition.Manual,
-                FormBorderStyle = FormBorderStyle.SizableToolWindow,
-                ShowIcon = false,
-                ShowInTaskbar = false
-            };
+            var changes = _settings.Edit("User Settings", 300);
 
             // Check changes.
             timeBar.SnapMsec = _settings.AudioSettings.SnapMsec;
-
-            f.Controls.Add(pg);
-
-            f.ShowDialog();
         }
 
         /// <summary>
@@ -229,7 +207,7 @@ namespace Wavicler
         void SaveSettings()
         {
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
-            //Common.Settings.Volume = sldVolume.Value;
+            _settings.Volume = volume1.Value;
             //Common.Settings.Autoplay = btnAutoplay.Checked;
             //Common.Settings.Loop = btnLoop.Checked;
             _settings.Save();
@@ -534,7 +512,7 @@ namespace Wavicler
         /// <param name="e"></param>
         void Volume_ValueChanged(object? sender, EventArgs e)
         {
-            float vol = (float)sldVolume.Value;
+            float vol = (float)volume1.Value;
             _settings.Volume = vol;
             _player.Volume = vol;
         }
@@ -576,7 +554,7 @@ namespace Wavicler
                     {
                         case AppState.Complete:
                             Rewind();
-                            if (btnLoop.Checked)
+                            if (_loop)
                             {
                                 chkPlay.Checked = true;
                                 Play();
@@ -641,31 +619,6 @@ namespace Wavicler
         }
         void TimeBar_CurrentTimeChanged1(object? sender, EventArgs e)
         {
-        }
-
-        void Pot1_ValueChanged(object? sender, EventArgs e)
-        {
-            // 25 -> 50
-            meterLog.AddValue(pot1.Value);
-        }
-
-        void Volume1_ValueChanged(object? sender, EventArgs e)
-        {
-            // meterLog -60 -> +3
-            // meterLinear 0 -> 100
-            // meterDots -10 -> +10
-
-            meterLinear.AddValue(volume1.Value * 100.0);
-        }
-
-        void Volume2_ValueChanged(object? sender, EventArgs e)
-        {
-            meterDots.AddValue(volume2.Value * 20.0 - 10.0);
-        }
-
-        void Pan1_ValueChanged(object? sender, EventArgs e)
-        {
-            meterLog.AddValue(pan1.Value * 50.0 + 50.0);
         }
 
         void TimeBar_CurrentTimeChanged(object? sender, EventArgs e)
