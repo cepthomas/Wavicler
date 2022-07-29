@@ -22,7 +22,7 @@ namespace Wavicler
     {
         #region Types
         /// <summary>What are we doing.</summary>
-        public enum AppState { Stop, Play, Rewind, Complete }
+        public enum AppState { Stop, Play, Rewind, Complete, Dead }
         #endregion
 
         #region Fields
@@ -33,24 +33,22 @@ namespace Wavicler
         string _fn = "";
 
         /// <summary>My settings.</summary>
-        UserSettings _settings;
+        readonly UserSettings _settings;
 
         /// <summary>The actual player.</summary>
-        AudioPlayer _player;
+        readonly AudioPlayer _player;
 
         /// <summary>Input device for audio file.</summary>
-        AudioFileReader? _audioFileReader;
+        AudioFileReader? _reader;
+
+        /// <summary>Where we be.</summary>
+        AppState _currentState = AppState.Stop;
 
         /// <summary>Stream read chunk.</summary>
-        const int READ_BUFF_SIZE = 1000000;
+        const int READ_BUFF_SIZE = 100000;
         #endregion
 
-        bool _loop = false;
-
-        #region Events
-        /// <inheritdoc />
-        public event EventHandler? PlaybackCompleted;
-        #endregion
+        bool _loop = false;//TODO
 
         #region Lifecycle
         /// <summary>
@@ -92,14 +90,22 @@ namespace Wavicler
             _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency));
             _player.PlaybackStopped += Player_PlaybackStopped;
 
-
             btnRewind.Click += (_, __) => { UpdateState(AppState.Rewind); };
 
+            btnSettings.Click += (_, __) => { EditSettings(); };
+
+            ddFile.DropDownOpening += File_DropDownOpening;
+
+            volumeMaster.ValueChanged += (_, __) => { _player.Volume = (float)volumeMaster.Value; };
+            gain.ValueChanged += (_, __) => {  }; // TODO
+
+
+
             //////////////////////// from demo/test /////////////////////////////
-            pot1.ValueChanged += (_, __) => { meterLog.AddValue(pot1.Value); };
-            pan1.ValueChanged += (_, __) => { meterLog.AddValue(pan1.Value * 50.0 + 50.0); };
-            volume1.ValueChanged += (_, __) => { meterLinear.AddValue(volume1.Value * 100.0); };
-            volume2.ValueChanged += (_, __) => { meterDots.AddValue(volume2.Value * 20.0 - 10.0); };
+            //pot1.ValueChanged += (_, __) => { meterLog.AddValue(pot1.Value); };
+            //pan1.ValueChanged += (_, __) => { meterLog.AddValue(pan1.Value * 50.0 + 50.0); };
+            //volume1.ValueChanged += (_, __) => { meterLinear.AddValue(volume1.Value * 100.0); };
+            //volume2.ValueChanged += (_, __) => { meterDots.AddValue(volume2.Value * 20.0 - 10.0); };
             //////////////////////// from demo/test /////////////////////////////
 
 
@@ -111,44 +117,6 @@ namespace Wavicler
             timer1.Enabled = true;
         }
 
-        void DummyData()
-        {
-            ///// Wave viewer.
-            // Simple sin.
-            float[] data1 = new float[waveViewer1.ClientSize.Width];
-            for (int i = 0; i < data1.Length; i++)
-            {
-                data1[i] = (float)Math.Sin(Math.PI * i / 180.0);
-            }
-            waveViewer1.Mode = WaveViewer.DrawMode.Raw;
-            waveViewer1.DrawColor = Color.Green;
-            waveViewer1.Init(data1, 1.0f);
-            waveViewer1.Marker1 = 20;
-            waveViewer1.Marker2 = 130;
-
-            // Real data.
-            string[] sdata = File.ReadAllLines(@"..\..\todo\wav.txt");
-            float[] data2 = new float[sdata.Length];
-            for (int i = 0; i < sdata.Length; i++)
-            {
-                data2[i] = float.Parse(sdata[i]);
-            }
-            waveViewer2.Mode = WaveViewer.DrawMode.Envelope;
-            waveViewer2.DrawColor = Color.Blue;
-            waveViewer2.Init(data2, 1.0f);
-            waveViewer2.Marker1 = -1; // hide
-            waveViewer2.Marker2 = data2.Length / 2;
-
-            ///// Time bar.
-            timeBar.SnapMsec = 10;
-            timeBar.Length = new TimeSpan(0, 0, 1, 23, 456);
-            timeBar.Start = new TimeSpan(0, 0, 0, 10, 333);
-            timeBar.End = new TimeSpan(0, 0, 0, 44, 777);
-            timeBar.CurrentTimeChanged += TimeBar_CurrentTimeChanged1;
-            timeBar.ProgressColor = Color.CornflowerBlue;
-            timeBar.BackColor = Color.Salmon;
-        }
-
         /// <summary>
         /// Form is legal now. Init things that want to log.
         /// </summary>
@@ -157,10 +125,12 @@ namespace Wavicler
         {
             _logger.Info($"OK to log now!!");
 
-            //if (!_audioExplorer.Valid)
-            //{
-            //    _logger.Error($"Something wrong with your audio output device:{Common.Settings.AudioSettings.WavOutDevice}");
-            //}
+            if (!_player.Valid)
+            {
+                var s = $"Something wrong with your audio output device:{_settings.AudioSettings.WavOutDevice}";
+                _logger.Error(s);
+                UpdateState(AppState.Dead);
+            }
         }
 
         /// <summary>
@@ -191,7 +161,7 @@ namespace Wavicler
 
         #region Settings
         /// <summary>
-        /// 
+        /// Edit user settings.
         /// </summary>
         void EditSettings()
         {
@@ -207,13 +177,14 @@ namespace Wavicler
         void SaveSettings()
         {
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
-            _settings.Volume = volume1.Value;
+            _settings.Volume = volumeMaster.Value;
             //Common.Settings.Autoplay = btnAutoplay.Checked;
             //Common.Settings.Loop = btnLoop.Checked;
             _settings.Save();
         }
         #endregion
 
+        #region Audio play event handlers
         /// <summary>
         /// Usually end of file but could be error.
         /// </summary>
@@ -224,12 +195,14 @@ namespace Wavicler
             if (e.Exception is not null)
             {
                 _logger.Exception(e.Exception, "Other NAudio error");
+                UpdateState(AppState.Dead);
             }
-
-            PlaybackCompleted?.Invoke(this, new EventArgs());
+            else
+            {
+                UpdateState(AppState.Complete);
+            }
         }
 
-        #region Audio play event handlers
         /// <summary>
         /// Hook for processing.
         /// </summary>
@@ -246,9 +219,9 @@ namespace Wavicler
         /// <param name="e"></param>
         void PostVolumeMeter_StreamVolume(object? sender, StreamVolumeEventArgs e)
         {
-            if (_audioFileReader is not null)
+            if (_reader is not null)
             {
-                timeBar.Current = _audioFileReader.CurrentTime;
+                timeBar.Current = _reader.CurrentTime;
             }
         }
         #endregion
@@ -259,13 +232,13 @@ namespace Wavicler
         /// </summary>
         void ShowClip()
         {
-            if (_audioFileReader is not null)
+            if (_reader is not null)
             {
-                _audioFileReader.Position = 0; // rewind
-                var sampleChannel = new SampleChannel(_audioFileReader, false);
+                _reader.Position = 0; // rewind
+                var sampleChannel = new SampleChannel(_reader, false);
 
                 // Read all data.
-                long len = _audioFileReader.Length / (_audioFileReader.WaveFormat.BitsPerSample / 8);
+                long len = _reader.Length / (_reader.WaveFormat.BitsPerSample / 8);
                 var data = new float[len];
                 int offset = 0;
                 int num = -1;
@@ -275,7 +248,7 @@ namespace Wavicler
                     // This throws for flac and m4a files for unknown reason but works ok.
                     try
                     {
-                        num = _audioFileReader.Read(data, offset, READ_BUFF_SIZE);
+                        num = _reader.Read(data, offset, READ_BUFF_SIZE);
                         offset += num;
                     }
                     catch (Exception)
@@ -304,39 +277,17 @@ namespace Wavicler
                     waveViewer2.Init(null, 0);
                 }
 
-                timeBar.Length = _audioFileReader.TotalTime;
+                timeBar.Length = _reader.TotalTime;
                 timeBar.Start = TimeSpan.Zero;
                 timeBar.End = TimeSpan.Zero;
                 timeBar.Current = TimeSpan.Zero;
 
-                _audioFileReader.Position = 0; // rewind
+                _reader.Position = 0; // rewind
             }
         }
         #endregion
 
-        #region Play functions
-        public void Play()
-        {
-            _player.Run(true);
-        }
-
-        public void Stop()
-        {
-            _player.Run(false);
-        }
-
-        public void Rewind()
-        {
-            if (_audioFileReader is not null)
-            {
-                _audioFileReader.Position = 0;
-            }
-            _player.Rewind();
-            timeBar.Current = TimeSpan.Zero;
-        }
-        #endregion
-
-        #region File manaagement
+        #region File management
         /// <summary>
         /// Common file opener.
         /// </summary>
@@ -350,75 +301,47 @@ namespace Wavicler
 
             _logger.Info($"Opening file: {fn}");
 
-            using (new WaitCursor())
+            var ext = Path.GetExtension(fn).ToLower();
+            if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
             {
-                try
-                {
-                    var ext = Path.GetExtension(fn).ToLower();
-                    if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
-                    {
+                // Clean up first.
+                _reader?.Dispose();
+                waveViewer1.Reset();
+                waveViewer2.Reset();
+                waveViewerNav.Reset();
 
-                        if(!_player.Valid)
-                        {
-                            _logger.Error("Your audio device is invalid.");
-                            ok = false;
-                        }
-                    }
-                    else
-                    {
-                        _logger.Error($"Invalid file type: {fn}");
-                        ok = false;
-                    }
+                // Read the file.
+                // AudioFileReader : WaveStream, ISampleProvider
+                _reader = new AudioFileReader(fn);
 
-                    if (ok)
-                    {
-                        ///////ok = _explorer.OpenFile(fn);
-                        // Clean up first.
-                        _audioFileReader?.Dispose();
-                        waveViewer1.Reset();
-                        waveViewer2.Reset();
+                // Create output.
+                // (IWaveProvider waveProvider, bool forceStereo)
+                var sampleChannel = new SampleChannel(_reader, false);
+                //sampleChannel.PreVolumeMeter += SampleChannel_PreVolumeMeter;
 
-                        // Create input device.
-                        _audioFileReader = new AudioFileReader(fn);
+                // (ch, smpls per notif)
+                var postVolumeMeter = new MeteringSampleProvider(sampleChannel, _reader.WaveFormat.SampleRate);
+                postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
 
-                        timeBar.Length = _audioFileReader.TotalTime;
-                        timeBar.Start = TimeSpan.Zero;
-                        timeBar.End = TimeSpan.Zero;
-                        timeBar.Current = TimeSpan.Zero;
+                timeBar.Length = _reader.TotalTime;
+                timeBar.Start = TimeSpan.Zero;
+                timeBar.End = TimeSpan.Zero;
+                timeBar.Current = TimeSpan.Zero;
 
-                        // Create reader.
-                        var sampleChannel = new SampleChannel(_audioFileReader, false);
-                        sampleChannel.PreVolumeMeter += SampleChannel_PreVolumeMeter;
-                        var postVolumeMeter = new MeteringSampleProvider(sampleChannel);
-                        postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
+                _player.Init(postVolumeMeter);
 
-                        _player.Init(postVolumeMeter);
+                ShowClip();
 
-                        ShowClip();
-
-                        if (!ok)
-                        {
-                            _audioFileReader?.Dispose();
-                            _audioFileReader = null;
-                        }
-
-
-
-
-
-
-                        _fn = fn;
-                        _settings.RecentFiles.UpdateMru(fn);
-                        SetText();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Couldn't open the file: {fn} because: {ex.Message}");
-                    _fn = "";
-                    SetText();
-                    ok = false;
-                }
+                _fn = fn;
+                _settings.RecentFiles.UpdateMru(fn);
+                SetText();
+            }
+            else
+            {
+                _logger.Error($"Unsupported file type: {fn}");
+                _reader?.Dispose();
+                _reader = null;
+                ok = false;
             }
 
             chkPlay.Enabled = ok;
@@ -435,6 +358,75 @@ namespace Wavicler
             return ok;
         }
 
+
+        //public bool OpenFile_orig(string fn)
+        //{
+        //    bool ok = true;
+
+        //    UpdateState(AppState.Stop);
+
+        //    _logger.Info($"Opening file: {fn}");
+
+        //    var ext = Path.GetExtension(fn).ToLower();
+        //    if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
+        //    {
+        //        // Clean up first.
+        //        _reader?.Dispose();
+        //        waveViewer1.Reset();
+        //        waveViewer2.Reset();
+        //        waveViewerNav.Reset();
+
+        //        // Create reader.
+        //        // AudioFileReader : WaveStream, ISampleProvider
+        //        _reader = new AudioFileReader(fn);
+
+        //        // Create output.
+        //        // (IWaveProvider waveProvider, bool forceStereo)
+        //        var sampleChannel = new SampleChannel(_reader, false);
+        //        //sampleChannel.PreVolumeMeter += SampleChannel_PreVolumeMeter;
+
+        //        // (ch, smpls per notif)
+        //        var postVolumeMeter = new MeteringSampleProvider(sampleChannel, _reader.WaveFormat.SampleRate);
+        //        postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
+
+        //        timeBar.Length = _reader.TotalTime;
+        //        timeBar.Start = TimeSpan.Zero;
+        //        timeBar.End = TimeSpan.Zero;
+        //        timeBar.Current = TimeSpan.Zero;
+
+        //        _player.Init(postVolumeMeter);
+
+        //        ShowClip();
+
+        //        _fn = fn;
+        //        _settings.RecentFiles.UpdateMru(fn);
+        //        SetText();
+        //    }
+        //    else
+        //    {
+        //        _logger.Error($"Unsupported file type: {fn}");
+        //        _reader?.Dispose();
+        //        _reader = null;
+        //        ok = false;
+        //    }
+
+        //    chkPlay.Enabled = ok;
+
+        //    if (ok)
+        //    {
+        //        if (_settings.Autoplay)
+        //        {
+        //            UpdateState(AppState.Rewind);
+        //            UpdateState(AppState.Play);
+        //        }
+        //    }
+
+        //    return ok;
+        //}
+
+
+
+
         /// <summary>
         /// Organize the file menu item drop down.
         /// </summary>
@@ -442,17 +434,17 @@ namespace Wavicler
         /// <param name="e"></param>
         void File_DropDownOpening(object? sender, EventArgs e)
         {
-            //fileDropDownButton.DropDownItems.Clear();
+            ddFile.DropDownItems.Clear();
 
-            //// Always:
-            //fileDropDownButton.DropDownItems.Add(new ToolStripMenuItem("Open...", null, Open_Click));
-            //fileDropDownButton.DropDownItems.Add(new ToolStripSeparator());
+            // Always:
+            ddFile.DropDownItems.Add(new ToolStripMenuItem("Open...", null, Open_Click));
+            ddFile.DropDownItems.Add(new ToolStripSeparator());
 
-            //Common.Settings.RecentFiles.ForEach(f =>
-            //{
-            //    ToolStripMenuItem menuItem = new(f, null, new EventHandler(Recent_Click));
-            //    fileDropDownButton.DropDownItems.Add(menuItem);
-            //});
+            _settings.RecentFiles.ForEach(f =>
+            {
+                ToolStripMenuItem menuItem = new(f, null, new EventHandler(Recent_Click));
+                ddFile.DropDownItems.Add(menuItem);
+            });
         }
 
         /// <summary>
@@ -504,18 +496,6 @@ namespace Wavicler
                     break;
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void Volume_ValueChanged(object? sender, EventArgs e)
-        {
-            float vol = (float)volume1.Value;
-            _settings.Volume = vol;
-            _player.Volume = vol;
-        }
         #endregion
 
         #region Misc
@@ -539,57 +519,75 @@ namespace Wavicler
 
         #region State management
         /// <summary>
-        /// General state management.
+        /// General state management. Everything goes through here.
         /// </summary>
-        void UpdateState(AppState state)
+        void UpdateState(AppState newState)
         {
-            if (_player.Valid)
+            // Unhook.
+            chkPlay.CheckedChanged -= ChkPlay_CheckedChanged;
+
+            if(newState != _currentState)
             {
-                // Unhook.
-                chkPlay.CheckedChanged -= ChkPlay_CheckedChanged;
+                _logger.Info($"State change:{newState}");
+            }
 
-                try
-                {
-                    switch (state)
+            switch (newState)
+            {
+                case AppState.Complete:
+                    Rewind();
+                    if (_loop)
                     {
-                        case AppState.Complete:
-                            Rewind();
-                            if (_loop)
-                            {
-                                chkPlay.Checked = true;
-                                Play();
-                            }
-                            else
-                            {
-                                chkPlay.Checked = false;
-                                Stop();
-                            }
-                            break;
-
-                        case AppState.Play:
-                            chkPlay.Checked = true;
-                            Play();
-                            break;
-
-                        case AppState.Stop:
-                            chkPlay.Checked = false;
-                            Stop();
-                            break;
-
-                        case AppState.Rewind:
-                            Rewind();
-                            break;
+                        Play();
                     }
-                }
-                catch (Exception ex)
+                    else
+                    {
+                        Stop();
+                    }
+                    break;
+
+                case AppState.Play:
+                    Play();
+                    break;
+
+                case AppState.Stop:
+                    Stop();
+                    break;
+
+                case AppState.Rewind:
+                    Rewind();
+                    break;
+
+                case AppState.Dead:
+                    Stop();
+                    break;
+            }
+
+            _currentState = newState;
+
+            // Rehook.
+            chkPlay.CheckedChanged += ChkPlay_CheckedChanged;
+
+            ///////// Local funcs ////////
+            void Play()
+            {
+                chkPlay.Checked = true;
+                _player.Run(true);
+            }
+
+            void Stop()
+            {
+                chkPlay.Checked = false;
+                _player.Run(false);
+            }
+
+            void Rewind()
+            {
+                if(_reader is not null)
                 {
-                    MessageBox.Show(ex.Message);
+                    _reader.Position = 0;
                 }
-                finally
-                {
-                    // Rehook.
-                    chkPlay.CheckedChanged += ChkPlay_CheckedChanged;
-                }
+                _player.Rewind();
+                timeBar.Current = TimeSpan.Zero;
             }
         }
 
@@ -598,7 +596,7 @@ namespace Wavicler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ChkPlay_CheckedChanged(object? sender, EventArgs e)
+        void ChkPlay_CheckedChanged(object? sender, EventArgs e)
         {
             UpdateState(chkPlay.Checked ? AppState.Play : AppState.Stop);
         }
@@ -607,23 +605,58 @@ namespace Wavicler
         #region TODO stuff
         void Timer1_Tick(object? sender, EventArgs e)
         {
-            if (true)//chkRunBars.Checked)
-            {
-                // Update time bar.
-                timeBar.IncrementCurrent(timer1.Interval + 3); // not-real time for testing
-                if (timeBar.Current >= timeBar.End) // done/reset
-                {
-                    timeBar.Current = timeBar.Start;
-                }
-            }
-        }
-        void TimeBar_CurrentTimeChanged1(object? sender, EventArgs e)
-        {
+            //if (chkRunBars.Checked)
+            //{
+            //    // Update time bar.
+            //    timeBar.IncrementCurrent(timer1.Interval + 3); // not-real time for testing
+            //    if (timeBar.Current >= timeBar.End) // done/reset
+            //    {
+            //        timeBar.Current = timeBar.Start;
+            //    }
+            //}
         }
 
         void TimeBar_CurrentTimeChanged(object? sender, EventArgs e)
         {
             txtInfo.AppendText($"Current time:{timeBar.Current}");
+        }
+
+        void DummyData()
+        {
+            ///// Wave viewer.
+            // Simple sin.
+            float[] data1 = new float[waveViewer1.ClientSize.Width];
+            for (int i = 0; i < data1.Length; i++)
+            {
+                data1[i] = (float)Math.Sin(Math.PI * i / 180.0);
+            }
+            waveViewer1.Mode = WaveViewer.DrawMode.Raw;
+            waveViewer1.DrawColor = Color.Green;
+            waveViewer1.Init(data1, 1.0f);
+            waveViewer1.Marker1 = 20;
+            waveViewer1.Marker2 = 130;
+
+            // Real data.
+            string[] sdata = File.ReadAllLines(@"..\..\todo\wav.txt");
+            float[] data2 = new float[sdata.Length];
+            for (int i = 0; i < sdata.Length; i++)
+            {
+                data2[i] = float.Parse(sdata[i]);
+            }
+            waveViewer2.Mode = WaveViewer.DrawMode.Envelope;
+            waveViewer2.DrawColor = Color.Blue;
+            waveViewer2.Init(data2, 1.0f);
+            waveViewer2.Marker1 = -1; // hide
+            waveViewer2.Marker2 = data2.Length / 2;
+
+            ///// Time bar.
+            timeBar.SnapMsec = _settings.AudioSettings.SnapMsec;
+            timeBar.Length = new TimeSpan(0, 0, 1, 23, 456);
+            timeBar.Start = new TimeSpan(0, 0, 0, 10, 333);
+            timeBar.End = new TimeSpan(0, 0, 0, 44, 777);
+            timeBar.CurrentTimeChanged += TimeBar_CurrentTimeChanged;
+            timeBar.ProgressColor = Color.CornflowerBlue;
+            timeBar.BackColor = Color.Salmon;
         }
         #endregion
 

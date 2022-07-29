@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 namespace MyUndo
 {
-
     public interface IOperation
     {
         void Undo();
@@ -13,10 +12,8 @@ namespace MyUndo
         void Redo();
     }
 
-
-
     // operations: 
-    // ? change view - zoom H/V - just view
+    // ? change view - zoom H/V - just alter view
     // - cut/copy/paste - location - alter buffer or just view?
     // - amplitude adj - start/end/shape. general transforms? - alter buffer or just view?
 
@@ -25,20 +22,18 @@ namespace MyUndo
     {
         public Cut(int start, int len)
         {
-
         }
-
 
         public void Undo()
         {
-
         }
 
         public void Redo()
         {
-
         }
     }
+
+
 
     public class OperationStack
     {
