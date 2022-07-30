@@ -22,12 +22,16 @@ namespace Wavicler
     [Serializable]
     public class UserSettings : Settings
     {
+        [Browsable(false)]
+        [JsonIgnore]
+        public static UserSettings TheSettings { get; set; } = new();
+
         #region Persisted Editable Properties
         //[DisplayName("Root Directories")]
         //[Description("Where to look in order as they appear.")]
         //[Browsable(true)]
         //[Editor(typeof(StringListEditor), typeof(UITypeEditor))] // Ideally a multi folder picker.
-        public List<string> RootDirs { get; set; } = new();
+        //public List<string> RootDirs { get; set; } = new();
 
         [DisplayName("Dump To Clipboard")]
         [Description("Otherwise to file.")]
@@ -39,11 +43,6 @@ namespace Wavicler
         [Browsable(true)]
         [JsonConverter(typeof(JsonColorConverter))]
         public Color ControlColor { get; set; } = Color.MediumOrchid;
-
-        // [DisplayName("Tempo Resolution")]
-        // [Description("Adjust tempo in UI.")]
-        // [Browsable(true)]
-        // public int TempoResolution { get; set; } = 5;
 
         [DisplayName("File Log Level")]
         [Description("Log level for file write.")]

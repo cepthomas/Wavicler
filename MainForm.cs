@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.Drawing.Design;
-using System.Text.Json.Serialization;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+using AudioLib;
 using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
-using AudioLib; // TODO restore dll ref.
-
+using NAudio.Wave.SampleProviders;
 
 namespace Wavicler
 {
@@ -29,92 +28,84 @@ namespace Wavicler
         /// <summary>My logger.</summary>
         readonly Logger _logger = LogManager.CreateLogger("MainForm");
 
-        /// <summary>Current file.</summary>
-        string _fn = "";
-
-        /// <summary>My settings.</summary>
-        readonly UserSettings _settings;
-
         /// <summary>The actual player.</summary>
         readonly AudioPlayer _player;
 
-        /// <summary>Input device for audio file.</summary>
-        AudioFileReader? _reader;
-
         /// <summary>Where we be.</summary>
         AppState _currentState = AppState.Stop;
-
-        /// <summary>Stream read chunk.</summary>
-        const int READ_BUFF_SIZE = 100000;
         #endregion
 
         bool _loop = false;//TODO
+        MainToolbar MT = new();
+
+        // StereoToMonoSampleProvider to split stereo into 2 mono.
 
         #region Lifecycle
-        /// <summary>
-        /// Normal constructor.
-        /// </summary>
         public MainForm()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
-            _settings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
+            UserSettings.TheSettings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
             // Tell the libs about their settings.
-            AudioSettings.LibSettings = _settings.AudioSettings;
+            AudioSettings.LibSettings = UserSettings.TheSettings.AudioSettings;
 
             InitializeComponent();
+            // This took way too long to find out:
+            //https://stackoverflow.com/questions/12823400/statusstrip-hosting-a-usercontrol-fails-to-call-usercontrols-onpaint-event
+            toolStrip1.Items.Add(new ToolStripControlHost(MT));
+            //ttt.button1.Click += Button1_Click;
 
             Icon = Properties.Resources.tiger;
 
             // Init logging.
-            LogManager.MinLevelFile = _settings.FileLogLevel;
-            LogManager.MinLevelNotif = _settings.NotifLogLevel;
+            LogManager.MinLevelFile = UserSettings.TheSettings.FileLogLevel;
+            LogManager.MinLevelNotif = UserSettings.TheSettings.NotifLogLevel;
             LogManager.LogEvent += LogManager_LogEvent;
             LogManager.Run();
 
             // Init main form from settings
             WindowState = FormWindowState.Normal;
             StartPosition = FormStartPosition.Manual;
-            Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
-            Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
+            Location = new Point(UserSettings.TheSettings.FormGeometry.X, UserSettings.TheSettings.FormGeometry.Y);
+            Size = new Size(UserSettings.TheSettings.FormGeometry.Width, UserSettings.TheSettings.FormGeometry.Height);
             KeyPreview = true; // for routing kbd strokes through OnKeyDown
 
-            // The text output.
-            txtInfo.Font = Font;
-            txtInfo.WordWrap = true;
-            txtInfo.MatchColors.Add("ERR", Color.LightPink);
-            txtInfo.MatchColors.Add("WRN:", Color.Plum);
+            // The text output. Maybe use OARS style?
+            MT.txtInfo.Font = Font;
+            MT.txtInfo.WordWrap = true;
+            MT.txtInfo.MatchColors.Add("ERR", Color.LightPink);
+            MT.txtInfo.MatchColors.Add("WRN", Color.Plum);
 
-            _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency));
+            _player = new(UserSettings.TheSettings.AudioSettings.WavOutDevice, int.Parse(UserSettings.TheSettings.AudioSettings.Latency));
             _player.PlaybackStopped += Player_PlaybackStopped;
 
-            btnRewind.Click += (_, __) => { UpdateState(AppState.Rewind); };
+            MT.btnRewind.Click += (_, __) => { UpdateState(AppState.Rewind); };
+            MT.chkPlay.Click += (_, __) => { UpdateState(MT.chkPlay.Checked ? AppState.Play : AppState.Stop); };
+            MT.volumeMaster.ValueChanged += (_, __) => { _player.Volume = (float)MT.volumeMaster.Value; };
 
-            btnSettings.Click += (_, __) => { EditSettings(); };
-
-            ddFile.DropDownOpening += File_DropDownOpening;
-
-            volumeMaster.ValueChanged += (_, __) => { _player.Volume = (float)volumeMaster.Value; };
-            gain.ValueChanged += (_, __) => {  }; // TODO
-
+            // TODO
+            // mainToolbar.btnSettings.Click += (_, __) => { EditSettings(); };
+            // mainToolbar.ddFile.DropDownOpening += File_DropDownOpening;
 
 
-            //////////////////////// from demo/test /////////////////////////////
-            //pot1.ValueChanged += (_, __) => { meterLog.AddValue(pot1.Value); };
-            //pan1.ValueChanged += (_, __) => { meterLog.AddValue(pan1.Value * 50.0 + 50.0); };
-            //volume1.ValueChanged += (_, __) => { meterLinear.AddValue(volume1.Value * 100.0); };
-            //volume2.ValueChanged += (_, __) => { meterDots.AddValue(volume2.Value * 20.0 - 10.0); };
-            //////////////////////// from demo/test /////////////////////////////
+            // Create output.
+            // (IWaveProvider waveProvider, bool forceStereo)
+            //var sampleChannel = new SampleChannel(_reader, false);
+            //sampleChannel.PreVolumeMeter += SampleChannel_PreVolumeMeter;
+            // (ch, smpls per notif)
+            //var postVolumeMeter = new MeteringSampleProvider(sampleChannel, _reader.WaveFormat.SampleRate);
 
+            //// TODO
+            //var postVolumeMeter = new MeteringSampleProvider(_reader, _reader.WaveFormat.SampleRate / 10);
+            //postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
+            //_player.Init(postVolumeMeter);
 
-            //DummyData();
+            Text = $"Wavicler {MiscUtils.GetVersionString()}";
 
+            // >>>>>>>>>>>>>>>>>>>
             OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
-
-            // Go-go-go.
-            timer1.Enabled = true;
         }
 
         /// <summary>
@@ -127,14 +118,14 @@ namespace Wavicler
 
             if (!_player.Valid)
             {
-                var s = $"Something wrong with your audio output device:{_settings.AudioSettings.WavOutDevice}";
+                var s = $"Something wrong with your audio output device:{UserSettings.TheSettings.AudioSettings.WavOutDevice}";
                 _logger.Error(s);
                 UpdateState(AppState.Dead);
             }
         }
 
         /// <summary>
-        /// 
+        /// Bye-bye.
         /// </summary>
         /// <param name="e"></param>
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -155,36 +146,17 @@ namespace Wavicler
             {
                 components.Dispose();
             }
+
+            // My stuff here.
+            _player.Run(false);
+            _player.Dispose();
+            
             base.Dispose(disposing);
         }
         #endregion
 
-        #region Settings
-        /// <summary>
-        /// Edit user settings.
-        /// </summary>
-        void EditSettings()
-        {
-            var changes = _settings.Edit("User Settings", 300);
 
-            // Check changes.
-            timeBar.SnapMsec = _settings.AudioSettings.SnapMsec;
-        }
 
-        /// <summary>
-        /// Collect and save user settings.
-        /// </summary>
-        void SaveSettings()
-        {
-            _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
-            _settings.Volume = volumeMaster.Value;
-            //Common.Settings.Autoplay = btnAutoplay.Checked;
-            //Common.Settings.Loop = btnLoop.Checked;
-            _settings.Save();
-        }
-        #endregion
-
-        #region Audio play event handlers
         /// <summary>
         /// Usually end of file but could be error.
         /// </summary>
@@ -203,89 +175,24 @@ namespace Wavicler
             }
         }
 
-        /// <summary>
-        /// Hook for processing.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void SampleChannel_PreVolumeMeter(object? sender, StreamVolumeEventArgs e)
+
+        //When an MDI child form has a MainMenu component(with, usually, a menu structure of menu items) and it is
+        //opened within an MDI parent form that has a MainMenu component(with, usually, a menu structure of menu items),
+        //the menu items will merge automatically if you have set the MergeType property(and optionally, the MergeOrder
+        //property). Set the MergeType property of both MainMenu components and all of the menu items of the child form
+        //to MergeItems.Additionally, set the MergeOrder property so that the menu items from both menus appear in the
+        //desired order.Moreover, keep in mind that when you close an MDI parent form, each of the MDI child forms raises
+        //a Closing event before the Closing event for the MDI parent is raised. Canceling an MDI child's Closing event
+        //will not prevent the MDI parent's Closing event from being raised; however, the CancelEventArgs argument for
+        //the MDI parent's Closing event will now be set to true. You can force the MDI parent and all MDI child forms
+        //to close by setting the CancelEventArgs argument to false.
+        void NewFile_Click(object sender, EventArgs e)
         {
+            WaveForm child = new();
+            child.MdiParent = this;
+            child.Show();
         }
 
-        /// <summary>
-        /// Hook for processing.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void PostVolumeMeter_StreamVolume(object? sender, StreamVolumeEventArgs e)
-        {
-            if (_reader is not null)
-            {
-                timeBar.Current = _reader.CurrentTime;
-            }
-        }
-        #endregion
-
-        #region Private functions - draw waves
-        /// <summary>
-        /// Show a clip waveform.
-        /// </summary>
-        void ShowClip()
-        {
-            if (_reader is not null)
-            {
-                _reader.Position = 0; // rewind
-                var sampleChannel = new SampleChannel(_reader, false);
-
-                // Read all data.
-                long len = _reader.Length / (_reader.WaveFormat.BitsPerSample / 8);
-                var data = new float[len];
-                int offset = 0;
-                int num = -1;
-
-                while (num != 0)
-                {
-                    // This throws for flac and m4a files for unknown reason but works ok.
-                    try
-                    {
-                        num = _reader.Read(data, offset, READ_BUFF_SIZE);
-                        offset += num;
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-
-                if (sampleChannel.WaveFormat.Channels == 2) // stereo
-                {
-                    long stlen = len / 2;
-                    var dataL = new float[stlen];
-                    var dataR = new float[stlen];
-
-                    for (long i = 0; i < stlen; i++)
-                    {
-                        dataL[i] = data[i * 2];
-                        dataR[i] = data[i * 2 + 1];
-                    }
-
-                    waveViewer1.Init(dataL, 1.0f);
-                    waveViewer2.Init(dataR, 1.0f);
-                }
-                else // mono
-                {
-                    waveViewer1.Init(data, 1.0f);
-                    waveViewer2.Init(null, 0);
-                }
-
-                timeBar.Length = _reader.TotalTime;
-                timeBar.Start = TimeSpan.Zero;
-                timeBar.End = TimeSpan.Zero;
-                timeBar.Current = TimeSpan.Zero;
-
-                _reader.Position = 0; // rewind
-            }
-        }
-        #endregion
 
         #region File management
         /// <summary>
@@ -304,147 +211,47 @@ namespace Wavicler
             var ext = Path.GetExtension(fn).ToLower();
             if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
             {
-                // Clean up first.
-                _reader?.Dispose();
-                waveViewer1.Reset();
-                waveViewer2.Reset();
-                waveViewerNav.Reset();
-
-                // Read the file.
-                // AudioFileReader : WaveStream, ISampleProvider
-                _reader = new AudioFileReader(fn);
-
-                // Create output.
-                // (IWaveProvider waveProvider, bool forceStereo)
-                var sampleChannel = new SampleChannel(_reader, false);
-                //sampleChannel.PreVolumeMeter += SampleChannel_PreVolumeMeter;
-
-                // (ch, smpls per notif)
-                var postVolumeMeter = new MeteringSampleProvider(sampleChannel, _reader.WaveFormat.SampleRate);
-                postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
-
-                timeBar.Length = _reader.TotalTime;
-                timeBar.Start = TimeSpan.Zero;
-                timeBar.End = TimeSpan.Zero;
-                timeBar.Current = TimeSpan.Zero;
-
-                _player.Init(postVolumeMeter);
-
-                ShowClip();
-
-                _fn = fn;
-                _settings.RecentFiles.UpdateMru(fn);
-                SetText();
+                // TODO Create a new child form. Give it file name.
             }
             else
             {
                 _logger.Error($"Unsupported file type: {fn}");
-                _reader?.Dispose();
-                _reader = null;
+                //_reader?.Dispose();
+                //_reader = null;
                 ok = false;
             }
 
-            chkPlay.Enabled = ok;
-
             if (ok)
             {
-                if (_settings.Autoplay)
+                if (UserSettings.TheSettings.Autoplay)
                 {
                     UpdateState(AppState.Rewind);
                     UpdateState(AppState.Play);
                 }
             }
 
+            MT.chkPlay.Enabled = ok;
             return ok;
         }
-
-
-        //public bool OpenFile_orig(string fn)
-        //{
-        //    bool ok = true;
-
-        //    UpdateState(AppState.Stop);
-
-        //    _logger.Info($"Opening file: {fn}");
-
-        //    var ext = Path.GetExtension(fn).ToLower();
-        //    if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
-        //    {
-        //        // Clean up first.
-        //        _reader?.Dispose();
-        //        waveViewer1.Reset();
-        //        waveViewer2.Reset();
-        //        waveViewerNav.Reset();
-
-        //        // Create reader.
-        //        // AudioFileReader : WaveStream, ISampleProvider
-        //        _reader = new AudioFileReader(fn);
-
-        //        // Create output.
-        //        // (IWaveProvider waveProvider, bool forceStereo)
-        //        var sampleChannel = new SampleChannel(_reader, false);
-        //        //sampleChannel.PreVolumeMeter += SampleChannel_PreVolumeMeter;
-
-        //        // (ch, smpls per notif)
-        //        var postVolumeMeter = new MeteringSampleProvider(sampleChannel, _reader.WaveFormat.SampleRate);
-        //        postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
-
-        //        timeBar.Length = _reader.TotalTime;
-        //        timeBar.Start = TimeSpan.Zero;
-        //        timeBar.End = TimeSpan.Zero;
-        //        timeBar.Current = TimeSpan.Zero;
-
-        //        _player.Init(postVolumeMeter);
-
-        //        ShowClip();
-
-        //        _fn = fn;
-        //        _settings.RecentFiles.UpdateMru(fn);
-        //        SetText();
-        //    }
-        //    else
-        //    {
-        //        _logger.Error($"Unsupported file type: {fn}");
-        //        _reader?.Dispose();
-        //        _reader = null;
-        //        ok = false;
-        //    }
-
-        //    chkPlay.Enabled = ok;
-
-        //    if (ok)
-        //    {
-        //        if (_settings.Autoplay)
-        //        {
-        //            UpdateState(AppState.Rewind);
-        //            UpdateState(AppState.Play);
-        //        }
-        //    }
-
-        //    return ok;
-        //}
-
-
-
 
         /// <summary>
         /// Organize the file menu item drop down.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void File_DropDownOpening(object? sender, EventArgs e)
+        void File_DropDownOpening(object? sender, EventArgs e)//TODO
         {
-            ddFile.DropDownItems.Clear();
+            //ddFile.DropDownItems.Clear();
 
-            // Always:
-            ddFile.DropDownItems.Add(new ToolStripMenuItem("Open...", null, Open_Click));
-            ddFile.DropDownItems.Add(new ToolStripSeparator());
+            //// Always:
+            //ddFile.DropDownItems.Add(new ToolStripMenuItem("Open...", null, Open_Click));
+            //ddFile.DropDownItems.Add(new ToolStripSeparator());
 
-            _settings.RecentFiles.ForEach(f =>
-            {
-                ToolStripMenuItem menuItem = new(f, null, new EventHandler(Recent_Click));
-                ddFile.DropDownItems.Add(menuItem);
-            });
+            //UserSettings.TheSettings.RecentFiles.ForEach(f =>
+            //{
+            //    ToolStripMenuItem menuItem = new(f, null, new EventHandler(Recent_Click));
+            //    ddFile.DropDownItems.Add(menuItem);
+            //});
         }
 
         /// <summary>
@@ -471,11 +278,35 @@ namespace Wavicler
                 Title = "Select a file"
             };
 
-            if (openDlg.ShowDialog() == DialogResult.OK && openDlg.FileName != _fn)
+            if (openDlg.ShowDialog() == DialogResult.OK)
             {
                 OpenFile(openDlg.FileName);
-                _fn = openDlg.FileName;
             }
+        }
+        #endregion
+
+        #region Settings
+        /// <summary>
+        /// Edit user settings.
+        /// </summary>
+        void EditSettings()
+        {
+            var changes = UserSettings.TheSettings.Edit("User Settings", 300);
+
+            // Check for meaningful changes.
+            //timeBar.SnapMsec = UserSettings.TheSettings.AudioSettings.SnapMsec;
+        }
+
+        /// <summary>
+        /// Collect and save user settings.
+        /// </summary>
+        void SaveSettings()
+        {
+            UserSettings.TheSettings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
+            UserSettings.TheSettings.Volume = MT.volumeMaster.Value;
+            //Common.Settings.Autoplay = btnAutoplay.Checked;
+            //Common.Settings.Loop = btnLoop.Checked;
+            UserSettings.TheSettings.Save();
         }
         #endregion
 
@@ -491,7 +322,7 @@ namespace Wavicler
             {
                 case Keys.Space:
                     // Toggle.
-                    UpdateState(chkPlay.Checked ? AppState.Stop : AppState.Play);
+                    UpdateState(MT.chkPlay.Checked ? AppState.Stop : AppState.Play);
                     e.Handled = true;
                     break;
             }
@@ -502,18 +333,23 @@ namespace Wavicler
         /// <summary>
         /// All about me.
         /// </summary>
-        void About_Click(object? sender, EventArgs e)
+        void About_Click(object? sender, EventArgs e)//TODO
         {
             MiscUtils.ShowReadme("Wavicler");
         }
 
         /// <summary>
-        /// Utility for header.
+        /// Show log events.
         /// </summary>
-        void SetText()
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void LogManager_LogEvent(object? sender, LogEventArgs e)
         {
-            var s = _fn == "" ? "No file loaded" : _fn;
-            Text = $"Wavicler {MiscUtils.GetVersionString()} - {s}";
+            // Usually come from a different thread.
+            if (IsHandleCreated)
+            {
+                this.InvokeIfRequired(_ => { MT.txtInfo.AppendLine($"{e.Message}"); });
+            }
         }
         #endregion
 
@@ -524,7 +360,7 @@ namespace Wavicler
         void UpdateState(AppState newState)
         {
             // Unhook.
-            chkPlay.CheckedChanged -= ChkPlay_CheckedChanged;
+            MT.chkPlay.CheckedChanged -= ChkPlay_CheckedChanged;
 
             if(newState != _currentState)
             {
@@ -565,29 +401,29 @@ namespace Wavicler
             _currentState = newState;
 
             // Rehook.
-            chkPlay.CheckedChanged += ChkPlay_CheckedChanged;
+            MT.chkPlay.CheckedChanged += ChkPlay_CheckedChanged;
 
             ///////// Local funcs ////////
             void Play()
             {
-                chkPlay.Checked = true;
+                MT.chkPlay.Checked = true;
                 _player.Run(true);
             }
 
             void Stop()
             {
-                chkPlay.Checked = false;
+                MT.chkPlay.Checked = false;
                 _player.Run(false);
             }
 
             void Rewind()
             {
-                if(_reader is not null)
-                {
-                    _reader.Position = 0;
-                }
-                _player.Rewind();
-                timeBar.Current = TimeSpan.Zero;
+                //if(_reader is not null)
+                //{
+                //    _reader.Position = 0;
+                //}
+                //_player.Rewind();
+                //timeBar.Current = TimeSpan.Zero;
             }
         }
 
@@ -598,80 +434,8 @@ namespace Wavicler
         /// <param name="e"></param>
         void ChkPlay_CheckedChanged(object? sender, EventArgs e)
         {
-            UpdateState(chkPlay.Checked ? AppState.Play : AppState.Stop);
+            UpdateState(MT.chkPlay.Checked ? AppState.Play : AppState.Stop);
         }
         #endregion
-
-        #region TODO stuff
-        void Timer1_Tick(object? sender, EventArgs e)
-        {
-            //if (chkRunBars.Checked)
-            //{
-            //    // Update time bar.
-            //    timeBar.IncrementCurrent(timer1.Interval + 3); // not-real time for testing
-            //    if (timeBar.Current >= timeBar.End) // done/reset
-            //    {
-            //        timeBar.Current = timeBar.Start;
-            //    }
-            //}
-        }
-
-        void TimeBar_CurrentTimeChanged(object? sender, EventArgs e)
-        {
-            txtInfo.AppendText($"Current time:{timeBar.Current}");
-        }
-
-        void DummyData()
-        {
-            ///// Wave viewer.
-            // Simple sin.
-            float[] data1 = new float[waveViewer1.ClientSize.Width];
-            for (int i = 0; i < data1.Length; i++)
-            {
-                data1[i] = (float)Math.Sin(Math.PI * i / 180.0);
-            }
-            waveViewer1.Mode = WaveViewer.DrawMode.Raw;
-            waveViewer1.DrawColor = Color.Green;
-            waveViewer1.Init(data1, 1.0f);
-            waveViewer1.Marker1 = 20;
-            waveViewer1.Marker2 = 130;
-
-            // Real data.
-            string[] sdata = File.ReadAllLines(@"..\..\todo\wav.txt");
-            float[] data2 = new float[sdata.Length];
-            for (int i = 0; i < sdata.Length; i++)
-            {
-                data2[i] = float.Parse(sdata[i]);
-            }
-            waveViewer2.Mode = WaveViewer.DrawMode.Envelope;
-            waveViewer2.DrawColor = Color.Blue;
-            waveViewer2.Init(data2, 1.0f);
-            waveViewer2.Marker1 = -1; // hide
-            waveViewer2.Marker2 = data2.Length / 2;
-
-            ///// Time bar.
-            timeBar.SnapMsec = _settings.AudioSettings.SnapMsec;
-            timeBar.Length = new TimeSpan(0, 0, 1, 23, 456);
-            timeBar.Start = new TimeSpan(0, 0, 0, 10, 333);
-            timeBar.End = new TimeSpan(0, 0, 0, 44, 777);
-            timeBar.CurrentTimeChanged += TimeBar_CurrentTimeChanged;
-            timeBar.ProgressColor = Color.CornflowerBlue;
-            timeBar.BackColor = Color.Salmon;
-        }
-        #endregion
-
-        /// <summary>
-        /// Show log events.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void LogManager_LogEvent(object? sender, LogEventArgs e)
-        {
-            // Usually come from a different thread.
-            if (IsHandleCreated)
-            {
-                this.InvokeIfRequired(_ => { txtInfo.AppendLine($"{e.Message}"); });
-            }
-        }
     }
 }

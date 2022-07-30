@@ -10,6 +10,10 @@ namespace Wavicler
 {
     internal class WaveEditSampleProvider : ISampleProvider
     {
+        float[] _dataL = Array.Empty<float>();
+        float[] _dataR = Array.Empty<float>();
+
+
         /// <summary>
         /// Gets the WaveFormat of this Sample Provider.
         /// </summary>
