@@ -18,7 +18,6 @@ namespace Wavicler
             InitializeComponent();
         }
 
-        /////////////////////// designer stuff /////////////////////////
         /// <summary> 
         /// Required designer variable.
         /// </summary>

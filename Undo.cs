@@ -1,9 +1,8 @@
-
 using System;
 using System.Collections.Generic;
 
 
-namespace MyUndo
+namespace Wavicler
 {
     public interface IOperation
     {
@@ -18,9 +17,24 @@ namespace MyUndo
     // - amplitude adj - start/end/shape. general transforms? - alter buffer or just view?
 
 
-    public class Cut : IOperation
+    public class Delete : IOperation
     {
-        public Cut(int start, int len)
+        public Delete(int start, int len)
+        {
+        }
+
+        public void Undo()
+        {
+        }
+
+        public void Redo()
+        {
+        }
+    }
+
+    public class Insert : IOperation
+    {
+        public Insert(int start, int len)
         {
         }
 
@@ -35,7 +49,7 @@ namespace MyUndo
 
 
 
-    public class OperationStack
+    public class UndoStack
     {
         /// <summary>The list of operations being managed.</summary>
         readonly List<IOperation> _ops = new();

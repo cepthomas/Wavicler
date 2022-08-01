@@ -35,10 +35,15 @@ namespace Wavicler
         AppState _currentState = AppState.Stop;
         #endregion
 
-        bool _loop = false;//TODO
-        MainToolbar MT = new();
+        /// <summary>Stream read chunk.</summary>
+        const int READ_BUFF_SIZE = 100000;
 
-        // StereoToMonoSampleProvider to split stereo into 2 mono.
+        bool _loop = false;//TODO
+
+        readonly MainToolbar MT = new();
+
+        UndoStack _stack = new();
+
 
         #region Lifecycle
         public MainForm()
@@ -51,13 +56,10 @@ namespace Wavicler
             // Tell the libs about their settings.
             AudioSettings.LibSettings = UserSettings.TheSettings.AudioSettings;
 
+            // Build it.
             InitializeComponent();
-            // This took way too long to find out:
-            //https://stackoverflow.com/questions/12823400/statusstrip-hosting-a-usercontrol-fails-to-call-usercontrols-onpaint-event
-            toolStrip1.Items.Add(new ToolStripControlHost(MT));
-            //ttt.button1.Click += Button1_Click;
-
             Icon = Properties.Resources.tiger;
+            ToolStrip.Items.Add(new ToolStripControlHost(MT));
 
             // Init logging.
             LogManager.MinLevelFile = UserSettings.TheSettings.FileLogLevel;
@@ -78,16 +80,14 @@ namespace Wavicler
             MT.txtInfo.MatchColors.Add("ERR", Color.LightPink);
             MT.txtInfo.MatchColors.Add("WRN", Color.Plum);
 
-            _player = new(UserSettings.TheSettings.AudioSettings.WavOutDevice, int.Parse(UserSettings.TheSettings.AudioSettings.Latency));
-            _player.PlaybackStopped += Player_PlaybackStopped;
-
             MT.btnRewind.Click += (_, __) => { UpdateState(AppState.Rewind); };
             MT.chkPlay.Click += (_, __) => { UpdateState(MT.chkPlay.Checked ? AppState.Play : AppState.Stop); };
             MT.volumeMaster.ValueChanged += (_, __) => { _player.Volume = (float)MT.volumeMaster.Value; };
 
-            // TODO
-            // mainToolbar.btnSettings.Click += (_, __) => { EditSettings(); };
-            // mainToolbar.ddFile.DropDownOpening += File_DropDownOpening;
+            // Managing files.
+            FileMenuItem.DropDownOpening += File_DropDownOpening;
+            NewMenuItem.Click += (_, __) => { OpenFile(); };
+
 
 
             // Create output.
@@ -97,7 +97,9 @@ namespace Wavicler
             // (ch, smpls per notif)
             //var postVolumeMeter = new MeteringSampleProvider(sampleChannel, _reader.WaveFormat.SampleRate);
 
-            //// TODO
+            // TODO player
+            _player = new(UserSettings.TheSettings.AudioSettings.WavOutDevice, int.Parse(UserSettings.TheSettings.AudioSettings.Latency));
+            _player.PlaybackStopped += Player_PlaybackStopped;
             //var postVolumeMeter = new MeteringSampleProvider(_reader, _reader.WaveFormat.SampleRate / 10);
             //postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
             //_player.Init(postVolumeMeter);
@@ -106,6 +108,7 @@ namespace Wavicler
 
             // >>>>>>>>>>>>>>>>>>>
             OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
+            //OpenFile(@"C:\Dev\repos\TestAudioFiles\ref-stereo.wav");
         }
 
         /// <summary>
@@ -176,58 +179,99 @@ namespace Wavicler
         }
 
 
-        //When an MDI child form has a MainMenu component(with, usually, a menu structure of menu items) and it is
-        //opened within an MDI parent form that has a MainMenu component(with, usually, a menu structure of menu items),
-        //the menu items will merge automatically if you have set the MergeType property(and optionally, the MergeOrder
-        //property). Set the MergeType property of both MainMenu components and all of the menu items of the child form
-        //to MergeItems.Additionally, set the MergeOrder property so that the menu items from both menus appear in the
-        //desired order.Moreover, keep in mind that when you close an MDI parent form, each of the MDI child forms raises
-        //a Closing event before the Closing event for the MDI parent is raised. Canceling an MDI child's Closing event
-        //will not prevent the MDI parent's Closing event from being raised; however, the CancelEventArgs argument for
-        //the MDI parent's Closing event will now be set to true. You can force the MDI parent and all MDI child forms
-        //to close by setting the CancelEventArgs argument to false.
-        void NewFile_Click(object sender, EventArgs e)
-        {
-            WaveForm child = new();
-            child.MdiParent = this;
-            child.Show();
-        }
-
-
         #region File management
+
+
+
         /// <summary>
         /// Common file opener.
         /// </summary>
         /// <param name="fn">The file to open.</param>
         /// <returns>Status.</returns>
-        public bool OpenFile(string fn)
+        public bool OpenFile(string fn = "")
         {
             bool ok = true;
 
             UpdateState(AppState.Stop);
 
-            _logger.Info($"Opening file: {fn}");
-
-            var ext = Path.GetExtension(fn).ToLower();
-            if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
+            if(fn == "")
             {
-                // TODO Create a new child form. Give it file name.
+                _logger.Info($"Creating new child");
+                WaveForm childNew = new(Array.Empty<float>(), fn) { MdiParent = this };
+                childNew.Show();
             }
             else
             {
-                _logger.Error($"Unsupported file type: {fn}");
-                //_reader?.Dispose();
-                //_reader = null;
-                ok = false;
+                var ext = Path.GetExtension(fn).ToLower();
+                if(!File.Exists(fn))
+                {
+                    _logger.Error($"Invalid file: {fn}");
+                    ok = false;
+                }
+                else if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
+                {
+                    _logger.Info($"Opening file: {fn}");
+
+                    var _reader = new AudioFileReader(fn);
+
+                    // Read all data.
+                    _reader.Position = 0; // rewind
+                    long len = _reader.Length / (_reader.WaveFormat.BitsPerSample / 8);
+                    var data = new float[len];
+                    int offset = 0;
+                    int num = -1;
+
+                    while (num != 0)
+                    {
+                        // This throws for flac and m4a files for unknown reason but works ok.
+                        try
+                        {
+                            num = _reader.Read(data, offset, READ_BUFF_SIZE);
+                            offset += num;
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+
+                    if (_reader.WaveFormat.Channels == 2) // stereo interleaved
+                    {
+                        // TODO ask user if they want L/R/both-separate
+                        // StereoToMonoSampleProvider to split stereo into 2 mono?
+
+                        long stlen = len / 2;
+                        var dataL = new float[stlen];
+                        var dataR = new float[stlen];
+
+                        for (long i = 0; i < stlen; i++)
+                        {
+                            dataL[i] = data[i * 2];
+                            dataR[i] = data[i * 2 + 1];
+                        }
+                        WaveForm childL = new(dataL, $"{fn}.left") { MdiParent = this };
+                        childL.Show();
+                        WaveForm childR = new(dataR, $"{fn}.right") { MdiParent = this };
+                        childR.Show();
+                    }
+                    else // mono
+                    {
+                        var buff = new float[data.Length];
+                        Array.Copy(data, buff, data.Length);
+                        WaveForm childM = new(buff, fn) { MdiParent = this };
+                        childM.Show();
+                    }
+                }
+                else
+                {
+                    _logger.Error($"Unsupported file type: {fn}");
+                    ok = false;
+                }
             }
 
-            if (ok)
+            if (ok && UserSettings.TheSettings.Autoplay)
             {
-                if (UserSettings.TheSettings.Autoplay)
-                {
-                    UpdateState(AppState.Rewind);
-                    UpdateState(AppState.Play);
-                }
+                UpdateState(AppState.Rewind);
+                UpdateState(AppState.Play);
             }
 
             MT.chkPlay.Enabled = ok;
@@ -284,6 +328,20 @@ namespace Wavicler
             }
         }
         #endregion
+
+
+
+
+        /// <summary>
+        /// Read the audio data from the file.
+        /// </summary>
+
+
+
+
+
+
+
 
         #region Settings
         /// <summary>
@@ -437,5 +495,11 @@ namespace Wavicler
             UpdateState(MT.chkPlay.Checked ? AppState.Play : AppState.Stop);
         }
         #endregion
+
+        void MainForm_MdiChildActivate(object sender, EventArgs e)
+        {
+            var child = (sender as MainForm).ActiveMdiChild;
+            _logger.Info($"MDI child:{child.Text}");
+        }
     }
 }

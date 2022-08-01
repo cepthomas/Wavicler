@@ -24,6 +24,8 @@ namespace Wavicler
             this.waveViewerEdit = new AudioLib.WaveViewer();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.waveViewerNav = new AudioLib.WaveViewer();
+            this.numTempo = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.numTempo)).BeginInit();
             this.SuspendLayout();
             // 
             // timeBar
@@ -67,7 +69,6 @@ namespace Wavicler
             this.waveViewerEdit.Marker1 = -1;
             this.waveViewerEdit.Marker2 = -1;
             this.waveViewerEdit.MarkerColor = System.Drawing.Color.Black;
-            this.waveViewerEdit.Mode = AudioLib.WaveViewer.DrawMode.Envelope;
             this.waveViewerEdit.Name = "waveViewerEdit";
             this.waveViewerEdit.Size = new System.Drawing.Size(1156, 176);
             this.waveViewerEdit.TabIndex = 26;
@@ -81,17 +82,24 @@ namespace Wavicler
             this.waveViewerNav.Marker1 = -1;
             this.waveViewerNav.Marker2 = -1;
             this.waveViewerNav.MarkerColor = System.Drawing.Color.Black;
-            this.waveViewerNav.Mode = AudioLib.WaveViewer.DrawMode.Envelope;
             this.waveViewerNav.Name = "waveViewerNav";
             this.waveViewerNav.Size = new System.Drawing.Size(1156, 71);
             this.waveViewerNav.TabIndex = 34;
             this.toolTip1.SetToolTip(this.waveViewerNav, "Navigation");
+            // 
+            // numTempo
+            // 
+            this.numTempo.Location = new System.Drawing.Point(615, 32);
+            this.numTempo.Name = "numTempo";
+            this.numTempo.Size = new System.Drawing.Size(150, 27);
+            this.numTempo.TabIndex = 37;
             // 
             // WaveForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1182, 355);
+            this.Controls.Add(this.numTempo);
             this.Controls.Add(this.waveViewerNav);
             this.Controls.Add(this.waveViewerEdit);
             this.Controls.Add(this.timeBar);
@@ -99,6 +107,7 @@ namespace Wavicler
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "WaveForm";
             this.Text = "  ";
+            ((System.ComponentModel.ISupportInitialize)(this.numTempo)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -110,5 +119,6 @@ namespace Wavicler
         private WaveViewer waveViewerNav;
         private WaveViewer waveViewerEdit;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.NumericUpDown numTempo;
     }
 }
