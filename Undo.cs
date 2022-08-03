@@ -12,7 +12,6 @@ namespace Wavicler
     }
 
     // operations: 
-    // ? change view - zoom H/V - just alter view
     // - cut/copy/paste - location - alter buffer or just view?
     // - amplitude adj - start/end/shape. general transforms? - alter buffer or just view?
 

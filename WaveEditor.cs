@@ -18,31 +18,26 @@ using NBagOfUis;
 
 namespace Wavicler
 {
-    public partial class WaveForm : Form
+    public partial class WaveEditor : Form, ISampleProvider
     {
         #region Fields
         /// <summary>My logger.</summary>
-        readonly Logger _logger = LogManager.CreateLogger("WaveForm");
-
-        ///// <summary>The actual player.</summary>
-        //readonly AudioPlayer _player;
-
-        ///// <summary>Input device for audio file.</summary>
-        //AudioFileReader? _reader;
-
-        ///// <summary>Stream read chunk.</summary>
-        //const int READ_BUFF_SIZE = 100000;
+        readonly Logger _logger = LogManager.CreateLogger("WaveEditor");
         #endregion
 
-       // bool _loop = false;//TODO
+        UndoStack _stack = new();
 
         float[] _buff = Array.Empty<float>();
-        
-        //float[] _dataL = Array.Empty<float>();
-        //float[] _dataR = Array.Empty<float>();
 
 
         #region Properties
+        /// <summary>Gets the WaveFormat of this Sample Provider. ISampleProvider implementation.</summary>
+        /// <value>The wave format.</value>
+        public WaveFormat WaveFormat { get; } = WaveFormat.CreateIeeeFloatWaveFormat(44100, 1);
+
+        /// <summary>The rendered data for client playing.</summary>
+        public ISampleProvider RenderedSampleProvider { get; private set; }
+
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
 
@@ -50,8 +45,22 @@ namespace Wavicler
         public bool Dirty { get; set; } = false;
         #endregion
 
-        /// <summary>The edited data for client playing.</summary>
-        public ISampleProvider RenderedSampleProvider { get; private set; }
+
+
+
+        /// <summary>
+        /// Fill the specified buffer with 32 bit floating point samples. ISampleProvider implementation.
+        /// </summary>
+        /// <param name="buffer">The buffer to fill with samples.</param>
+        /// <param name="offset">Offset into buffer</param>
+        /// <param name="count">The number of samples to read</param>
+        /// <returns>the number of samples written to the buffer.</returns>
+        public int Read(float[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+
 
 
         //public void Play();
@@ -60,13 +69,13 @@ namespace Wavicler
 
 
         // TODO implement these.
-        public void Rewind()
+        public void SetPosition()
         {
         }
 
-        public void Save(string newfn = "")
-        {
-        }
+        // public void Save(string newfn = "")
+        // {
+        // }
 
         public void Undo()
         {
@@ -84,7 +93,7 @@ namespace Wavicler
         /// </summary>
         /// <param name="buff">Data to display.</param>
         /// <param name="fn">File to open or default if empty.</param>
-        public WaveForm(float[] buff, string fn)
+        public WaveEditor(float[] buff, string fn)
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 
@@ -111,7 +120,7 @@ namespace Wavicler
             timeBar.Current = TimeSpan.Zero;
 
 
-            timeBar.SnapMsec = UserSettings.TheSettings.AudioSettings.SnapMsec;
+            timeBar.SnapMsec = 10;
             timeBar.CurrentTimeChanged += TimeBar_CurrentTimeChanged;
             timeBar.ProgressColor = UserSettings.TheSettings.ControlColor;
             //timeBar.BackColor = Color.Salmon;
@@ -147,6 +156,11 @@ namespace Wavicler
         void TimeBar_CurrentTimeChanged(object? sender, EventArgs e)
         {
             // txtInfo.AppendText($"Current time:{timeBar.Current}");
+        }
+
+        private void txtBPM_KeyPress(object? sender, KeyPressEventArgs e)
+        {
+            KeyUtils.TestForNumber_KeyPress(sender!, e);
         }
 
 

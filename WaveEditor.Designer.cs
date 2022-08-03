@@ -3,7 +3,7 @@ using AudioLib;
 
 namespace Wavicler
 {
-    partial class WaveForm
+    partial class WaveEditor
     {
         /// <summary>
         /// Required designer variable.
@@ -24,8 +24,8 @@ namespace Wavicler
             this.waveViewerEdit = new AudioLib.WaveViewer();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.waveViewerNav = new AudioLib.WaveViewer();
-            this.numTempo = new System.Windows.Forms.NumericUpDown();
-            ((System.ComponentModel.ISupportInitialize)(this.numTempo)).BeginInit();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtBPM = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // timeBar
@@ -87,28 +87,39 @@ namespace Wavicler
             this.waveViewerNav.TabIndex = 34;
             this.toolTip1.SetToolTip(this.waveViewerNav, "Navigation");
             // 
-            // numTempo
+            // label1
             // 
-            this.numTempo.Location = new System.Drawing.Point(615, 32);
-            this.numTempo.Name = "numTempo";
-            this.numTempo.Size = new System.Drawing.Size(150, 27);
-            this.numTempo.TabIndex = 37;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(559, 27);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(39, 20);
+            this.label1.TabIndex = 37;
+            this.label1.Text = "BPM";
             // 
-            // WaveForm
+            // txtBPM
+            // 
+            this.txtBPM.Location = new System.Drawing.Point(603, 25);
+            this.txtBPM.Name = "txtBPM";
+            this.txtBPM.Size = new System.Drawing.Size(125, 27);
+            this.txtBPM.TabIndex = 38;
+            this.txtBPM.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBPM_KeyPress);
+            // 
+            // WaveEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1182, 355);
-            this.Controls.Add(this.numTempo);
+            this.Controls.Add(this.txtBPM);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.waveViewerNav);
             this.Controls.Add(this.waveViewerEdit);
             this.Controls.Add(this.timeBar);
             this.Controls.Add(this.gain);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Name = "WaveForm";
+            this.Name = "WaveEditor";
             this.Text = "  ";
-            ((System.ComponentModel.ISupportInitialize)(this.numTempo)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -119,6 +130,7 @@ namespace Wavicler
         private WaveViewer waveViewerNav;
         private WaveViewer waveViewerEdit;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.NumericUpDown numTempo;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtBPM;
     }
 }

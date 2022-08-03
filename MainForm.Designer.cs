@@ -18,14 +18,23 @@
             this.Menu = new System.Windows.Forms.MenuStrip();
             this.FileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.WindowMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ToolStrip = new System.Windows.Forms.ToolStrip();
             this.EditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.Edit_DD = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.BpmMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.BpmMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ToolStrip = new System.Windows.Forms.ToolStrip();
+            this.OpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RecentMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SaveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SaveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CloseMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ExitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PasteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ReplaceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RemoveEnvelopeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -47,7 +56,12 @@
             // 
             this.FileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.NewMenuItem,
-            this.WindowMenuItem});
+            this.OpenMenuItem,
+            this.RecentMenuItem,
+            this.SaveMenuItem,
+            this.SaveAsMenuItem,
+            this.CloseMenuItem,
+            this.ExitMenuItem});
             this.FileMenuItem.Name = "FileMenuItem";
             this.FileMenuItem.Size = new System.Drawing.Size(46, 24);
             this.FileMenuItem.Text = "File";
@@ -55,37 +69,21 @@
             // NewMenuItem
             // 
             this.NewMenuItem.Name = "NewMenuItem";
+            this.NewMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.NewMenuItem.Size = new System.Drawing.Size(224, 26);
             this.NewMenuItem.Text = "New";
-            // 
-            // WindowMenuItem
-            // 
-            this.WindowMenuItem.Name = "WindowMenuItem";
-            this.WindowMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.WindowMenuItem.Text = "Window";
-            // 
-            // ToolStrip
-            // 
-            this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ToolStrip.Location = new System.Drawing.Point(0, 28);
-            this.ToolStrip.Name = "ToolStrip";
-            this.ToolStrip.Size = new System.Drawing.Size(1080, 25);
-            this.ToolStrip.TabIndex = 1;
-            this.ToolStrip.Text = "ToolStrip";
             // 
             // EditMenuItem
             // 
             this.EditMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.Edit_DD});
+            this.CutMenuItem,
+            this.CopyMenuItem,
+            this.PasteMenuItem,
+            this.ReplaceMenuItem,
+            this.RemoveEnvelopeMenuItem});
             this.EditMenuItem.Name = "EditMenuItem";
             this.EditMenuItem.Size = new System.Drawing.Size(49, 24);
             this.EditMenuItem.Text = "Edit";
-            // 
-            // Edit_DD
-            // 
-            this.Edit_DD.Name = "Edit_DD";
-            this.Edit_DD.Size = new System.Drawing.Size(224, 26);
-            this.Edit_DD.Text = "edit_dd";
             // 
             // ToolsMenuItem
             // 
@@ -97,23 +95,108 @@
             this.ToolsMenuItem.Size = new System.Drawing.Size(58, 24);
             this.ToolsMenuItem.Text = "Tools";
             // 
+            // BpmMenuItem
+            // 
+            this.BpmMenuItem.Name = "BpmMenuItem";
+            this.BpmMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.BpmMenuItem.Text = "BPM";
+            // 
             // AboutMenuItem
             // 
             this.AboutMenuItem.Name = "AboutMenuItem";
-            this.AboutMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.AboutMenuItem.Size = new System.Drawing.Size(224, 26);
             this.AboutMenuItem.Text = "About";
             // 
             // SettingsMenuItem
             // 
             this.SettingsMenuItem.Name = "SettingsMenuItem";
-            this.SettingsMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.SettingsMenuItem.Size = new System.Drawing.Size(224, 26);
             this.SettingsMenuItem.Text = "Settings";
             // 
-            // BpmMenuItem
+            // ToolStrip
             // 
-            this.BpmMenuItem.Name = "BpmMenuItem";
-            this.BpmMenuItem.Size = new System.Drawing.Size(145, 26);
-            this.BpmMenuItem.Text = "BPM";
+            this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ToolStrip.Location = new System.Drawing.Point(0, 28);
+            this.ToolStrip.Name = "ToolStrip";
+            this.ToolStrip.Size = new System.Drawing.Size(1080, 25);
+            this.ToolStrip.TabIndex = 1;
+            this.ToolStrip.Text = "ToolStrip";
+            // 
+            // OpenMenuItem
+            // 
+            this.OpenMenuItem.Name = "OpenMenuItem";
+            this.OpenMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.OpenMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.OpenMenuItem.Text = "Open";
+            // 
+            // RecentMenuItem
+            // 
+            this.RecentMenuItem.Name = "RecentMenuItem";
+            this.RecentMenuItem.Size = new System.Drawing.Size(233, 26);
+            this.RecentMenuItem.Text = "Recent";
+            // 
+            // SaveMenuItem
+            // 
+            this.SaveMenuItem.Name = "SaveMenuItem";
+            this.SaveMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.SaveMenuItem.Size = new System.Drawing.Size(233, 26);
+            this.SaveMenuItem.Text = "Save";
+            // 
+            // SaveAsMenuItem
+            // 
+            this.SaveAsMenuItem.Name = "SaveAsMenuItem";
+            this.SaveAsMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.SaveAsMenuItem.Size = new System.Drawing.Size(233, 26);
+            this.SaveAsMenuItem.Text = "Save As";
+            // 
+            // CloseMenuItem
+            // 
+            this.CloseMenuItem.Name = "CloseMenuItem";
+            this.CloseMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
+            this.CloseMenuItem.Size = new System.Drawing.Size(233, 26);
+            this.CloseMenuItem.Text = "Close";
+            // 
+            // ExitMenuItem
+            // 
+            this.ExitMenuItem.Name = "ExitMenuItem";
+            this.ExitMenuItem.Size = new System.Drawing.Size(233, 26);
+            this.ExitMenuItem.Text = "Exit";
+            // 
+            // CutMenuItem
+            // 
+            this.CutMenuItem.Name = "CutMenuItem";
+            this.CutMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
+            this.CutMenuItem.Size = new System.Drawing.Size(236, 26);
+            this.CutMenuItem.Text = "Cut";
+            // 
+            // CopyMenuItem
+            // 
+            this.CopyMenuItem.Name = "CopyMenuItem";
+            this.CopyMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.CopyMenuItem.Size = new System.Drawing.Size(236, 26);
+            this.CopyMenuItem.Text = "Copy";
+            // 
+            // PasteMenuItem
+            // 
+            this.PasteMenuItem.Name = "PasteMenuItem";
+            this.PasteMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
+            this.PasteMenuItem.Size = new System.Drawing.Size(236, 26);
+            this.PasteMenuItem.Text = "Paste";
+            // 
+            // ReplaceMenuItem
+            // 
+            this.ReplaceMenuItem.Name = "ReplaceMenuItem";
+            this.ReplaceMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.V)));
+            this.ReplaceMenuItem.Size = new System.Drawing.Size(236, 26);
+            this.ReplaceMenuItem.Text = "Replace";
+            // 
+            // RemoveEnvelopeMenuItem
+            // 
+            this.RemoveEnvelopeMenuItem.Name = "RemoveEnvelopeMenuItem";
+            this.RemoveEnvelopeMenuItem.Size = new System.Drawing.Size(236, 26);
+            this.RemoveEnvelopeMenuItem.Text = "Remove Envelope";
             // 
             // MainForm
             // 
@@ -140,12 +223,21 @@
         private System.Windows.Forms.MenuStrip Menu;
         private System.Windows.Forms.ToolStripMenuItem FileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem NewMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem WindowMenuItem;
         private System.Windows.Forms.ToolStripMenuItem EditMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem Edit_DD;
         private System.Windows.Forms.ToolStripMenuItem ToolsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem BpmMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RecentMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SaveMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SaveAsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CloseMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ExitMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CutMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CopyMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem PasteMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ReplaceMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RemoveEnvelopeMenuItem;
     }
 }

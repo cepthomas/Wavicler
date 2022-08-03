@@ -14,6 +14,7 @@ using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using NAudio.Wave.SampleProviders;
+using System.Diagnostics;
 
 namespace Wavicler
 {
@@ -33,17 +34,19 @@ namespace Wavicler
 
         /// <summary>Where we be.</summary>
         AppState _currentState = AppState.Stop;
-        #endregion
 
         /// <summary>Stream read chunk.</summary>
         const int READ_BUFF_SIZE = 100000;
 
-        bool _loop = false;//TODO
+        /// <summary>TODO loop?</summary>
+        bool _loop = false;
 
+        /// <summary>TODO kludgy?</summary>
         readonly MainToolbar MT = new();
 
-        UndoStack _stack = new();
-
+        /// <summary>Dynamically connect input providers to the player.</summary>
+        SwappableSampleProvider _swapper = new(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
+        #endregion
 
         #region Lifecycle
         public MainForm()
@@ -84,25 +87,55 @@ namespace Wavicler
             MT.chkPlay.Click += (_, __) => { UpdateState(MT.chkPlay.Checked ? AppState.Play : AppState.Stop); };
             MT.volumeMaster.ValueChanged += (_, __) => { _player.Volume = (float)MT.volumeMaster.Value; };
 
-            // Managing files.
-            FileMenuItem.DropDownOpening += File_DropDownOpening;
+            // Managing files. FileMenuItem
+            FileMenuItem.DropDownOpening += Recent_DropDownOpening;
             NewMenuItem.Click += (_, __) => { OpenFile(); };
+            OpenMenuItem.Click += (_, __) => { Open_Click(); };
+            // - RecentMenuItem
+            // - SaveMenuItem
+            // - SaveAsMenuItem
+            // - CloseMenuItem
+            // - ExitMenuItem
 
+            // Editing. EditMenuItem
+            // - CutMenuItem
+            // - CopyMenuItem
+            // - PasteMenuItem
+            // - ReplaceMenuItem
+            // - RemoveEnvelopeMenuItem
+
+            // Tools. ToolsMenuItem
+            // - BpmMenuItem
+            // - AboutMenuItem
+            // - SettingsMenuItem
+
+            //this.ActivateMdiChild(form)
+            //            var child = ActiveMdiChild;
 
 
             // Create output.
-            // (IWaveProvider waveProvider, bool forceStereo)
-            //var sampleChannel = new SampleChannel(_reader, false);
-            //sampleChannel.PreVolumeMeter += SampleChannel_PreVolumeMeter;
-            // (ch, smpls per notif)
-            //var postVolumeMeter = new MeteringSampleProvider(sampleChannel, _reader.WaveFormat.SampleRate);
-
-            // TODO player
             _player = new(UserSettings.TheSettings.AudioSettings.WavOutDevice, int.Parse(UserSettings.TheSettings.AudioSettings.Latency));
-            _player.PlaybackStopped += Player_PlaybackStopped;
-            //var postVolumeMeter = new MeteringSampleProvider(_reader, _reader.WaveFormat.SampleRate / 10);
-            //postVolumeMeter.StreamVolume += PostVolumeMeter_StreamVolume;
-            //_player.Init(postVolumeMeter);
+            // Usually end of file but could be error.
+            _player.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
+            {
+                if (e.Exception is not null)
+                {
+                    _logger.Exception(e.Exception, "Other NAudio error");
+                    UpdateState(AppState.Dead);
+                }
+                else
+                {
+                    UpdateState(AppState.Complete);
+                }
+            };
+
+            // Hook up audio processing chain.
+            var postVolumeMeter = new MeteringSampleProvider(_swapper, _swapper.WaveFormat.SampleRate / 10);
+            postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) =>
+            {
+               // TODO timeBar.Current = _reader.CurrentTime;
+            };
+            _player.Init(postVolumeMeter);
 
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
 
@@ -160,29 +193,9 @@ namespace Wavicler
 
 
 
-        /// <summary>
-        /// Usually end of file but could be error.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void Player_PlaybackStopped(object? sender, StoppedEventArgs e)
-        {
-            if (e.Exception is not null)
-            {
-                _logger.Exception(e.Exception, "Other NAudio error");
-                UpdateState(AppState.Dead);
-            }
-            else
-            {
-                UpdateState(AppState.Complete);
-            }
-        }
 
 
         #region File management
-
-
-
         /// <summary>
         /// Common file opener.
         /// </summary>
@@ -197,7 +210,7 @@ namespace Wavicler
             if(fn == "")
             {
                 _logger.Info($"Creating new child");
-                WaveForm childNew = new(Array.Empty<float>(), fn) { MdiParent = this };
+                WaveEditor childNew = new(Array.Empty<float>(), fn) { MdiParent = this };
                 childNew.Show();
             }
             else
@@ -212,11 +225,37 @@ namespace Wavicler
                 {
                     _logger.Info($"Opening file: {fn}");
 
-                    var _reader = new AudioFileReader(fn);
-
                     // Read all data.
-                    _reader.Position = 0; // rewind
-                    long len = _reader.Length / (_reader.WaveFormat.BitsPerSample / 8);
+                    var reader = new AudioFileReader(fn);
+
+                    // public float Volume
+                    // public override long Length => length;
+                    // public override long Position
+                    // public string FileName { get; }
+                    // public override WaveFormat WaveFormat => sampleChannel.WaveFormat;
+                    // >>>>
+                    //public WaveFormatEncoding Encoding => waveFormatTag;
+                    //public int Channels => channels;
+                    //public int SampleRate => sampleRate;
+                    //public int AverageBytesPerSecond => averageBytesPerSecond;
+                    //public virtual int BlockAlign => blockAlign;
+                    //public int BitsPerSample => bitsPerSample;
+                    //public int ExtraSize => extraSize;
+
+
+                    //sampleRate: 44100 smplPerSec:: 22.67573696145125 usec
+                    //tempo: 100 beatsPerMin == 100 / 60 beatsPerSec == 60 / 100 secPerBeat
+                    //smpl per beat = smplPerSec * secPerBeat
+                    // Debug.WriteLine($"tempo,secPerBeat,samplesPerBeat");
+                    // for (float tempo = 60.0f; tempo < 200.0f; tempo += 2.5f)
+                    // {
+                    //     float secPerBeat = 60.0f / tempo;
+                    //     float samplesPerBeat = secPerBeat * reader.WaveFormat.SampleRate;
+                    //     Debug.WriteLine($"{tempo},{secPerBeat},{samplesPerBeat}");
+                    // }
+
+
+                    long len = reader.Length / (reader.WaveFormat.BitsPerSample / 8);
                     var data = new float[len];
                     int offset = 0;
                     int num = -1;
@@ -226,7 +265,7 @@ namespace Wavicler
                         // This throws for flac and m4a files for unknown reason but works ok.
                         try
                         {
-                            num = _reader.Read(data, offset, READ_BUFF_SIZE);
+                            num = reader.Read(data, offset, READ_BUFF_SIZE);
                             offset += num;
                         }
                         catch (Exception)
@@ -234,7 +273,7 @@ namespace Wavicler
                         }
                     }
 
-                    if (_reader.WaveFormat.Channels == 2) // stereo interleaved
+                    if (reader.WaveFormat.Channels == 2) // stereo interleaved
                     {
                         // TODO ask user if they want L/R/both-separate
                         // StereoToMonoSampleProvider to split stereo into 2 mono?
@@ -248,16 +287,16 @@ namespace Wavicler
                             dataL[i] = data[i * 2];
                             dataR[i] = data[i * 2 + 1];
                         }
-                        WaveForm childL = new(dataL, $"{fn}.left") { MdiParent = this };
+                        WaveEditor childL = new(dataL, $"{fn}.left") { MdiParent = this };
                         childL.Show();
-                        WaveForm childR = new(dataR, $"{fn}.right") { MdiParent = this };
+                        WaveEditor childR = new(dataR, $"{fn}.right") { MdiParent = this };
                         childR.Show();
                     }
                     else // mono
                     {
                         var buff = new float[data.Length];
                         Array.Copy(data, buff, data.Length);
-                        WaveForm childM = new(buff, fn) { MdiParent = this };
+                        WaveEditor childM = new(buff, fn) { MdiParent = this };
                         childM.Show();
                     }
                 }
@@ -283,37 +322,27 @@ namespace Wavicler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void File_DropDownOpening(object? sender, EventArgs e)//TODO
+        void Recent_DropDownOpening(object? sender, EventArgs e)//TODO
         {
-            //ddFile.DropDownItems.Clear();
+            RecentMenuItem.DropDownItems.Clear();
 
-            //// Always:
-            //ddFile.DropDownItems.Add(new ToolStripMenuItem("Open...", null, Open_Click));
-            //ddFile.DropDownItems.Add(new ToolStripSeparator());
-
-            //UserSettings.TheSettings.RecentFiles.ForEach(f =>
-            //{
-            //    ToolStripMenuItem menuItem = new(f, null, new EventHandler(Recent_Click));
-            //    ddFile.DropDownItems.Add(menuItem);
-            //});
-        }
-
-        /// <summary>
-        /// The user has asked to open a recent file.
-        /// </summary>
-        void Recent_Click(object? sender, EventArgs e)
-        {
-            if (sender is not null)
+            UserSettings.TheSettings.RecentFiles.ForEach(f =>
             {
-                string fn = sender.ToString()!;
-                OpenFile(fn);
-            }
+                ToolStripMenuItem menuItem = new(f);
+                menuItem.Click += (object? sender, EventArgs e) =>
+                {
+                    string fn = sender!.ToString()!;
+                    OpenFile(fn);
+                };
+
+                RecentMenuItem.DropDownItems.Add(menuItem);
+            });
         }
 
         /// <summary>
         /// Allows the user to select an audio clip or midi from file system.
         /// </summary>
-        void Open_Click(object? sender, EventArgs e)
+        void Open_Click()
         {
             var fileTypes = $"Audio Files|{AudioLibDefs.AUDIO_FILE_TYPES}";
             using OpenFileDialog openDlg = new()
@@ -328,16 +357,6 @@ namespace Wavicler
             }
         }
         #endregion
-
-
-
-
-        /// <summary>
-        /// Read the audio data from the file.
-        /// </summary>
-
-
-
 
 
 
