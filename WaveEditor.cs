@@ -16,6 +16,12 @@ using AudioLib; // TODO restore dll ref.
 using NBagOfUis;
 
 
+//units are time or bars/beats.
+
+//9,223,372,036,854,775,807 = max int
+//2,646,000 vals per minute @ 44100
+
+
 namespace Wavicler
 {
     public partial class WaveEditor : Form, ISampleProvider
@@ -49,7 +55,7 @@ namespace Wavicler
 
 
         /// <summary>
-        /// Fill the specified buffer with 32 bit floating point samples. ISampleProvider implementation.
+        /// Fill the buffer with 32 bit floating point samples. ISampleProvider implementation.
         /// </summary>
         /// <param name="buffer">The buffer to fill with samples.</param>
         /// <param name="offset">Offset into buffer</param>
@@ -60,22 +66,38 @@ namespace Wavicler
             throw new NotImplementedException();
         }
 
-
-
-
-        //public void Play();
-
-        //public void Stop();
-
-
         // TODO implement these.
         public void SetPosition()
         {
         }
 
-        // public void Save(string newfn = "")
-        // {
-        // }
+        public float[] Cut()
+        {
+            var ret = Array.Empty<float>();
+
+
+
+            return ret;
+        }
+
+        public float[] Copy()
+        {
+            var ret = Array.Empty<float>();
+
+
+
+            return ret;
+        }
+
+        public void Paste(float[] data)
+        {
+
+        }
+
+        public void Replace(float[] data)
+        {
+
+        }
 
         public void Undo()
         {
@@ -111,8 +133,8 @@ namespace Wavicler
 
             //ReadData();
 
-            waveViewerNav.Init(_buff, 1.0f);
-            waveViewerEdit.Init(_buff, 1.0f);
+            waveViewerNav.Init(_buff);
+            waveViewerEdit.Init(_buff);
 
             //TODO? timeBar.Length = _reader.TotalTime;
             timeBar.Start = TimeSpan.Zero;
@@ -158,57 +180,352 @@ namespace Wavicler
             // txtInfo.AppendText($"Current time:{timeBar.Current}");
         }
 
-        private void txtBPM_KeyPress(object? sender, KeyPressEventArgs e)
+        void txtBPM_KeyPress(object? sender, KeyPressEventArgs e)
         {
             KeyUtils.TestForNumber_KeyPress(sender!, e);
         }
 
 
 
-        //#region Audio play event handlers
+        #region Private functions
+        /// <summary>
+        /// Simple utility.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="fn"></param>
+        void Dump(float[] data, string fn)
+        {
+            if (data is not null)
+            {
+                List<string> ss = new();
+                for (int i = 0; i < data.Length; i++)
+                {
+                    ss.Add($"{i + 1}, {data[i]}");
+                }
+                File.WriteAllLines(fn, ss);
+            }
+        }
+        #endregion
+    }
+
+
+
+
+    public partial class WaveViewer_TODO_old : UserControl
+    {
+        #region Fields
+        /// <summary>The full buffer from client.</summary>
+        float[] _vals = Array.Empty<float>();
+
+        /// <summary>For drawing.</summary>
+        readonly Pen _pen = new(Color.Black, 1);
+
+        /// <summary>For drawing.</summary>
+        readonly Pen _penMarker = new(Color.Black, 2);
+
+        /// <summary>For drawing text.</summary>
+        readonly Font _textFont = new("Cascadia", 12, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+        /// <summary>For drawing text.</summary>
+        readonly StringFormat _format = new() { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Center };
+        #endregion
+
+        #region Properties
+        /// <summary>For styling.</summary>
+        public Color DrawColor { get { return _pen.Color; } set { _pen.Color = value; } }
+
+        // /// <summary>For styling.</summary>
+        // public Color MarkerColor { get { return _penMarker.Color; } set { _penMarker.Color = value; } }
+
+        // /// <summary>Snap to this increment value.</summary>
+        // public float SnapSamples { get; set; } = 0;
+
+        /// <summary>Marker index.</summary>
+        public int Marker
+        {
+            get { return _marker; }
+            set { _marker = MathUtils.Constrain(value, 0, _vals.Length); Invalidate(); }
+        }
+        int _marker = -1;
+
+        // /// <summary>Selection start index.</summary>
+        // public int SelStart
+        // {
+        //     get { return _selStart; }
+        //     set { _selStart = MathUtils.Constrain(value, 0, _rawVals.Length); Invalidate(); }
+        // }
+        // int _selStart = -1;
+
+        // /// <summary>Selection length.</summary>
+        // public int SelLength
+        // {
+        //     get { return _selLen; }
+        //     set { _selLen = MathUtils.Constrain(value, 0, _rawVals.Length - _selStart); Invalidate(); }
+        // }
+        // int _selLen = 0;
+
+        // /// <summary>Visible start index.</summary>
+        // public int VisStart
+        // {
+        //     get { return _visStart; }
+        //     set { _visStart = MathUtils.Constrain(value, 0, _rawVals.Length); Invalidate(); }
+        // }
+        // int _visStart = -1;
+
+        // /// <summary>Selection length.</summary>
+        // public int VisLength
+        // {
+        //     get { return _visLen; }
+        //     set { _visLen = MathUtils.Constrain(value, 0, _rawVals.Length); Invalidate(); }
+        // }
+        // int _visLen = 0;
+
+
+        #endregion
+
+        #region Lifecycle
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public WaveViewer_TODO_old()
+        {
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+           if (disposing)
+           {
+                _pen.Dispose();
+                _textFont.Dispose();
+                _format.Dispose();
+           }
+           base.Dispose(disposing);
+        }
+        #endregion
+
+        #region Public functions
+        /// <summary>
+        /// Populate with data in +/-1.0f units.
+        /// </summary>
+        /// <param name="vals">Values to display</param>
+        public void Init(float[] vals)
+        {
+            _vals = vals;
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Hard reset.
+        /// </summary>
+        public void Reset()
+        {
+            _vals = Array.Empty<float>();
+            Invalidate();
+        }
+        #endregion
+
+        #region Drawing
+        /// <summary>
+        /// Paints the waveform.
+        /// </summary>
+        protected override void OnPaint(PaintEventArgs pe)
+        {
+            // Setup.
+            pe.Graphics.Clear(BackColor);
+
+            if (_vals is null || _vals.Length == 0)
+            {
+                pe.Graphics.DrawString("No data", _textFont, Brushes.Gray, ClientRectangle, _format);
+            }
+            else
+            {
+                // https://stackoverflow.com/a/1215472
+                int border = 5;
+                float fitWidth = Width - (2 * border);
+                float fitHeight = Height - (2 * border);
+                float numVals = _vals.Length;
+
+
+                //float zoom = 0.01f;
+                //size *= zoom;
+
+                for (int index = 0; index < fitWidth; index++)
+                {
+                    // determine start and end points within WAV
+                    float start = index * (numVals / fitWidth);
+                    float end = (index + 1) * (numVals / fitWidth);
+                    float min = float.MaxValue;
+                    float max = float.MinValue;
+                    for (int i = (int)start; i < end; i++)
+                    {
+                        float val = _vals[i];
+                        min = val < min ? val : min;
+                        max = val > max ? val : max;
+                    }
+                    float yMax = border + fitHeight - ((max + 1) * 0.5f * fitHeight);
+                    float yMin = border + fitHeight - ((min + 1) * 0.5f * fitHeight);
+                    pe.Graphics.DrawLine(_pen, index + border, yMax, index + border, yMin);
+                }
+
+                // Draw  marker.
+                if (_marker > 0)
+                {
+                    int mpos = (int)(_marker * (fitWidth / numVals));
+                    //int x = _smplPerPixel > 0 ? _selStart / _smplPerPixel : _selStart;
+                    pe.Graphics.DrawLine(_penMarker, mpos, 0, mpos, Height);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update drawing area.
+        /// </summary>
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            Invalidate();
+        }
+        #endregion
+
+
+
+
         ///// <summary>
-        ///// Usually end of file but could be error.
+        ///// Handle mouse position changes.
         ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //void Player_PlaybackStopped(object? sender, StoppedEventArgs e)
+        //protected override void OnMouseMove(MouseEventArgs e)
         //{
-        //    if (e.Exception is not null)
+        //    if (e.Button == MouseButtons.Left)
         //    {
-        //        _logger.Exception(e.Exception, "Other NAudio error");
-        //        //UpdateState(AppState.Dead);
+        //        _current = GetTimeFromMouse(e.X);
+        //        CurrentTimeChanged?.Invoke(this, new EventArgs());
         //    }
         //    else
         //    {
-        //        //UpdateState(AppState.Complete);
+        //        if (e.X != _lastXPos)
+        //        {
+        //            TimeSpan ts = GetTimeFromMouse(e.X);
+        //            _toolTip.SetToolTip(this, ts.ToString(TS_FORMAT));
+        //            _lastXPos = e.X;
+        //        }
         //    }
+
+        //    Invalidate();
+        //    base.OnMouseMove(e);
         //}
 
         ///// <summary>
-        ///// Hook for processing.
+        ///// Handle dragging.
         ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //void SampleChannel_PreVolumeMeter(object? sender, StreamVolumeEventArgs e)
+        //protected override void OnMouseDown(MouseEventArgs e)
         //{
-        //}
-
-        ///// <summary>
-        ///// Hook for processing.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //void PostVolumeMeter_StreamVolume(object? sender, StreamVolumeEventArgs e)
-        //{
-        //    if (_reader is not null)
+        //    if (ModifierKeys.HasFlag(Keys.Control))
         //    {
-        //        timeBar.Current = _reader.CurrentTime;
+        //        _start = GetTimeFromMouse(e.X);
         //    }
+        //    else if (ModifierKeys.HasFlag(Keys.Alt))
+        //    {
+        //        _end = GetTimeFromMouse(e.X);
+        //    }
+        //    else
+        //    {
+        //        _current = GetTimeFromMouse(e.X);
+        //    }
+
+        //    CurrentTimeChanged?.Invoke(this, new EventArgs());
+        //    Invalidate();
+        //    base.OnMouseDown(e);
         //}
-        //#endregion
+
+
+        ///// <summary>
+        ///// Convert x pos to TimeSpan.
+        ///// </summary>
+        ///// <param name="x"></param>
+        //TimeSpan GetTimeFromMouse(int x)
+        //{
+        //    int msec = 0;
+
+        //    if (_current.TotalMilliseconds < _length.TotalMilliseconds)
+        //    {
+        //        msec = x * (int)_length.TotalMilliseconds / Width;
+        //        msec = MathUtils.Constrain(msec, 0, (int)_length.TotalMilliseconds);
+        //        msec = DoSnap(msec);
+        //    }
+        //    return new TimeSpan(0, 0, 0, 0, msec);
+        //}
+
+        ///// <summary>
+        ///// Snap to user preference.
+        ///// </summary>
+        ///// <param name="msec"></param>
+        ///// <returns></returns>
+        //int DoSnap(int msec)
+        //{
+        //    int smsec = 0;
+        //    if (SnapMsec > 0)
+        //    {
+        //        smsec = (msec / SnapMsec) * SnapMsec;
+        //        if (SnapMsec > (msec % SnapMsec) / 2)
+        //        {
+        //            smsec += SnapMsec;
+        //        }
+        //    }
+
+        //    return smsec;
+        //}
+
+        ///// <summary>
+        ///// Utility helper function.
+        ///// </summary>
+        ///// <param name="val"></param>
+        ///// <param name="lower"></param>
+        ///// <param name="upper"></param>
+        ///// <returns></returns>
+        //TimeSpan Constrain(TimeSpan val, TimeSpan lower, TimeSpan upper)
+        //{
+        //    return TimeSpan.FromMilliseconds(MathUtils.Constrain(val.TotalMilliseconds, lower.TotalMilliseconds, upper.TotalMilliseconds));
+        //}
+
+        ///// <summary>
+        ///// Map from time to UI pixels.
+        ///// </summary>
+        ///// <param name="val"></param>
+        ///// <returns></returns>
+        //public int Scale(TimeSpan val)
+        //{
+        //    return (int)(val.TotalMilliseconds * Width / _length.TotalMilliseconds);
+        //}
+
+
+
+
+
+
 
         #region Private functions
-
+        /// <summary>
+        /// Simple utility.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="fn"></param>
+        void Dump(float[] data, string fn)
+        {
+            if (data is not null)
+            {
+                List<string> ss = new();
+                for (int i = 0; i < data.Length; i++)
+                {
+                    ss.Add($"{i + 1}, {data[i]}");
+                }
+                File.WriteAllLines(fn, ss);
+            }
+        }
         #endregion
     }
 }

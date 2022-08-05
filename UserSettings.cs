@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Windows.Forms;
 using System.Drawing;
-using System.Drawing.Design;
-using System.ComponentModel.Design;
-using System.Windows.Forms.Design;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using NAudio.Wave;
-using NAudio.Midi;
 using NBagOfTricks;
 using NBagOfUis;
 using NBagOfTricks.Slog;
@@ -27,17 +19,6 @@ namespace Wavicler
         public static UserSettings TheSettings { get; set; } = new();
 
         #region Persisted Editable Properties
-        //[DisplayName("Root Directories")]
-        //[Description("Where to look in order as they appear.")]
-        //[Browsable(true)]
-        //[Editor(typeof(StringListEditor), typeof(UITypeEditor))] // Ideally a multi folder picker.
-        //public List<string> RootDirs { get; set; } = new();
-
-        [DisplayName("Dump To Clipboard")]
-        [Description("Otherwise to file.")]
-        [Browsable(true)]
-        public bool DumpToClip { get; set; } = false;
-
         [DisplayName("Control Color")]
         [Description("Pick what you like.")]
         [Browsable(true)]
@@ -71,7 +52,7 @@ namespace Wavicler
         public bool Loop { get; set; } = false;
 
         [Browsable(false)]
-        public double Volume { get; set; } = 0.5;
+        public double Volume { get; set; } = AudioLibDefs.VOLUME_MAX / 2;
         #endregion
 
         #region Non-persisted Properties

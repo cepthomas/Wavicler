@@ -53,6 +53,8 @@ namespace Wavicler
             // chkPlay
             // 
             this.chkPlay.Appearance = System.Windows.Forms.Appearance.Button;
+            this.chkPlay.BackgroundImage = global::Wavicler.Properties.Resources.glyphicons_174_play;
+            this.chkPlay.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.chkPlay.Location = new System.Drawing.Point(3, 0);
             this.chkPlay.Name = "chkPlay";
             this.chkPlay.Size = new System.Drawing.Size(47, 46);
@@ -62,12 +64,15 @@ namespace Wavicler
             // 
             // btnRewind
             // 
+            this.btnRewind.BackColor = System.Drawing.Color.MistyRose;
+            this.btnRewind.BackgroundImage = global::Wavicler.Properties.Resources.glyphicons_173_rewind;
+            this.btnRewind.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnRewind.Location = new System.Drawing.Point(68, 0);
             this.btnRewind.Name = "btnRewind";
             this.btnRewind.Size = new System.Drawing.Size(54, 46);
             this.btnRewind.TabIndex = 36;
             this.btnRewind.Text = "<<";
-            this.btnRewind.UseVisualStyleBackColor = true;
+            this.btnRewind.UseVisualStyleBackColor = false;
             // 
             // txtInfo
             // 

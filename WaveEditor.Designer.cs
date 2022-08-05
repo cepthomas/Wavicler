@@ -66,9 +66,7 @@ namespace Wavicler
             this.waveViewerEdit.DrawColor = System.Drawing.Color.Orange;
             this.waveViewerEdit.Location = new System.Drawing.Point(12, 165);
             this.waveViewerEdit.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.waveViewerEdit.Marker1 = -1;
-            this.waveViewerEdit.Marker2 = -1;
-            this.waveViewerEdit.MarkerColor = System.Drawing.Color.Black;
+            this.waveViewerEdit.Marker = -1;
             this.waveViewerEdit.Name = "waveViewerEdit";
             this.waveViewerEdit.Size = new System.Drawing.Size(1156, 176);
             this.waveViewerEdit.TabIndex = 26;
@@ -79,9 +77,7 @@ namespace Wavicler
             this.waveViewerNav.DrawColor = System.Drawing.Color.Orange;
             this.waveViewerNav.Location = new System.Drawing.Point(12, 86);
             this.waveViewerNav.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.waveViewerNav.Marker1 = -1;
-            this.waveViewerNav.Marker2 = -1;
-            this.waveViewerNav.MarkerColor = System.Drawing.Color.Black;
+            this.waveViewerNav.Marker = -1;
             this.waveViewerNav.Name = "waveViewerNav";
             this.waveViewerNav.Size = new System.Drawing.Size(1156, 71);
             this.waveViewerNav.TabIndex = 34;
