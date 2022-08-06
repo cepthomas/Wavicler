@@ -34,6 +34,31 @@ using System.Diagnostics;
 // to close by setting the CancelEventArgs argument to false.
 
 
+// public int Channels => channels;
+// public int SampleRate => sampleRate;
+// public int AverageBytesPerSecond => averageBytesPerSecond;
+// public virtual int BlockAlign => blockAlign;
+// /// Returns the number of bits per sample (usually 16 or 32, sometimes 24 or 8)
+// public int BitsPerSample => bitsPerSample;
+// public int ExtraSize => extraSize;
+// public WaveFormatEncoding  waveFormatTag
+
+//public override PeakInfo GetNextPeak()
+//{
+//    var samplesRead = Provider.Read(ReadBuffer,0,ReadBuffer.Length);
+//    var max = 0.0f;
+//    var min = 0.0f;
+//    for (int x = 0; x < samplesRead; x += sampleInterval)
+//    {
+//        max = Math.Max(max, ReadBuffer[x]);
+//        min = Math.Min(min, ReadBuffer[x]);
+//    }
+//
+//    return new PeakInfo(min,max);
+//}
+
+
+
 namespace Wavicler
 {
     public partial class MainForm : Form
@@ -454,7 +479,7 @@ namespace Wavicler
                 {
                     _logger.Info($"Opening file: {fn}");
 
-                    // Read all data.
+                    // Read all data. TODO check reader.WaveFormat that it's +-1.0f
                     var reader = new AudioFileReader(fn);
 
 
@@ -483,12 +508,11 @@ namespace Wavicler
                         int toread = READ_BUFF_SIZE;
                         if (len - offset < toread)
                         {
-                            toread = len - offset;
+                            toread = (int)len - offset;
                             done = true; // last bunch
                         }
-                        offset += reader.Read(data3, offset, toread);
+                        offset += reader.Read(data, offset, toread);
                     }
-
 
                     if (reader.WaveFormat.Channels == 2) // stereo interleaved
                     {
@@ -511,9 +535,9 @@ namespace Wavicler
                     }
                     else // mono
                     {
-                        var buff = new float[data.Length];
-                        Array.Copy(data, buff, data.Length);
-                        WaveEditor childM = new(buff, fn) { MdiParent = this };
+                        var vals = new float[data.Length];
+                        Array.Copy(data, vals, data.Length);
+                        WaveEditor childM = new(vals, fn) { MdiParent = this };
                         childM.Show();
                     }
                     ok = true;
