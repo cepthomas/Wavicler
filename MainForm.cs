@@ -17,48 +17,6 @@ using NAudio.Wave.SampleProviders;
 using System.Diagnostics;
 
 
-// While .NET cannot compete with unmanaged languages for very low latency audio work, it still performs better than many
-// people would expect. On a fairly modest PC, you can quite easily mix multiple WAV files together, including pass them
-// through various effects and codecs, play back glitch free with a latency of around 50ms.
-
-
-// When an MDI child form has a MainMenu component(with, usually, a menu structure of menu items) and it is
-// opened within an MDI parent form that has a MainMenu component(with, usually, a menu structure of menu items),
-// the menu items will merge automatically if you have set the MergeType property(and optionally, the MergeOrder
-// property). Set the MergeType property of both MainMenu components and all of the menu items of the child form
-// to MergeItems.Additionally, set the MergeOrder property so that the menu items from both menus appear in the
-// desired order.Moreover, keep in mind that when you close an MDI parent form, each of the MDI child forms raises
-// a Closing event before the Closing event for the MDI parent is raised. Canceling an MDI child's Closing event
-// will not prevent the MDI parent's Closing event from being raised; however, the CancelEventArgs argument for
-// the MDI parent's Closing event will now be set to true. You can force the MDI parent and all MDI child forms
-// to close by setting the CancelEventArgs argument to false.
-
-
-// public int Channels => channels;
-// public int SampleRate => sampleRate;
-// public int AverageBytesPerSecond => averageBytesPerSecond;
-// public virtual int BlockAlign => blockAlign;
-// /// Returns the number of bits per sample (usually 16 or 32, sometimes 24 or 8)
-// public int BitsPerSample => bitsPerSample;
-// public int ExtraSize => extraSize;
-// public WaveFormatEncoding  waveFormatTag
-
-//public override PeakInfo GetNextPeak()
-//{
-//    var samplesRead = Provider.Read(ReadBuffer,0,ReadBuffer.Length);
-//    var max = 0.0f;
-//    var min = 0.0f;
-//    for (int x = 0; x < samplesRead; x += sampleInterval)
-//    {
-//        max = Math.Max(max, ReadBuffer[x]);
-//        min = Math.Min(min, ReadBuffer[x]);
-//    }
-//
-//    return new PeakInfo(min,max);
-//}
-
-
-
 namespace Wavicler
 {
     public partial class MainForm : Form
@@ -79,7 +37,7 @@ namespace Wavicler
         AppState _currentState = AppState.Stop;
 
         /// <summary>Stream read chunk.</summary>
-        const int READ_BUFF_SIZE = 100000;
+        //const int READ_BUFF_SIZE = 100000;
 
         /// <summary>TODO loop?</summary>
         bool _loop = false;
@@ -88,8 +46,13 @@ namespace Wavicler
         readonly MainToolbar MT = new();
 
         /// <summary>Dynamically connect input providers to the player.</summary>
-        SwappableSampleProvider _swapper = new(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
+        SwappableSampleProvider _swapper = new();// WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
         #endregion
+
+
+        /// <summary>Everything this app does is this format. TODO put with naudioBOT?</summary>
+        WaveFormat _defaultWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 1);
+
 
         #region Lifecycle
         public MainForm()
@@ -120,8 +83,7 @@ namespace Wavicler
             Size = new Size(UserSettings.TheSettings.FormGeometry.Width, UserSettings.TheSettings.FormGeometry.Height);
             KeyPreview = true; // for routing kbd strokes through OnKeyDown
 
-
-            // The text output. Maybe use OARS style?
+            // The text output. TODO Maybe use OARS style?
             MT.txtInfo.Font = Font;
             MT.txtInfo.WordWrap = true;
             MT.txtInfo.MatchColors.Add("ERR", Color.LightPink);
@@ -235,7 +197,7 @@ namespace Wavicler
             // My stuff here.
             _player.Run(false);
             _player.Dispose();
-            
+
             base.Dispose(disposing);
         }
         #endregion
@@ -358,7 +320,7 @@ namespace Wavicler
             bool hasClip = false; // TODO
 
             var child = ActiveEditor();
-            if(child is WaveEditor)
+            if (child is ClipEditor)
             {
                 anyOpen = true;
                 dirty = child.Dirty;
@@ -380,52 +342,6 @@ namespace Wavicler
             ReplaceMenuItem.Enabled = anyOpen && hasClip;
         }
         #endregion
-
-
-
-
-        /// <summary>
-        /// General closer/saver.
-        /// </summary>
-        /// <param name="all"></param>
-        /// <returns></returns>
-        bool Close(bool all)
-        {
-            bool ok = true;
-
-            if(all)
-            {
-                MdiChildren.Where(ch => ch is WaveEditor).ForEach(ch =>
-                {
-                    CloseOne(ch as WaveEditor);
-                });
-            }
-            else
-            {
-                var ed = ActiveEditor();
-                if(ed is not null)
-                {
-                    CloseOne(ed);
-                }
-            }
-
-            void CloseOne(WaveEditor ed)
-            {
-                if(ed.Dirty)
-                {
-                    // TODO ask to save. If yes, save()
-
-                }
-
-                ed.Close();
-                ed.Dispose();
-            }
-
-            UpdateMenu();
-
-            return ok;
-        }
-
 
         #region Cut/copy/paste TODO
         void Cut()
@@ -461,17 +377,17 @@ namespace Wavicler
 
             UpdateState(AppState.Stop);
 
-            if(fn == "")
+            if (fn == "")
             {
                 _logger.Info($"Creating new child");
-                WaveEditor childNew = new(Array.Empty<float>(), fn) { MdiParent = this };
+                ClipEditor childNew = new(Array.Empty<float>(), _defaultWaveFormat, fn) { MdiParent = this };
                 childNew.Show();
                 ok = true;
             }
             else
             {
                 var ext = Path.GetExtension(fn).ToLower();
-                if(!File.Exists(fn))
+                if (!File.Exists(fn))
                 {
                     _logger.Error($"Invalid file: {fn}");
                 }
@@ -481,63 +397,26 @@ namespace Wavicler
 
                     // Read all data. TODO check reader.WaveFormat that it's +-1.0f
                     var reader = new AudioFileReader(fn);
-
-
                     long len = reader.Length / (reader.WaveFormat.BitsPerSample / 8);
-                    var data = new float[len];
 
-                    // int offset = 0;
-                    // int num = -1;
-                    // while (num != 0)
-                    // {
-                    //     // This throws for flac and m4a files for unknown reason but works ok.
-                    //     try
-                    //     {
-                    //         num = reader.Read(data, offset, READ_BUFF_SIZE);
-                    //         offset += num; TODO this won't get executed
-                    //     }
-                    //     catch (Exception)
-                    //     {
-                    //     }
-                    // }
-
-                    int offset = 0;
-                    bool done = false;
-                    while (!done)
-                    {
-                        int toread = READ_BUFF_SIZE;
-                        if (len - offset < toread)
-                        {
-                            toread = (int)len - offset;
-                            done = true; // last bunch
-                        }
-                        offset += reader.Read(data, offset, toread);
-                    }
-
+                    // Make buffers for our data.
                     if (reader.WaveFormat.Channels == 2) // stereo interleaved
                     {
-                        // TODO ask user if they want L/R/both-separate
-                        // StereoToMonoSampleProvider to split stereo into 2 mono?
-
-                        long stlen = len / 2;
-                        var dataL = new float[stlen];
-                        var dataR = new float[stlen];
-
-                        for (long i = 0; i < stlen; i++)
-                        {
-                            dataL[i] = data[i * 2];
-                            dataR[i] = data[i * 2 + 1];
-                        }
-                        WaveEditor childL = new(dataL, $"{fn}.left") { MdiParent = this };
+                        //long stlen = len / 2;
+                        var provL = new StereoToMonoSampleProvider(reader) { LeftVolume = 1.0f, RightVolume = 0.0f };
+                        var vals = AudioUtils.ReadAll(provL);
+                        ClipEditor childL = new(vals, provL.WaveFormat, $"{fn}.left") { MdiParent = this };
                         childL.Show();
-                        WaveEditor childR = new(dataR, $"{fn}.right") { MdiParent = this };
+
+                        var provR = new StereoToMonoSampleProvider(reader) { LeftVolume = 0.0f, RightVolume = 1.0f };
+                        vals = AudioUtils.ReadAll(provR);
+                        ClipEditor childR = new(vals, provR.WaveFormat, $"{fn}.right") { MdiParent = this };
                         childR.Show();
                     }
-                    else // mono
+                    else
                     {
-                        var vals = new float[data.Length];
-                        Array.Copy(data, vals, data.Length);
-                        WaveEditor childM = new(vals, fn) { MdiParent = this };
+                        var vals = AudioUtils.ReadAll(reader);
+                        ClipEditor childM = new(vals, reader.WaveFormat, $"{fn}") { MdiParent = this };
                         childM.Show();
                     }
                     ok = true;
@@ -565,11 +444,11 @@ namespace Wavicler
         /// <param name="ed">Data source.</param>
         /// <param name="fn">The file to save to.</param>
         /// <returns>Status.</returns>
-        bool SaveFile(WaveEditor? ed, string fn = "")
+        bool SaveFile(ClipEditor? ed, string fn = "")
         {
             bool ok = false;
 
-            if(ed is not null)
+            if (ed is not null)
             {
                 // TODO get all rendered data and save to audio file - to fn if specified else old.
 
@@ -600,9 +479,9 @@ namespace Wavicler
         /// Save the file in the current child.
         /// </summary>
         /// <param name="child">Data source.</param>
-        void SaveFileAs(WaveEditor? child)
+        void SaveFileAs(ClipEditor? child)
         {
-            if(child is WaveEditor)
+            if (child is ClipEditor)
             {
                 using SaveFileDialog saveDlg = new()
                 {
@@ -615,6 +494,48 @@ namespace Wavicler
                     SaveFile(child, saveDlg.FileName);
                 }
             }
+        }
+
+        /// <summary>
+        /// General closer/saver.
+        /// </summary>
+        /// <param name="all"></param>
+        /// <returns></returns>
+        bool Close(bool all)
+        {
+            bool ok = true;
+
+            if (all)
+            {
+                MdiChildren.Where(ch => ch is ClipEditor).ForEach(ch =>
+                {
+                    CloseOne(ch as ClipEditor);
+                });
+            }
+            else
+            {
+                var ed = ActiveEditor();
+                if (ed is not null)
+                {
+                    CloseOne(ed);
+                }
+            }
+
+            void CloseOne(ClipEditor ed)
+            {
+                if (ed.Dirty)
+                {
+                    // TODO ask to save. If yes, save()
+
+                }
+
+                ed.Close();
+                ed.Dispose();
+            }
+
+            UpdateMenu();
+
+            return ok;
         }
         #endregion
 
@@ -648,15 +569,15 @@ namespace Wavicler
         /// Get current focus editor.
         /// </summary>
         /// <returns>The editor or null if invalid.</returns>
-        WaveEditor? ActiveEditor()
+        ClipEditor? ActiveEditor()
         {
-            WaveEditor? ret = null;
+            ClipEditor? ret = null;
 
             // Get the form with focus.
             var child = ActiveMdiChild;
-            if (child is WaveEditor)
+            if (child is ClipEditor)
             {
-                ret = child as WaveEditor;
+                ret = child as ClipEditor;
             }
 
             return ret;
@@ -701,7 +622,8 @@ namespace Wavicler
         void MainForm_MdiChildActivate(object sender, EventArgs e)
         {
             var child = ActiveMdiChild;
-            _logger.Info($"MDI child:{child.Text}");
+            
+            _logger.Info($"MDI child:{(child is null ? "None" : child.Text)}");
         }
         #endregion
     }

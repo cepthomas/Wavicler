@@ -18,6 +18,9 @@ namespace Wavicler
             InitializeComponent();
         }
 
+        private TextBox txtBPM;
+        private Label label1;
+
         /// <summary> 
         /// Required designer variable.
         /// </summary>
@@ -48,6 +51,8 @@ namespace Wavicler
             this.btnRewind = new System.Windows.Forms.Button();
             this.txtInfo = new NBagOfUis.TextViewer();
             this.volumeMaster = new NBagOfUis.Slider();
+            this.txtBPM = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // chkPlay
@@ -102,18 +107,37 @@ namespace Wavicler
             this.volumeMaster.TabIndex = 34;
             this.volumeMaster.Value = 1D;
             // 
+            // txtBPM
+            // 
+            this.txtBPM.Location = new System.Drawing.Point(895, 3);
+            this.txtBPM.Name = "txtBPM";
+            this.txtBPM.Size = new System.Drawing.Size(125, 27);
+            this.txtBPM.TabIndex = 39;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(910, 34);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(39, 20);
+            this.label1.TabIndex = 40;
+            this.label1.Text = "BPM";
+            // 
             // MainToolbar
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.MistyRose;
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.txtBPM);
             this.Controls.Add(this.chkPlay);
             this.Controls.Add(this.btnRewind);
             this.Controls.Add(this.txtInfo);
             this.Controls.Add(this.volumeMaster);
             this.Name = "MainToolbar";
-            this.Size = new System.Drawing.Size(861, 66);
+            this.Size = new System.Drawing.Size(1049, 66);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

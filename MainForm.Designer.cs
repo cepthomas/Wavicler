@@ -20,9 +20,13 @@
             this.NewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RecentMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.SaveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SaveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.CloseMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CloseAllMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.ExitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.EditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -35,10 +39,6 @@
             this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
-            this.CloseAllMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.Menu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -94,6 +94,11 @@
             this.RecentMenuItem.Size = new System.Drawing.Size(246, 26);
             this.RecentMenuItem.Text = "Recent";
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(243, 6);
+            // 
             // SaveMenuItem
             // 
             this.SaveMenuItem.Name = "SaveMenuItem";
@@ -109,12 +114,30 @@
             this.SaveAsMenuItem.Size = new System.Drawing.Size(246, 26);
             this.SaveAsMenuItem.Text = "Save As";
             // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(243, 6);
+            // 
             // CloseMenuItem
             // 
             this.CloseMenuItem.Name = "CloseMenuItem";
             this.CloseMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.W)));
             this.CloseMenuItem.Size = new System.Drawing.Size(246, 26);
             this.CloseMenuItem.Text = "Close";
+            // 
+            // CloseAllMenuItem
+            // 
+            this.CloseAllMenuItem.Name = "CloseAllMenuItem";
+            this.CloseAllMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.W)));
+            this.CloseAllMenuItem.Size = new System.Drawing.Size(246, 26);
+            this.CloseAllMenuItem.Text = "Close All";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(243, 6);
             // 
             // ExitMenuItem
             // 
@@ -205,29 +228,6 @@
             this.ToolStrip.Size = new System.Drawing.Size(1080, 25);
             this.ToolStrip.TabIndex = 1;
             this.ToolStrip.Text = "ToolStrip";
-            // 
-            // CloseAllMenuItem
-            // 
-            this.CloseAllMenuItem.Name = "CloseAllMenuItem";
-            this.CloseAllMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.W)));
-            this.CloseAllMenuItem.Size = new System.Drawing.Size(246, 26);
-            this.CloseAllMenuItem.Text = "Close All";
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(243, 6);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(243, 6);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(243, 6);
             // 
             // MainForm
             // 
