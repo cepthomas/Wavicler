@@ -33,11 +33,11 @@ namespace Wavicler
         /// <summary>The actual player.</summary>
         readonly AudioPlayer _player;
 
+        /// <summary>Dynamically connect input providers to the player.</summary>
+        SwappableSampleProvider _waveOutSwapper = new();
+
         /// <summary>Where we be.</summary>
         AppState _currentState = AppState.Stop;
-
-        /// <summary>Stream read chunk.</summary>
-        //const int READ_BUFF_SIZE = 100000;
 
         /// <summary>TODO loop?</summary>
         bool _loop = false;
@@ -45,14 +45,9 @@ namespace Wavicler
         /// <summary>TODO kludgy?</summary>
         readonly MainToolbar MT = new();
 
-        /// <summary>Dynamically connect input providers to the player.</summary>
-        SwappableSampleProvider _swapper = new();// WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
-        #endregion
-
-
         /// <summary>Everything this app does is this format. TODO put with naudioBOT?</summary>
         WaveFormat _defaultWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 1);
-
+        #endregion
 
         #region Lifecycle
         public MainForm()
@@ -90,7 +85,7 @@ namespace Wavicler
             MT.txtInfo.MatchColors.Add("WRN", Color.Plum);
 
             // Create output.
-            _player = new(UserSettings.TheSettings.AudioSettings.WavOutDevice, int.Parse(UserSettings.TheSettings.AudioSettings.Latency));
+            _player = new(UserSettings.TheSettings.AudioSettings.WavOutDevice, int.Parse(UserSettings.TheSettings.AudioSettings.Latency), _waveOutSwapper);
             // Usually end of file but could be error.
             _player.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
             {
@@ -106,12 +101,12 @@ namespace Wavicler
             };
 
             // Hook up audio processing chain.
-            var postVolumeMeter = new MeteringSampleProvider(_swapper, _swapper.WaveFormat.SampleRate / 10);
+            var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10);
             postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) =>
             {
                 // TODO timeBar.Current = _reader.CurrentTime;
             };
-            _player.Init(postVolumeMeter);
+            _waveOutSwapper.SetInput(postVolumeMeter);
 
             MT.btnRewind.Click += (_, __) => { UpdateState(AppState.Rewind); };
             MT.chkPlay.Click += (_, __) => { UpdateState(MT.chkPlay.Checked ? AppState.Play : AppState.Stop); };
@@ -123,7 +118,7 @@ namespace Wavicler
             // Managing files. FileMenuItem
             FileMenuItem.DropDownOpening += Recent_DropDownOpening;
             NewMenuItem.Click += (_, __) => { OpenFile(); };
-            OpenMenuItem.Click += (_, __) => { Open(); };
+            OpenMenuItem.Click += (_, __) => { Open_Click(); };
             SaveMenuItem.Click += (_, __) => { SaveFile(ActiveEditor()); };
             SaveAsMenuItem.Click += (_, __) => { SaveFileAs(ActiveEditor()); };
             CloseMenuItem.Click += (_, __) => { Close(false); };
@@ -149,7 +144,7 @@ namespace Wavicler
 
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
 
-            // >>>>>>>>>>>>>>>>>>>
+            // Debugging >>>>>>>>>>>>>>>>>>>
             OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
             //OpenFile(@"C:\Dev\repos\TestAudioFiles\ref-stereo.wav");
         }
@@ -267,7 +262,7 @@ namespace Wavicler
 
             void Rewind()
             {
-                //if(_reader is not null)
+                //if ( is not null)
                 //{
                 //    _reader.Position = 0;
                 //}
@@ -460,7 +455,7 @@ namespace Wavicler
         /// <summary>
         /// Allows the user to select an audio clip or midi from file system.
         /// </summary>
-        void Open()
+        void Open_Click()
         {
             var fileTypes = $"Audio Files|{AudioLibDefs.AUDIO_FILE_TYPES}";
             using OpenFileDialog openDlg = new()
