@@ -17,6 +17,8 @@ using NAudio.Wave.SampleProviders;
 using System.Diagnostics;
 
 
+
+
 namespace Wavicler
 {
     public partial class MainForm : Form
@@ -46,7 +48,7 @@ namespace Wavicler
         readonly MainToolbar MT = new();
 
         /// <summary>Everything this app does is this format. TODO put with naudioBOT?</summary>
-        WaveFormat _defaultWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 1);
+ //       WaveFormat _defaultWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(AudioLibDefs.SAMPLE_RATE, 1);
         #endregion
 
         #region Lifecycle
@@ -375,7 +377,8 @@ namespace Wavicler
             if (fn == "")
             {
                 _logger.Info($"Creating new child");
-                ClipEditor childNew = new(Array.Empty<float>(), _defaultWaveFormat, fn) { MdiParent = this };
+                ClipSampleProvider prov = new(Array.Empty<float>());
+                ClipEditor childNew = new(prov);
                 childNew.Show();
                 ok = true;
             }
@@ -390,28 +393,36 @@ namespace Wavicler
                 {
                     _logger.Info($"Opening file: {fn}");
 
-                    // Read all data. TODO check reader.WaveFormat that it's +-1.0f
+                    // Read all data.
                     var reader = new AudioFileReader(fn);
-                    long len = reader.Length / (reader.WaveFormat.BitsPerSample / 8);
+                    // TODO If it doesn't match, create a resampled temp file.
+                    // if(_audioFileReader.WaveFormat.SampleRate != AudioLibDefs.SAMPLE_RATE)
+                    // {
+                    //     var ext = Path.GetExtension(fn);
+                    //     _resampleFile = fn.Replace(ext, "_rs" + ext);
+                    //     var resampler = new WdlResamplingSampleProvider(_audioFileReader, AudioLibDefs.SAMPLE_RATE);
+                    //     WaveFileWriter.CreateWaveFile16(_resampleFile, resampler);
+                    //     _audioFileReader = new AudioFileReader(_resampleFile);
+                    // }
+                    reader.Validate(false);
+
+                    //long len = reader.Length / (reader.WaveFormat.BitsPerSample / 8);
 
                     // Make buffers for our data.
                     if (reader.WaveFormat.Channels == 2) // stereo interleaved
                     {
-                        //long stlen = len / 2;
-                        var provL = new StereoToMonoSampleProvider(reader) { LeftVolume = 1.0f, RightVolume = 0.0f };
-                        var vals = AudioUtils.ReadAll(provL);
-                        ClipEditor childL = new(vals, provL.WaveFormat, $"{fn}.left") { MdiParent = this };
+                        var provL = new ClipSampleProvider(fn, StereoCoercion.Left);
+                        ClipEditor childL = new(provL);
                         childL.Show();
 
-                        var provR = new StereoToMonoSampleProvider(reader) { LeftVolume = 0.0f, RightVolume = 1.0f };
-                        vals = AudioUtils.ReadAll(provR);
-                        ClipEditor childR = new(vals, provR.WaveFormat, $"{fn}.right") { MdiParent = this };
+                        var provR = new ClipSampleProvider(fn, StereoCoercion.Right);
+                        ClipEditor childR = new(provR);
                         childR.Show();
                     }
                     else
                     {
-                        var vals = AudioUtils.ReadAll(reader);
-                        ClipEditor childM = new(vals, reader.WaveFormat, $"{fn}") { MdiParent = this };
+                        var provM = new ClipSampleProvider(reader, StereoCoercion.Mono);
+                        ClipEditor childM = new(provM);
                         childM.Show();
                     }
                     ok = true;
