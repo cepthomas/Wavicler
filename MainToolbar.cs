@@ -18,8 +18,6 @@ namespace Wavicler
             InitializeComponent();
         }
 
-        private TextBox txtBPM;
-        private Label label1;
 
         /// <summary> 
         /// Required designer variable.
@@ -86,7 +84,7 @@ namespace Wavicler
             this.txtInfo.MaxText = 50000;
             this.txtInfo.Name = "txtInfo";
             this.txtInfo.Prompt = "> ";
-            this.txtInfo.Size = new System.Drawing.Size(534, 49);
+            this.txtInfo.Size = new System.Drawing.Size(274, 63);
             this.txtInfo.TabIndex = 35;
             this.txtInfo.WordWrap = true;
             // 
@@ -109,7 +107,7 @@ namespace Wavicler
             // 
             // txtBPM
             // 
-            this.txtBPM.Location = new System.Drawing.Point(895, 3);
+            this.txtBPM.Location = new System.Drawing.Point(649, 5);
             this.txtBPM.Name = "txtBPM";
             this.txtBPM.Size = new System.Drawing.Size(125, 27);
             this.txtBPM.TabIndex = 39;
@@ -117,7 +115,7 @@ namespace Wavicler
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(910, 34);
+            this.label1.Location = new System.Drawing.Point(604, 8);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(39, 20);
             this.label1.TabIndex = 40;
@@ -143,8 +141,11 @@ namespace Wavicler
 
         #endregion
 
+        private Label label1;
+
         public System.Windows.Forms.CheckBox chkPlay;
         public System.Windows.Forms.Button btnRewind;
+        public System.Windows.Forms.TextBox txtBPM;
         public NBagOfUis.TextViewer txtInfo;
         public NBagOfUis.Slider volumeMaster;
     }

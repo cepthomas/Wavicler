@@ -35,10 +35,10 @@
             this.ReplaceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RemoveEnvelopeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.BpmMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
+            this.LogMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -195,29 +195,23 @@
             // ToolsMenuItem
             // 
             this.ToolsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.BpmMenuItem,
+            this.SettingsMenuItem,
             this.AboutMenuItem,
-            this.SettingsMenuItem});
+            this.LogMenuItem});
             this.ToolsMenuItem.Name = "ToolsMenuItem";
             this.ToolsMenuItem.Size = new System.Drawing.Size(58, 24);
             this.ToolsMenuItem.Text = "Tools";
             // 
-            // BpmMenuItem
-            // 
-            this.BpmMenuItem.Name = "BpmMenuItem";
-            this.BpmMenuItem.Size = new System.Drawing.Size(145, 26);
-            this.BpmMenuItem.Text = "BPM";
-            // 
             // AboutMenuItem
             // 
             this.AboutMenuItem.Name = "AboutMenuItem";
-            this.AboutMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.AboutMenuItem.Size = new System.Drawing.Size(224, 26);
             this.AboutMenuItem.Text = "About";
             // 
             // SettingsMenuItem
             // 
             this.SettingsMenuItem.Name = "SettingsMenuItem";
-            this.SettingsMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.SettingsMenuItem.Size = new System.Drawing.Size(224, 26);
             this.SettingsMenuItem.Text = "Settings";
             // 
             // ToolStrip
@@ -228,6 +222,12 @@
             this.ToolStrip.Size = new System.Drawing.Size(1080, 25);
             this.ToolStrip.TabIndex = 1;
             this.ToolStrip.Text = "ToolStrip";
+            // 
+            // LogMenuItem
+            // 
+            this.LogMenuItem.Name = "LogMenuItem";
+            this.LogMenuItem.Size = new System.Drawing.Size(145, 26);
+            this.LogMenuItem.Text = "Log";
             // 
             // MainForm
             // 
@@ -256,7 +256,6 @@
         private System.Windows.Forms.ToolStripMenuItem NewMenuItem;
         private System.Windows.Forms.ToolStripMenuItem EditMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ToolsMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem BpmMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SettingsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
@@ -274,5 +273,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem LogMenuItem;
     }
 }

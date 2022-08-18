@@ -14,10 +14,6 @@ namespace Wavicler
     [Serializable]
     public class UserSettings : Settings
     {
-        [Browsable(false)]
-        [JsonIgnore]
-        public static UserSettings TheSettings { get; set; } = new();
-
         #region Persisted Editable Properties
         [DisplayName("Control Color")]
         [Description("Pick what you like.")]

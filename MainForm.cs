@@ -8,26 +8,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 using NAudio.Wave;
-using AudioLib;
+using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
-using NAudio.Wave.SampleProviders;
-using System.Diagnostics;
-
-
+using AudioLib;
 
 
 namespace Wavicler
 {
     public partial class MainForm : Form
     {
-        #region Types
-        /// <summary>What are we doing.</summary>
-        public enum AppState { Stop, Play, Rewind, Complete, Dead }
-        #endregion
-
         #region Fields
         /// <summary>My logger.</summary>
         readonly Logger _logger = LogManager.CreateLogger("MainForm");
@@ -46,9 +39,6 @@ namespace Wavicler
 
         /// <summary>TODO kludgy?</summary>
         readonly MainToolbar MT = new();
-
-        /// <summary>Everything this app does is this format. TODO put with naudioBOT?</summary>
- //       WaveFormat _defaultWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(AudioLibDefs.SAMPLE_RATE, 1);
         #endregion
 
         #region Lifecycle
@@ -58,9 +48,9 @@ namespace Wavicler
 
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
-            UserSettings.TheSettings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
+            Common.TheSettings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
             // Tell the libs about their settings.
-            AudioSettings.LibSettings = UserSettings.TheSettings.AudioSettings;
+            AudioSettings.LibSettings = Common.TheSettings.AudioSettings;
 
             // Build it.
             InitializeComponent();
@@ -68,16 +58,16 @@ namespace Wavicler
             ToolStrip.Items.Add(new ToolStripControlHost(MT));
 
             // Init logging.
-            LogManager.MinLevelFile = UserSettings.TheSettings.FileLogLevel;
-            LogManager.MinLevelNotif = UserSettings.TheSettings.NotifLogLevel;
+            LogManager.MinLevelFile = Common.TheSettings.FileLogLevel;
+            LogManager.MinLevelNotif = Common.TheSettings.NotifLogLevel;
             LogManager.LogEvent += LogManager_LogEvent;
             LogManager.Run();
 
             // Init main form from settings
             WindowState = FormWindowState.Normal;
             StartPosition = FormStartPosition.Manual;
-            Location = new Point(UserSettings.TheSettings.FormGeometry.X, UserSettings.TheSettings.FormGeometry.Y);
-            Size = new Size(UserSettings.TheSettings.FormGeometry.Width, UserSettings.TheSettings.FormGeometry.Height);
+            Location = new Point(Common.TheSettings.FormGeometry.X, Common.TheSettings.FormGeometry.Y);
+            Size = new Size(Common.TheSettings.FormGeometry.Width, Common.TheSettings.FormGeometry.Height);
             KeyPreview = true; // for routing kbd strokes through OnKeyDown
 
             // The text output. TODO Maybe use OARS style?
@@ -87,7 +77,7 @@ namespace Wavicler
             MT.txtInfo.MatchColors.Add("WRN", Color.Plum);
 
             // Create output.
-            _player = new(UserSettings.TheSettings.AudioSettings.WavOutDevice, int.Parse(UserSettings.TheSettings.AudioSettings.Latency), _waveOutSwapper);
+            _player = new(Common.TheSettings.AudioSettings.WavOutDevice, int.Parse(Common.TheSettings.AudioSettings.Latency), _waveOutSwapper);
             // Usually end of file but could be error.
             _player.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
             {
@@ -115,7 +105,9 @@ namespace Wavicler
             MT.volumeMaster.ValueChanged += (_, __) => { _player.Volume = (float)MT.volumeMaster.Value; };
             MT.volumeMaster.Minimum = AudioLibDefs.VOLUME_MIN;
             MT.volumeMaster.Maximum = AudioLibDefs.VOLUME_MAX;
-            MT.volumeMaster.Value = UserSettings.TheSettings.Volume;
+            MT.volumeMaster.Value = Common.TheSettings.Volume;
+
+            MT.txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => { KeyUtils.TestForNumber_KeyPress(sender!, e); };
 
             // Managing files. FileMenuItem
             FileMenuItem.DropDownOpening += Recent_DropDownOpening;
@@ -161,7 +153,7 @@ namespace Wavicler
 
             if (!_player.Valid)
             {
-                var s = $"Something wrong with your audio output device:{UserSettings.TheSettings.AudioSettings.WavOutDevice}";
+                var s = $"Something wrong with your audio output device:{Common.TheSettings.AudioSettings.WavOutDevice}";
                 _logger.Error(s);
                 UpdateState(AppState.Dead);
             }
@@ -198,6 +190,27 @@ namespace Wavicler
             base.Dispose(disposing);
         }
         #endregion
+
+
+        /// <summary>
+        /// Do some global key handling. Space bar is used for stop/start playing.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Space:
+                    // Toggle.
+                    UpdateState(MT.chkPlay.Checked ? AppState.Stop : AppState.Play);
+                    e.Handled = true;
+                    break;
+            }
+        }
+
+
+
 
         #region State management
         /// <summary>
@@ -294,7 +307,7 @@ namespace Wavicler
         {
             RecentMenuItem.DropDownItems.Clear();
 
-            UserSettings.TheSettings.RecentFiles.ForEach(f =>
+            Common.TheSettings.RecentFiles.ForEach(f =>
             {
                 ToolStripMenuItem menuItem = new(f);
                 menuItem.Click += (object? sender, EventArgs e) =>
@@ -395,15 +408,11 @@ namespace Wavicler
 
                     // Read all data.
                     var reader = new AudioFileReader(fn);
-                    // TODO If it doesn't match, create a resampled temp file.
-                    // if(_audioFileReader.WaveFormat.SampleRate != AudioLibDefs.SAMPLE_RATE)
-                    // {
-                    //     var ext = Path.GetExtension(fn);
-                    //     _resampleFile = fn.Replace(ext, "_rs" + ext);
-                    //     var resampler = new WdlResamplingSampleProvider(_audioFileReader, AudioLibDefs.SAMPLE_RATE);
-                    //     WaveFileWriter.CreateWaveFile16(_resampleFile, resampler);
-                    //     _audioFileReader = new AudioFileReader(_resampleFile);
-                    // }
+                    // If it doesn't match, create a resampled temp file.
+                    if (reader.WaveFormat.SampleRate != AudioLibDefs.SAMPLE_RATE)
+                    {
+                        reader = reader.Resample();
+                    }
                     reader.Validate(false);
 
                     //long len = reader.Length / (reader.WaveFormat.BitsPerSample / 8);
@@ -413,16 +422,19 @@ namespace Wavicler
                     {
                         var provL = new ClipSampleProvider(fn, StereoCoercion.Left);
                         ClipEditor childL = new(provL);
+                        childL.MdiParent = this;
                         childL.Show();
 
                         var provR = new ClipSampleProvider(fn, StereoCoercion.Right);
                         ClipEditor childR = new(provR);
+                        childR.MdiParent = this;
                         childR.Show();
                     }
                     else
                     {
                         var provM = new ClipSampleProvider(reader, StereoCoercion.Mono);
                         ClipEditor childM = new(provM);
+                        childM.MdiParent = this;
                         childM.Show();
                     }
                     ok = true;
@@ -433,7 +445,7 @@ namespace Wavicler
                 }
             }
 
-            if (ok && UserSettings.TheSettings.Autoplay)
+            if (ok && Common.TheSettings.Autoplay)
             {
                 UpdateState(AppState.Rewind);
                 UpdateState(AppState.Play);
@@ -551,10 +563,10 @@ namespace Wavicler
         /// </summary>
         void EditSettings()
         {
-            var changes = UserSettings.TheSettings.Edit("User Settings", 300);
+            var changes = Common.TheSettings.Edit("User Settings", 300);
 
             // Check for meaningful changes.
-            //timeBar.SnapMsec = UserSettings.TheSettings.AudioSettings.SnapMsec;
+            //timeBar.SnapMsec = Common.TheSettings.AudioSettings.SnapMsec;
         }
 
         /// <summary>
@@ -562,11 +574,11 @@ namespace Wavicler
         /// </summary>
         void SaveSettings()
         {
-            UserSettings.TheSettings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
-            UserSettings.TheSettings.Volume = MT.volumeMaster.Value;
+            Common.TheSettings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
+            Common.TheSettings.Volume = MT.volumeMaster.Value;
             //Common.Settings.Autoplay = btnAutoplay.Checked;
             //Common.Settings.Loop = btnLoop.Checked;
-            UserSettings.TheSettings.Save();
+            Common.TheSettings.Save();
         }
         #endregion
 
@@ -587,23 +599,6 @@ namespace Wavicler
             }
 
             return ret;
-        }
-
-        /// <summary>
-        /// Do some global key handling. Space bar is used for stop/start playing.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-                case Keys.Space:
-                    // Toggle.
-                    UpdateState(MT.chkPlay.Checked ? AppState.Stop : AppState.Play);
-                    e.Handled = true;
-                    break;
-            }
         }
 
         /// <summary>
@@ -630,6 +625,20 @@ namespace Wavicler
             var child = ActiveMdiChild;
             
             _logger.Info($"MDI child:{(child is null ? "None" : child.Text)}");
+        }
+
+        /// <summary>
+        /// Internal stuff.
+        /// </summary>
+        void DoCalcs()
+        {
+            // Test stuff.
+            int max = int.MaxValue;
+            int smplPerSec = 441000;
+            int sec = max / smplPerSec;
+            TimeSpan tmax = new TimeSpan(0, 0, sec);
+
+
         }
         #endregion
     }
