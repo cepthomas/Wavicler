@@ -25,19 +25,6 @@ namespace Wavicler
         readonly Logger _logger = LogManager.CreateLogger("ClipEditor");
         #endregion
 
-
-        // from ClipEditor_XXX
-        //private bool _firstPaint = true;
-        //private bool _yDown = false;
-        //private bool _xDown = false;
-        //private bool _ctrlDown = false;
-        //private bool _shiftDown = false;
-        //private bool _mouseDown = false;
-        //private Point _startMousePos = new Point();
-        //private Point _endMousePos = new Point();
-        //private bool _dragging = false;
-
-
         // From WaveViewer
         /// <summary>Y adjustment.</summary>
         public float YGain { get { return _yGain; } set { _yGain = value; picClipDisplay.Invalidate(); } }
@@ -78,7 +65,7 @@ namespace Wavicler
         //public WaveFormat WaveFormat { get; } = WaveFormat.CreateIeeeFloatWaveFormat(AudioLibDefs.SAMPLE_RATE, 1);
 
         /// <summary>The rendered data for client playing.</summary>
-        public ClipSampleProvider RenderedSampleProvider { get; private set; }
+        public ClipSampleProvider SelectionSampleProvider { get; private set; }
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
@@ -98,56 +85,57 @@ namespace Wavicler
 
 
 
-        /// <summary>One marker.</summary>
-        public int Marker1 { get { return _marker1; } set { MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); } }
-        int _marker1 = new();
-
-        /// <summary>Other marker.</summary>
-        public int Marker2 { get { return _marker2; } set { MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); } }
-        int _marker2 = new();
-
-
-
-
-        /// <summary>Marker index.</summary>
-        // public int Marker
-        // {
-        //     get { return _marker; }
-        //     set { _marker = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
-        // }
-        // int _marker = -1;
-
-        /// <summary>Selection start sample.</summary>
+        // /// <summary>Selection start.</summary>
         // public int SelStart
         // {
         //     get { return _selStart; }
         //     set { _selStart = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
         // }
-        //int _selStart = -1;
+        // int _selStart = new();
 
-        /// <summary>Selection length.</summary>
+        // /// <summary>Selection length.</summary>
         // public int SelLength
         // {
-        //     get { return _selLen; }
-        //     set { _selLen = MathUtils.Constrain(value, 0, _vals.Length - _selStart); picClipDisplay.Invalidate(); }
+        //     get { return _selLength; }
+        //     set { _selLength = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
         // }
-        //int _selLen = 0;
+        // int _selLength = new();
+
+
+
+        /// <summary>One marker.</summary>
+        public int Marker1
+        {
+            get { return _marker1; }
+            set { _marker1 = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
+        }
+        int _marker1 = new();
+
+        /// <summary>Other marker.</summary>
+        public int Marker2
+        {
+            get { return _marker2; }
+            set { _marker2 = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
+        }
+        int _marker2 = new();
+
 
         /// <summary>Visible start sample.</summary>
-        // public int VisStart
-        // {
-        //     get { return _visStart; }
-        //     set { _visStart = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
-        // }
+        public int VisStart
+        {
+            get { return _visStart; }
+            set { _visStart = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
+        }
         int _visStart = -1;
 
         /// <summary>Visible length.</summary>
-        // public int VisLength
-        // {
-        //     get { return _visLen; }
-        //     set { _visLen = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
-        // }
+        public int VisLength
+        {
+            get { return _visLen; }
+            set { _visLen = MathUtils.Constrain(value, 0, _vals.Length); picClipDisplay.Invalidate(); }
+        }
         int _visLen = 0;
+
         #endregion
 
 
@@ -180,11 +168,11 @@ namespace Wavicler
 
             InitializeComponent();
 
-            RenderedSampleProvider = prov;
+            SelectionSampleProvider = prov;
             Text = NAudioEx.GetInfo(prov);
             Icon = Properties.Resources.tiger;
 
-            gain.ValueChanged += (_, __) => { RenderedSampleProvider.MasterGain = (float)gain.Value; };
+            gain.ValueChanged += (_, __) => { SelectionSampleProvider.MasterGain = (float)gain.Value; };
 
             //ReadData();
             _vals = prov.ReadAll();
@@ -276,188 +264,188 @@ namespace Wavicler
 
         #endregion
 
-        #region UI handlers
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void ClipDisplay_MouseWheel(object? sender, MouseEventArgs e)
-        {
-            HandledMouseEventArgs hme = (HandledMouseEventArgs)e;
-            hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent.
+        // #region UI handlers
+        // /// <summary>
+        // /// 
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // /// <param name="e"></param>
+        // void ClipDisplay_MouseWheel(object? sender, MouseEventArgs e)
+        // {
+        //     HandledMouseEventArgs hme = (HandledMouseEventArgs)e;
+        //     hme.Handled = true; // This prevents the mouse wheel event from getting back to the parent.
 
-            if (ModifierKeys == Keys.Control) // x zoom TODO
-            {
+        //     if (ModifierKeys == Keys.Control) // x zoom TODO
+        //     {
 
-            }
-            else if (ModifierKeys == Keys.Shift) // y gain
-            {
-                _yGain += hme.Delta > 0 ? 0.1f : -0.1f;
-                _yGain = (float)MathUtils.Constrain(_yGain, 0.0f, _maxGain);
-                picClipDisplay.Invalidate();
-            }
-            else if (ModifierKeys == Keys.None) // no mods = x shift TODO
-            {
+        //     }
+        //     else if (ModifierKeys == Keys.Shift) // y gain
+        //     {
+        //         _yGain += hme.Delta > 0 ? 0.1f : -0.1f;
+        //         _yGain = (float)MathUtils.Constrain(_yGain, 0.0f, _maxGain);
+        //         picClipDisplay.Invalidate();
+        //     }
+        //     else if (ModifierKeys == Keys.None) // no mods = x shift TODO
+        //     {
 
-            }
-        }
+        //     }
+        // }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void ClipDisplay_MouseDown(object? sender, MouseEventArgs e)
-        {
-            switch (e.Button)
-            {
-                case MouseButtons.Left:
+        // /// <summary>
+        // /// 
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // /// <param name="e"></param>
+        // void ClipDisplay_MouseDown(object? sender, MouseEventArgs e)
+        // {
+        //     switch (e.Button)
+        //     {
+        //         case MouseButtons.Left:
 
-                    if (ModifierKeys == Keys.Control) // end pos
-                    {
+        //             if (ModifierKeys == Keys.Control) // end pos
+        //             {
 
-                        picClipDisplay.Invalidate();
-                    }
-                    else if (ModifierKeys == Keys.None) // start pos
-                    {
-                        picClipDisplay.Invalidate();
-                    }
-                    break;
-            }
-        }
+        //                 picClipDisplay.Invalidate();
+        //             }
+        //             else if (ModifierKeys == Keys.None) // start pos
+        //             {
+        //                 picClipDisplay.Invalidate();
+        //             }
+        //             break;
+        //     }
+        // }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void ClipDisplay_KeyDown(object? sender, KeyEventArgs e)
-        {
-            switch (e.KeyCode)
-            {
-                case Keys.Escape: // reset gain
-                    //_firstPaint = true;
-                    _yGain = 1.0f;
-                    picClipDisplay.Invalidate();
-                    break;
-            }
-        }
-
-
-        private void ClipEditor_Resize(object? sender, EventArgs e)
-        {
-            //_firstPaint = true; // Need to recalc the grid too.
-            picClipDisplay.Invalidate();
-        }
+        // /// <summary>
+        // /// 
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // /// <param name="e"></param>
+        // void ClipDisplay_KeyDown(object? sender, KeyEventArgs e)
+        // {
+        //     switch (e.KeyCode)
+        //     {
+        //         case Keys.Escape: // reset gain
+        //             //_firstPaint = true;
+        //             _yGain = 1.0f;
+        //             picClipDisplay.Invalidate();
+        //             break;
+        //     }
+        // }
 
 
-        private void ClipEditor_KeyDown(object? sender, KeyEventArgs e)
-        {
-            switch(e.KeyCode)
-            {
-                //case Keys.Escape:
-                case Keys.G:
-                    //_firstPaint = true;
-                    _yGain = 1.0f;
-                    picClipDisplay.Invalidate();
-                    break;
+        // private void ClipEditor_Resize(object? sender, EventArgs e)
+        // {
+        //     //_firstPaint = true; // Need to recalc the grid too.
+        //     picClipDisplay.Invalidate();
+        // }
 
-                case Keys.H:
-                    //_firstPaint = true;
-                    _visStart = 0;
-                    _visLen = _vals.Length;
-                    picClipDisplay.Invalidate();
-                    break;
 
-                default:
-                    break;
-            }
-        }
+        // private void ClipEditor_KeyDown(object? sender, KeyEventArgs e)
+        // {
+        //     switch(e.KeyCode)
+        //     {
+        //         //case Keys.Escape:
+        //         case Keys.G:
+        //             //_firstPaint = true;
+        //             _yGain = 1.0f;
+        //             picClipDisplay.Invalidate();
+        //             break;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void TimeBar_CurrentTimeChanged(object? sender, EventArgs e)
-        {
-            // txtInfo.AppendText($"Current time:{timeBar.Current}");
-        }
-        #endregion
+        //         case Keys.H:
+        //             //_firstPaint = true;
+        //             _visStart = 0;
+        //             _visLen = _vals.Length;
+        //             picClipDisplay.Invalidate();
+        //             break;
 
-        #region Private functions TODO all these
-        /// <summary>
-        /// Convert x pos to sample index.
-        /// </summary>
-        /// <param name="x"></param>
-        int GetSampleFromMouse(int x)
-        {
-            int sample = MathUtils.Map(x, 0, Width, _visStart, _visStart + _visLen);
-            return sample;
-        }
+        //         default:
+        //             break;
+        //     }
+        // }
 
-        /// <summary>
-        /// Convert x pos to TimeSpan.
-        /// </summary>
-        /// <param name="x"></param>
-        TimeSpan GetTimeFromMouse(int x)
-        {
-            int msec = 0;
+        // /// <summary>
+        // /// 
+        // /// </summary>
+        // /// <param name="sender"></param>
+        // /// <param name="e"></param>
+        // void TimeBar_CurrentTimeChanged(object? sender, EventArgs e)
+        // {
+        //     // txtInfo.AppendText($"Current time:{timeBar.Current}");
+        // }
+        // #endregion
 
-            //if (_current.TotalMilliseconds < _length.TotalMilliseconds)
-            //{
-            //    msec = x * (int)_length.TotalMilliseconds / Width;
-            //    msec = MathUtils.Constrain(msec, 0, (int)_length.TotalMilliseconds);
-            //    msec = DoSnap(msec);
-            //}
+        // #region Private functions TODO all these
+        // /// <summary>
+        // /// Convert x pos to sample index.
+        // /// </summary>
+        // /// <param name="x"></param>
+        // int GetSampleFromMouse(int x)
+        // {
+        //     int sample = MathUtils.Map(x, 0, Width, _visStart, _visStart + _visLen);
+        //     return sample;
+        // }
 
-            return new TimeSpan(0, 0, 0, 0, msec);
-        }
+        // /// <summary>
+        // /// Convert x pos to TimeSpan.
+        // /// </summary>
+        // /// <param name="x"></param>
+        // TimeSpan GetTimeFromMouse(int x)
+        // {
+        //     int msec = 0;
 
-        /// <summary>
-        /// Snap to user preference.
-        /// </summary>
-        /// <param name="sample"></param>
-        /// <returns></returns>
-        int DoSnap(int sample)
-        {
-            //int smsec = 0;
+        //     //if (_current.TotalMilliseconds < _length.TotalMilliseconds)
+        //     //{
+        //     //    msec = x * (int)_length.TotalMilliseconds / Width;
+        //     //    msec = MathUtils.Constrain(msec, 0, (int)_length.TotalMilliseconds);
+        //     //    msec = DoSnap(msec);
+        //     //}
 
-            //if (SnapMsec > 0)
-            //{
-            //    smsec = (msec / SnapMsec) * SnapMsec;
-            //    if (SnapMsec > (msec % SnapMsec) / 2)
-            //    {
-            //        smsec += SnapMsec;
-            //    }
-            //}
+        //     return new TimeSpan(0, 0, 0, 0, msec);
+        // }
 
-            return sample;
-        }
+        // /// <summary>
+        // /// Snap to user preference.
+        // /// </summary>
+        // /// <param name="sample"></param>
+        // /// <returns></returns>
+        // int DoSnap(int sample)
+        // {
+        //     //int smsec = 0;
 
-        ///// <summary>
-        ///// Utility helper function.
-        ///// </summary>
-        ///// <param name="val"></param>
-        ///// <param name="lower"></param>
-        ///// <param name="upper"></param>
-        ///// <returns></returns>
-        //TimeSpan Constrain(TimeSpan val, TimeSpan lower, TimeSpan upper)
-        //{
-        //    return TimeSpan.FromMilliseconds(MathUtils.Constrain(val.TotalMilliseconds, lower.TotalMilliseconds, upper.TotalMilliseconds));
-        //}
+        //     //if (SnapMsec > 0)
+        //     //{
+        //     //    smsec = (msec / SnapMsec) * SnapMsec;
+        //     //    if (SnapMsec > (msec % SnapMsec) / 2)
+        //     //    {
+        //     //        smsec += SnapMsec;
+        //     //    }
+        //     //}
 
-        ///// <summary>
-        ///// Map from time to UI pixels.
-        ///// </summary>
-        ///// <param name="val"></param>
-        ///// <returns></returns>
-        //int Scale(TimeSpan val)
-        //{
-        //    return (int)(val.TotalMilliseconds * Width / _length.TotalMilliseconds);
-        //}
+        //     return sample;
+        // }
 
-        #endregion
+        // ///// <summary>
+        // ///// Utility helper function.
+        // ///// </summary>
+        // ///// <param name="val"></param>
+        // ///// <param name="lower"></param>
+        // ///// <param name="upper"></param>
+        // ///// <returns></returns>
+        // //TimeSpan Constrain(TimeSpan val, TimeSpan lower, TimeSpan upper)
+        // //{
+        // //    return TimeSpan.FromMilliseconds(MathUtils.Constrain(val.TotalMilliseconds, lower.TotalMilliseconds, upper.TotalMilliseconds));
+        // //}
+
+        // ///// <summary>
+        // ///// Map from time to UI pixels.
+        // ///// </summary>
+        // ///// <param name="val"></param>
+        // ///// <returns></returns>
+        // //int Scale(TimeSpan val)
+        // //{
+        // //    return (int)(val.TotalMilliseconds * Width / _length.TotalMilliseconds);
+        // //}
+
+        // #endregion
     }
 }

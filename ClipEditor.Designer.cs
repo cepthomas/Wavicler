@@ -23,7 +23,7 @@ namespace Wavicler
             this.gain = new NBagOfUis.Slider();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.waveViewerNav = new AudioLib.WaveViewer();
-            this.picClipDisplay = new System.Windows.Forms.PictureBox();
+            //this.picClipDisplay = new System.Windows.Forms.PictureBox();
             this.hsbClipDisplay = new System.Windows.Forms.HScrollBar();
             ((System.ComponentModel.ISupportInitialize)(this.picClipDisplay)).BeginInit();
             this.SuspendLayout();
@@ -72,18 +72,18 @@ namespace Wavicler
             this.waveViewerNav.TabIndex = 34;
             this.toolTip1.SetToolTip(this.waveViewerNav, "Navigation");
             this.waveViewerNav.YGain = 0.8F;
-            // 
-            // picClipDisplay
-            // 
-            this.picClipDisplay.Location = new System.Drawing.Point(12, 95);
-            this.picClipDisplay.Name = "picClipDisplay";
-            this.picClipDisplay.Size = new System.Drawing.Size(1156, 261);
-            this.picClipDisplay.TabIndex = 39;
-            this.picClipDisplay.TabStop = false;
-            this.picClipDisplay.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ClipDisplay_KeyDown);
-            this.picClipDisplay.Paint += new System.Windows.Forms.PaintEventHandler(this.ClipDisplay_Paint);
-            this.picClipDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ClipDisplay_MouseDown);
-            this.picClipDisplay.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.ClipDisplay_MouseWheel);
+            // // 
+            // // picClipDisplay
+            // // 
+            // this.picClipDisplay.Location = new System.Drawing.Point(12, 95);
+            // this.picClipDisplay.Name = "picClipDisplay";
+            // this.picClipDisplay.Size = new System.Drawing.Size(1156, 261);
+            // this.picClipDisplay.TabIndex = 39;
+            // this.picClipDisplay.TabStop = false;
+            // this.picClipDisplay.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ClipDisplay_KeyDown);
+            // this.picClipDisplay.Paint += new System.Windows.Forms.PaintEventHandler(this.ClipDisplay_Paint);
+            // this.picClipDisplay.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ClipDisplay_MouseDown);
+            // this.picClipDisplay.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.ClipDisplay_MouseWheel);
             // 
             // hsbClipDisplay
             // 
@@ -118,7 +118,7 @@ namespace Wavicler
         private Slider gain;
         private WaveViewer waveViewerNav;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.PictureBox picClipDisplay;
+        //private System.Windows.Forms.PictureBox picClipDisplay;
         private System.Windows.Forms.HScrollBar hsbClipDisplay;
     }
 }

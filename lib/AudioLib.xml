@@ -361,10 +361,10 @@
         <member name="P:AudioLib.TimeBar.Length">
             <summary>Total length.</summary>
         </member>
-        <member name="P:AudioLib.TimeBar.Start">
+        <member name="P:AudioLib.TimeBar.Marker1">
             <summary>One marker.</summary>
         </member>
-        <member name="P:AudioLib.TimeBar.End">
+        <member name="P:AudioLib.TimeBar.Marker2">
             <summary>Other marker.</summary>
         </member>
         <member name="P:AudioLib.TimeBar.SnapMsec">
@@ -461,7 +461,7 @@
         <member name="T:AudioLib.WaveViewer">
             <summary>Simple mono wave display.</summary>
         </member>
-        <member name="F:AudioLib.WaveViewer._pen">
+        <member name="F:AudioLib.WaveViewer._penDraw">
             <summary>For drawing.</summary>
         </member>
         <member name="F:AudioLib.WaveViewer._penMarker">
@@ -480,7 +480,7 @@
             <summary>The provider from client. Mono only.</summary>
         </member>
         <member name="P:AudioLib.WaveViewer.DrawColor">
-            <summary>For styling.</summary>
+            <summary>The waveform color.</summary>
         </member>
         <member name="P:AudioLib.WaveViewer.YGain">
             <summary>Y adjustment.</summary>
