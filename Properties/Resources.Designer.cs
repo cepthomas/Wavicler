@@ -153,6 +153,16 @@ namespace Wavicler.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap glyphicons_221_play_button {
+            get {
+                object obj = ResourceManager.GetObject("glyphicons-221-play-button", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap glyphicons_366_restart {
             get {
                 object obj = ResourceManager.GetObject("glyphicons-366-restart", resourceCulture);

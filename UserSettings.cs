@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Text.Json.Serialization;
+using System.Drawing.Design;
 using NBagOfTricks;
 using NBagOfUis;
 using NBagOfTricks.Slog;
@@ -15,6 +16,12 @@ namespace Wavicler
     public class UserSettings : Settings
     {
         #region Persisted Editable Properties
+        [DisplayName("Root Directories")]
+        [Description("Where to look in order as they appear.")]
+        [Browsable(true)]
+        [Editor(typeof(StringListEditor), typeof(UITypeEditor))] // Ideally a multi folder picker.
+        public List<string> RootDirs { get; set; } = new();
+
         [DisplayName("Control Color")]
         [Description("Pick what you like.")]
         [Browsable(true)]
