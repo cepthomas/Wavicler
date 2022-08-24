@@ -19,26 +19,11 @@ namespace Wavicler
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.timeBar = new AudioLib.TimeBar();
             this.sldGain = new NBagOfUis.Slider();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.waveViewer = new AudioLib.WaveViewer();
             this.hsbClipDisplay = new System.Windows.Forms.HScrollBar();
             this.SuspendLayout();
-            // 
-            // timeBar
-            // 
-            this.timeBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.timeBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.timeBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.timeBar.Location = new System.Drawing.Point(70, 13);
-            this.timeBar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.timeBar.MarkerColor = System.Drawing.Color.Black;
-            this.timeBar.Name = "timeBar";
-            this.timeBar.ProgressColor = System.Drawing.Color.Orange;
-            this.timeBar.Size = new System.Drawing.Size(327, 41);
-            this.timeBar.SnapMsec = 0;
-            this.timeBar.TabIndex = 24;
             // 
             // sldGain
             // 
@@ -74,7 +59,6 @@ namespace Wavicler
             this.waveViewer.SelLength = 0;
             this.waveViewer.SelStart = -1;
             this.waveViewer.Size = new System.Drawing.Size(973, 274);
-            this.waveViewer.SnapTODO = 0F;
             this.waveViewer.TabIndex = 34;
             this.toolTip.SetToolTip(this.waveViewer, "Navigation");
             this.waveViewer.ViewCursor = -1;
@@ -96,7 +80,6 @@ namespace Wavicler
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.hsbClipDisplay);
             this.Controls.Add(this.waveViewer);
-            this.Controls.Add(this.timeBar);
             this.Controls.Add(this.sldGain);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ClipEditor";
@@ -106,8 +89,6 @@ namespace Wavicler
         }
 
         #endregion
-        
-        private TimeBar timeBar;
         private Slider sldGain;
         private WaveViewer waveViewer;
         private System.Windows.Forms.ToolTip toolTip;

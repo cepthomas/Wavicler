@@ -27,58 +27,44 @@ namespace Wavicler
     public enum SelectionMode { Sample, BarBeat, Time };
     #endregion
 
-
-    public static class Common
-    {
-        /// <summary>The global options.</summary>
-        public static UserSettings TheSettings { get; set; } = new();
-    }
-
-
-    // BPM calcs:
-    //sampleRate: 44100 smplPerSec:: 22.67573696145125 usec
-    //tempo: 100 beatsPerMin == 100 / 60 beatsPerSec == 60 / 100 secPerBeat
-    //smpl per beat = smplPerSec * secPerBeat
-    // Debug.WriteLine($"tempo,secPerBeat,samplesPerBeat");
-    // for (float tempo = 60.0f; tempo < 200.0f; tempo += 2.5f)
-    // {
-    //     float secPerBeat = 60.0f / tempo;
-    //  utils>>>   float samplesPerBeat = secPerBeat * reader.WaveFormat.SampleRate;
-    //     Debug.WriteLine($"{tempo},{secPerBeat},{samplesPerBeat}");
-    // }
-    //tempo ,secPerBeat,samplesPerBeat
-    // 80   ,0.75      ,33075
-    // 90   ,0.6666667 ,29400
-    // 100  ,0.6       ,26460.002
-    // 110  ,0.54545456,24054.547
-    // 120  ,0.5       ,22050
-    // 190  ,0.31578946,13926.315
-
-
     public static class Utils
     {
-        public static (int bar, int beat) Convert(int sample)
-        {
+        // sampleRate: 44100
+        // smplPerSec:: 22.67573696145125 usec
+        // tempo: 100 beatsPerMin == 100 / 60 beatsPerSec == 60 / 100 secPerBeat
+        // smplPerBeat = sampleRate * secPerBeat
 
-            return (0, 0);
+        /// <summary>
+        /// Conversion function.
+        /// </summary>
+        /// <param name="sample"></param>
+        /// <param name="bpm"></param>
+        /// <returns>(bar, beat)</returns>
+        public static (int bar, int beat) SampleToBarBeat(int sample, float bpm)
+        {
+            float minPerBeat = 1.0f / bpm;
+            float secPerBeat = minPerBeat * 60;
+            float smplPerBeat = AudioLibDefs.SAMPLE_RATE * secPerBeat;
+            int totalBeats = (int)(sample / smplPerBeat);
+            int bar = totalBeats / 4;
+            int beat = totalBeats % 4;
+            return (bar, beat);
         }
 
-        public static int Convert(int bar, int beat)
+        /// <summary>
+        /// Conversion function.
+        /// </summary>
+        /// <param name="bar"></param>
+        /// <param name="beat"></param>
+        /// <param name="bpm"></param>
+        /// <returns>Sample</returns>
+        public static int BarBeatToSample(int bar, int beat, float bpm)
         {
-
-            return 0;
-        }
-
-        public static TimeSpan ConvertX(int sample)
-        {
-
-            return new();
-        }
-
-        public static int Convert(TimeSpan ts)
-        {
-
-            return 0;
+            int totalBeats = 4 * bar + beat;
+            float minPerBeat = 1.0f / bpm;
+            float secPerBeat = minPerBeat * 60;
+            float smplPerBeat = AudioLibDefs.SAMPLE_RATE * secPerBeat;
+            return (int)(totalBeats * smplPerBeat);
         }
     }
 }

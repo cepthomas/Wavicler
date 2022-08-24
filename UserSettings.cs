@@ -13,7 +13,7 @@ using AudioLib;
 namespace Wavicler
 {
     [Serializable]
-    public class UserSettings : Settings
+    public sealed class UserSettings : Settings
     {
         #region Persisted Editable Properties
         [DisplayName("Root Directories")]
@@ -55,7 +55,17 @@ namespace Wavicler
         public bool Loop { get; set; } = false;
 
         [Browsable(false)]
+        public bool Snap { get; set; } = true;
+
+        [Browsable(false)]
         public double Volume { get; set; } = AudioLibDefs.VOLUME_MAX / 2;
+
+        [Browsable(false)]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public SelectionMode SelectionMode { get; set; } = SelectionMode.Sample;
+
+        [Browsable(false)]
+        public double BPM { get; set; } = 100.0;
         #endregion
 
         #region Non-persisted Properties

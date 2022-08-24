@@ -52,11 +52,14 @@
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRewind = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
+            this.cmbSelMode = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnSnap = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.ftree = new NBagOfUis.FilTree();
-            this.txtViewer = new NBagOfUis.TextViewer();
             this.tabControl = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tpgLog = new System.Windows.Forms.TabPage();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -72,7 +75,7 @@
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.MdiWindowListItem = this.FileMenuItem;
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(1084, 28);
+            this.menuStrip.Size = new System.Drawing.Size(1242, 28);
             this.menuStrip.TabIndex = 0;
             this.menuStrip.Text = "menuStrip";
             // 
@@ -248,10 +251,14 @@
             this.btnPlay,
             this.toolStripSeparator9,
             this.btnRewind,
-            this.toolStripSeparator10});
+            this.toolStripSeparator10,
+            this.cmbSelMode,
+            this.toolStripSeparator4,
+            this.btnSnap,
+            this.toolStripSeparator11});
             this.toolStrip.Location = new System.Drawing.Point(0, 28);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(1084, 43);
+            this.toolStrip.Size = new System.Drawing.Size(1242, 43);
             this.toolStrip.TabIndex = 1;
             this.toolStrip.Text = "toolStrip";
             // 
@@ -295,15 +302,16 @@
             // 
             this.sldVolume.AccessibleName = "sldVolume";
             this.sldVolume.AutoSize = false;
+            this.sldVolume.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.sldVolume.DrawColor = System.Drawing.Color.White;
             this.sldVolume.Label = "Volume";
             this.sldVolume.Maximum = 2D;
             this.sldVolume.Minimum = 0D;
             this.sldVolume.Name = "sldVolume";
-            this.sldVolume.Orientation = System.Windows.Forms.Orientation.Horizontal;
             this.sldVolume.Resolution = 0.05D;
             this.sldVolume.Size = new System.Drawing.Size(150, 40);
             this.sldVolume.Text = "vol";
+            this.sldVolume.ToolTipText = "Master volume";
             this.sldVolume.Value = 1D;
             // 
             // toolStripSeparator7
@@ -315,15 +323,16 @@
             // 
             this.sldBPM.AccessibleName = "sldBPM";
             this.sldBPM.AutoSize = false;
+            this.sldBPM.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.sldBPM.DrawColor = System.Drawing.Color.White;
             this.sldBPM.Label = "BPM";
-            this.sldBPM.Maximum = 249D;
+            this.sldBPM.Maximum = 240D;
             this.sldBPM.Minimum = 40D;
             this.sldBPM.Name = "sldBPM";
-            this.sldBPM.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            this.sldBPM.Resolution = 1D;
+            this.sldBPM.Resolution = 0.01D;
             this.sldBPM.Size = new System.Drawing.Size(150, 40);
             this.sldBPM.Text = "bpm";
+            this.sldBPM.ToolTipText = "BPM for BPM mode";
             this.sldBPM.Value = 100D;
             // 
             // toolStripSeparator8
@@ -342,6 +351,7 @@
             this.btnPlay.Name = "btnPlay";
             this.btnPlay.Size = new System.Drawing.Size(40, 40);
             this.btnPlay.Text = "toolStripButton1";
+            this.btnPlay.ToolTipText = "Play or stop";
             // 
             // toolStripSeparator9
             // 
@@ -358,62 +368,81 @@
             this.btnRewind.Name = "btnRewind";
             this.btnRewind.Size = new System.Drawing.Size(40, 40);
             this.btnRewind.Text = "toolStripButton1";
+            this.btnRewind.ToolTipText = "Rewind";
             // 
             // toolStripSeparator10
             // 
             this.toolStripSeparator10.Name = "toolStripSeparator10";
             this.toolStripSeparator10.Size = new System.Drawing.Size(6, 43);
             // 
+            // cmbSelMode
+            // 
+            this.cmbSelMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSelMode.Name = "cmbSelMode";
+            this.cmbSelMode.Size = new System.Drawing.Size(90, 43);
+            this.cmbSelMode.ToolTipText = "Selection mode";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 43);
+            // 
+            // btnSnap
+            // 
+            this.btnSnap.AutoSize = false;
+            this.btnSnap.CheckOnClick = true;
+            this.btnSnap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnSnap.Image = global::Wavicler.Properties.Resources.glyphicons_242_flash;
+            this.btnSnap.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSnap.Name = "btnSnap";
+            this.btnSnap.Size = new System.Drawing.Size(40, 40);
+            this.btnSnap.Text = "toolStripButton1";
+            this.btnSnap.ToolTipText = "Snap";
+            // 
+            // toolStripSeparator11
+            // 
+            this.toolStripSeparator11.Name = "toolStripSeparator11";
+            this.toolStripSeparator11.Size = new System.Drawing.Size(6, 43);
+            // 
             // ftree
             // 
+            this.ftree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.ftree.Location = new System.Drawing.Point(8, 80);
             this.ftree.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.ftree.Name = "ftree";
             this.ftree.SingleClickSelect = true;
-            this.ftree.Size = new System.Drawing.Size(527, 317);
+            this.ftree.Size = new System.Drawing.Size(430, 506);
             this.ftree.TabIndex = 89;
-            this.ftree.FileSelectedEvent += new System.EventHandler<string>(this.Navigator_FileSelectedEvent);
-            // 
-            // txtViewer
-            // 
-            this.txtViewer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtViewer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtViewer.Location = new System.Drawing.Point(541, 80);
-            this.txtViewer.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.txtViewer.MaxText = 5000;
-            this.txtViewer.Name = "txtViewer";
-            this.txtViewer.Prompt = "";
-            this.txtViewer.Size = new System.Drawing.Size(531, 221);
-            this.txtViewer.TabIndex = 58;
-            this.txtViewer.WordWrap = true;
             // 
             // tabControl
             // 
-            this.tabControl.Controls.Add(this.tabPage2);
-            this.tabControl.Location = new System.Drawing.Point(8, 405);
+            this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl.Controls.Add(this.tpgLog);
+            this.tabControl.Location = new System.Drawing.Point(445, 80);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1064, 288);
+            this.tabControl.Size = new System.Drawing.Size(797, 511);
             this.tabControl.TabIndex = 90;
             // 
-            // tabPage2
+            // tpgLog
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 29);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(1056, 255);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tpgLog.Location = new System.Drawing.Point(4, 29);
+            this.tpgLog.Name = "tpgLog";
+            this.tpgLog.Padding = new System.Windows.Forms.Padding(3);
+            this.tpgLog.Size = new System.Drawing.Size(789, 478);
+            this.tpgLog.TabIndex = 1;
+            this.tpgLog.Text = "Log";
+            this.tpgLog.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1084, 702);
+            this.ClientSize = new System.Drawing.Size(1242, 593);
             this.Controls.Add(this.tabControl);
-            this.Controls.Add(this.txtViewer);
             this.Controls.Add(this.ftree);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
@@ -470,8 +499,11 @@
         private System.Windows.Forms.ToolStripButton btnRewind;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
         private NBagOfUis.FilTree ftree;
-        private NBagOfUis.TextViewer txtViewer;
         private System.Windows.Forms.TabControl tabControl;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tpgLog;
+        private System.Windows.Forms.ToolStripComboBox cmbSelMode;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripButton btnSnap;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
     }
 }
