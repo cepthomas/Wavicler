@@ -2,61 +2,50 @@
 
 Play tool for editing audio waves.
 
-- Using int for sample index. This gives us a max time of about 1.3 hours. Plenty for the purpose of this application.
 - Everything internal is 32bit fp 44100Hz.
-- 44.1 sample/msec <-> 0.0226757369614512 msec/sample
-
+- Using int for sample index. This gives us a max time of about 1.3 hours. Plenty for the purpose of this application.
 
 
 ## UI/Tools
-- Mode: bars/beats (BB) or time/samples (TS).
 
 - Main
-  - standard file, about stuff
+  - standard file, about/settings stuff
+  - Open an audio file. This is a now a `clip` in a ClipEditor tab page.
   - If stereo file ask to open as mono/L/R/both
-  - Play/loop/rewind
+  - Clip play, loop on/off, auto-start on/off, rewind
 
-- BB mode
-  - Select two sample indexes (SI)
+- bars/beats mode
+  - Select two samples
   - identify as number of bars/beats - show in UI
-  - Select two BB. Uses snap mode: bars or beats
+  - Select two bars/beats. Uses snap mode: bars or beats
 
-- TS mode
+- time/samples mode
   - Select two samples
   - Show num and time in UI
-  - Select two TS. Uses snap mode: numsamples or 
+  - Select two time/samples. Uses snap mode: numsamples or time
 
-- Context menu?
-  ? cut/copy/paste/insert
-  - Set gain in selection
-  ? show/select altered gain.
-  - Save selection as...
+- Context or edit menu
+  - Copy selection to new clip
 
 - Tools
-  - split stereo m4a, save as wavs, convert to mono.
-  - resample.
+  - stereo file: split into two wavs, combine to mono wav. Does resampling.
   - detect tempo.
 
-
-## Navigation
-- Wheel:
-  - none - x shift
-  - ctrl - x zoom
-  - shift - y zoom
-  - L click sels mark1, ctrl-L selects mark2
-  - R click opens context menu
+- Navigation :
+  - wheel no mods is x shift
+  - wheel + ctrl is x zoom
+  - wheel + shift is gain (y zoom)
+  - left click is SelStart
+  - left click + ctrl is SelLength
 
 
-## Work flow
-  - Open an audio file. This is a now a "clip", ClipEditor.
-  - Select a part of a clip. Snap to bar/beat/sample/time/???
-  ? Gain envelope. Simple only for now.
-  ? Stretch/fit etc.
-  - Export selection to a new clip.
-  - Clip play, select start, loop on/off/, auto-start, rewind
-
-## ????
+## TODO-future
   - New empty clip.
   - Combine multiple clips, incl blank.
   - Render to new clip/file.
-
+  - cut/copy/paste/insert
+  - Set gain in selection
+  - show/select altered gain.
+  - Gain envelope. Simple only for now.
+  - Stretch/fit etc.
+  - R click opens context menu

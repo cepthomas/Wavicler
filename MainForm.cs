@@ -99,12 +99,11 @@ namespace Wavicler
             };
 
             // Hook up audio processing chain.
-            var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10);
-            postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) =>
-            {
-                // TODO timeBar.Current = _reader.CurrentTime;
-            };
-            _waveOutSwapper.SetInput(postVolumeMeter);
+            //var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10);
+            //postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) =>
+            //{
+            //    // timeBar.Current = _reader.CurrentTime;
+            //};
 
             // Tab pages. Make one into a log view.
             tabControl.TabPages.Clear();
@@ -123,6 +122,8 @@ namespace Wavicler
             tpg.Controls.Add(_tvLog);
             tabControl.Controls.Add(tpg);
             tabControl.SelectedTab = tpg;
+
+            tabControl.TabIndexChanged += (_, __) => {  }; // TODO update _waveOutSwapper input if tab is ClipEditor or null if not.
 
             // Other UI items.
             toolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
@@ -331,8 +332,11 @@ namespace Wavicler
 
             void Rewind()
             {
-                _player.Rewind();
-//                timeBar.Current = TimeSpan.Zero;
+                _waveOutSwapper.Rewind();
+                
+                //_player.Rewind();
+
+                //timeBar.Current = TimeSpan.Zero;
             }
         }
 
@@ -443,10 +447,6 @@ namespace Wavicler
         }
         #endregion
 
-
-
-
-
         #region File I/O
         /// <summary>
         /// Common file opener.
@@ -456,62 +456,75 @@ namespace Wavicler
         bool OpenFile(string fn = "")
         {
             bool ok = false;
-
             UpdateState(AppState.Stop);
+            _logger.Info($"Opening file: {fn}");
 
-            if (fn == "")
+            try
             {
-                _logger.Info($"Creating new tab");
-                ClipSampleProvider prov = new(Array.Empty<float>());
-                CreateTab(prov, "*");
-                ok = true;
-            }
-            else
-            {
-                var ext = Path.GetExtension(fn).ToLower();
-                var baseFn = Path.GetFileName(fn);
-
-                if (!File.Exists(fn))
+                if (fn == "")
                 {
-                    _logger.Error($"Invalid file: {fn}");
-                }
-                else if (AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
-                {
-                    _logger.Info($"Opening file: {fn}");
-
-                    // If sample rate doesn't match, create a resampled temp file.
-                    var reader = new AudioFileReader(fn);
-                    if (reader.WaveFormat.SampleRate != AudioLibDefs.SAMPLE_RATE)
-                    {
-                        reader = reader.Resample();
-                    }
-                    reader.Validate(false);
-
-                    // Make controls for our data. Add to tab.
-                    if (reader.WaveFormat.Channels == 2) // stereo interleaved
-                    {
-                        CreateTab(new ClipSampleProvider(fn, StereoCoercion.Left), baseFn + " LEFT");
-                        CreateTab(new ClipSampleProvider(fn, StereoCoercion.Right), baseFn + " RIGHT");
-                    }
-                    else
-                    {
-                        CreateTab(new ClipSampleProvider(reader, StereoCoercion.Mono), baseFn);
-                    }
-
+                    _logger.Info($"Creating new tab");
+                    ClipSampleProvider prov = new(Array.Empty<float>());
+                    CreateTab(prov, "*");
                     ok = true;
                 }
+
                 else
                 {
-                    _logger.Error($"Unsupported file type: {fn}");
+                    if (!File.Exists(fn))
+                    {
+                        throw new InvalidOperationException($"Invalid file: {fn}");
+                    }
+
+                    var ext = Path.GetExtension(fn).ToLower();
+                    var baseFn = Path.GetFileName(fn);
+
+                    if (!AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
+                    {
+                        throw new InvalidOperationException($"Invalid file type: {fn}");
+                    }
+
+                    using (new WaitCursor())
+                    {
+                        _logger.Info($"Opening file: {fn}");
+
+                        // If sample rate doesn't match, create a resampled temp file.
+                        var reader = new AudioFileReader(fn);
+                        if (reader.WaveFormat.SampleRate != AudioLibDefs.SAMPLE_RATE)
+                        {
+                            reader = reader.Resample();
+                        }
+                        reader.Validate(false);
+
+                        // Make controls for our data. Add to tab.
+                        if (reader.WaveFormat.Channels == 2) // stereo interleaved
+                        {
+                            CreateTab(new ClipSampleProvider(fn, StereoCoercion.Left), baseFn + " LEFT");
+                            CreateTab(new ClipSampleProvider(fn, StereoCoercion.Right), baseFn + " RIGHT");
+                        }
+                        else
+                        {
+                            CreateTab(new ClipSampleProvider(reader, StereoCoercion.Mono), baseFn);
+                        }
+
+                        _settings.RecentFiles.UpdateMru(fn);
+
+                        ok = true;
+                        if (_settings.Autoplay)
+                        {
+                            UpdateState(AppState.Rewind);
+                            UpdateState(AppState.Play);
+                        }
+                    }
                 }
             }
-
-            if (ok && _settings.Autoplay)
+            catch (Exception ex)
             {
-                UpdateState(AppState.Rewind);
-                UpdateState(AppState.Play);
+                _logger.Error($"Couldn't open the file: {fn} because: {ex.Message}");
+                ok = false;
             }
 
+            btnPlay.Enabled = ok;
             UpdateMenu();
 
             return ok;

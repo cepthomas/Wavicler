@@ -74,7 +74,7 @@ namespace Wavicler
             Text = prov.GetInfoString();
 
             waveViewer.Init(prov);
-            waveViewer.StatusEvent += (_, __) => { sldGain.Value = waveViewer.Gain; };
+            waveViewer.GainChangedEvent += (_, __) => { sldGain.Value = waveViewer.Gain; };
 
             sldGain.ValueChanged += (_, __) => { waveViewer.Gain = (float)sldGain.Value; };
         }
