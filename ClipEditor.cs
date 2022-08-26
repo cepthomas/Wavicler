@@ -29,7 +29,7 @@ namespace Wavicler
         #endregion
 
         #region Properties
-        /// <summary>The selected/rendered data for client playing.</summary>
+        /// <summary>The selected/rendered data for client playing or persisting.</summary>
         public ISampleProvider SelectionSampleProvider { get; private set; }
 
         /// <summary>Current file.</summary>

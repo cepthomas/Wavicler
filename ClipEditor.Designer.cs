@@ -31,7 +31,7 @@ namespace Wavicler
             this.sldGain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.sldGain.DrawColor = System.Drawing.Color.Blue;
             this.sldGain.Label = "Gain";
-            this.sldGain.Location = new System.Drawing.Point(12, 63);
+            this.sldGain.Location = new System.Drawing.Point(14, 13);
             this.sldGain.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.sldGain.Maximum = 5D;
             this.sldGain.Minimum = 0D;
@@ -52,13 +52,13 @@ namespace Wavicler
             this.waveViewer.DrawColor = System.Drawing.Color.Orange;
             this.waveViewer.Gain = 0.8F;
             this.waveViewer.GridColor = System.Drawing.Color.LightGray;
-            this.waveViewer.Location = new System.Drawing.Point(70, 62);
+            this.waveViewer.Location = new System.Drawing.Point(70, 13);
             this.waveViewer.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.waveViewer.Name = "waveViewer";
             this.waveViewer.SelColor = System.Drawing.Color.White;
             this.waveViewer.SelLength = 0;
-            this.waveViewer.SelStart = -1;
-            this.waveViewer.Size = new System.Drawing.Size(973, 274);
+            this.waveViewer.SelStart = 0;
+            this.waveViewer.Size = new System.Drawing.Size(973, 323);
             this.waveViewer.TabIndex = 34;
             this.toolTip.SetToolTip(this.waveViewer, "Navigation");
             this.waveViewer.ViewCursor = -1;

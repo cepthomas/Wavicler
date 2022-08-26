@@ -60,9 +60,13 @@
             this.ftree = new NBagOfUis.FilTree();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tpgLog = new System.Windows.Forms.TabPage();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tvLog = new NBagOfUis.TextViewer();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.tabControl.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -412,7 +416,7 @@
             this.ftree.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.ftree.Name = "ftree";
             this.ftree.SingleClickSelect = true;
-            this.ftree.Size = new System.Drawing.Size(430, 506);
+            this.ftree.Size = new System.Drawing.Size(430, 377);
             this.ftree.TabIndex = 89;
             // 
             // tabControl
@@ -424,7 +428,7 @@
             this.tabControl.Location = new System.Drawing.Point(445, 80);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(797, 511);
+            this.tabControl.Size = new System.Drawing.Size(797, 381);
             this.tabControl.TabIndex = 90;
             // 
             // tpgLog
@@ -432,20 +436,53 @@
             this.tpgLog.Location = new System.Drawing.Point(4, 29);
             this.tpgLog.Name = "tpgLog";
             this.tpgLog.Padding = new System.Windows.Forms.Padding(3);
-            this.tpgLog.Size = new System.Drawing.Size(789, 478);
+            this.tpgLog.Size = new System.Drawing.Size(789, 348);
             this.tpgLog.TabIndex = 1;
             this.tpgLog.Text = "Log";
             this.tpgLog.UseVisualStyleBackColor = true;
+            // 
+            // statusStrip
+            // 
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusInfo});
+            this.statusStrip.Location = new System.Drawing.Point(0, 550);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(1242, 26);
+            this.statusStrip.TabIndex = 91;
+            this.statusStrip.Text = "statusStrip1";
+            // 
+            // statusInfo
+            // 
+            this.statusInfo.Name = "statusInfo";
+            this.statusInfo.Size = new System.Drawing.Size(151, 20);
+            this.statusInfo.Text = "toolStripStatusLabel1";
+            // 
+            // tvLog
+            // 
+            this.tvLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tvLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tvLog.Location = new System.Drawing.Point(8, 467);
+            this.tvLog.MaxText = 5000;
+            this.tvLog.Name = "tvLog";
+            this.tvLog.Prompt = "> ";
+            this.tvLog.Size = new System.Drawing.Size(1230, 80);
+            this.tvLog.TabIndex = 92;
+            this.tvLog.TabStop = false;
+            this.tvLog.WordWrap = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1242, 593);
+            this.ClientSize = new System.Drawing.Size(1242, 576);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.ftree);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
+            this.Controls.Add(this.tvLog);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainForm";
@@ -455,6 +492,8 @@
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.tabControl.ResumeLayout(false);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -505,5 +544,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripButton btnSnap;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel statusInfo;
+        private NBagOfUis.TextViewer tvLog;
     }
 }

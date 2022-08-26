@@ -42,9 +42,6 @@ namespace Wavicler
         /// <summary>Where to put stuff.</summary>
         string _outPath;
 
-        /// <summary>Log for the user.</summary>
-        TextViewer _tvLog;
-
         /// <summary>The settings.</summary>
         UserSettings _settings;
         #endregion
@@ -67,8 +64,11 @@ namespace Wavicler
             // Init logging.
             LogManager.MinLevelFile = _settings.FileLogLevel;
             LogManager.MinLevelNotif = _settings.NotifLogLevel;
-            LogManager.LogEvent += (object? sender, LogEventArgs e) => { this.InvokeIfRequired(_ => { _tvLog.AppendLine($"{e.Message}"); }); };
+            LogManager.LogEvent += (object? sender, LogEventArgs e) => { this.InvokeIfRequired(_ => { tvLog.AppendLine($"{e.Message}"); }); };
             LogManager.Run();
+            tvLog.Font = Font;
+            tvLog.MatchColors.Add("ERR", Color.LightPink);
+            tvLog.MatchColors.Add("WRN:", Color.Plum);
 
             // Set up paths.
             _outPath = Path.Combine(appDir, "out");
@@ -105,25 +105,22 @@ namespace Wavicler
             //    // timeBar.Current = _reader.CurrentTime;
             //};
 
-            // Tab pages. Make one into a log view.
+            // Tab pages.
             tabControl.TabPages.Clear();
-            _tvLog = new TextViewer
+            tabControl.TabIndexChanged += (_, __) =>
             {
-                MaxText = 5000,
-                Prompt = "> ",
-                Font = Font,
-                WordWrap = true,
-                Dock = DockStyle.Fill
+                var cled = ActiveClipEditor();
+                if(cled is not null)
+                {
+                    _waveOutSwapper.SetInput(cled.SelectionSampleProvider);
+                    statusInfo.Text = cled.SelectionSampleProvider.GetInfoString();
+                }
+                else
+                {
+                    _waveOutSwapper.SetInput(null);
+                    statusInfo.Text = "";
+                }
             };
-            _tvLog.MatchColors.Add("ERR", Color.LightPink);
-            _tvLog.MatchColors.Add("WRN:", Color.Plum);
-
-            TabPage tpg = new() { Text = "Log" };
-            tpg.Controls.Add(_tvLog);
-            tabControl.Controls.Add(tpg);
-            tabControl.SelectedTab = tpg;
-
-            tabControl.TabIndexChanged += (_, __) => {  }; // TODO update _waveOutSwapper input if tab is ClipEditor or null if not.
 
             // Other UI items.
             toolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
@@ -157,8 +154,8 @@ namespace Wavicler
             // File handling.
             NewMenuItem.Click += (_, __) => { OpenFile(); };
             OpenMenuItem.Click += (_, __) => { Open_Click(); };
-            SaveMenuItem.Click += (_, __) => { SaveFile(tabControl.SelectedTab); };
-            SaveAsMenuItem.Click += (_, __) => { SaveFileAs(tabControl.SelectedTab); };
+            SaveMenuItem.Click += (_, __) => { SaveFile(ActiveClipEditor()); };
+            SaveAsMenuItem.Click += (_, __) => { SaveFileAs(ActiveClipEditor()); };
             CloseMenuItem.Click += (_, __) => { Close(false); };
             CloseAllMenuItem.Click += (_, __) => { Close(true); };
             ExitMenuItem.Click += (_, __) => { Close(true); };
@@ -180,6 +177,15 @@ namespace Wavicler
 
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
         }
+
+
+        ClipEditor? ActiveClipEditor()
+        {
+            ClipEditor? cled = tabControl.TabPages.Count > 0 ? tabControl.SelectedTab.Controls[0] as ClipEditor : null;
+            return cled;
+        }
+
+
 
         /// <summary>
         /// Form is legal now. Init things that want to log.
@@ -400,12 +406,11 @@ namespace Wavicler
             bool dirty = false;
             bool hasClip = false;
 
-            var tpg = tabControl.SelectedTab;
-            if (tpg.Controls[0] is ClipEditor)
+            var cled = ActiveClipEditor();
+            if (cled is not null)
             {
-                var ed = tpg.Controls[0] as ClipEditor;
                 anyOpen = true;
-                dirty = ed.Dirty;
+                dirty = cled.Dirty;
             }
 
             btnRewind.Enabled = anyOpen;
@@ -425,7 +430,7 @@ namespace Wavicler
         }
         #endregion
 
-        #region Cut/copy/paste TODO??
+        #region Cut/copy/paste TODO1??
         void Cut()
         {
 
@@ -531,25 +536,6 @@ namespace Wavicler
         }
 
         /// <summary>
-        /// Common file saver.
-        /// </summary>
-        /// <param name="tpg">Data source.</param>
-        /// <param name="fn">The file to save to.</param>
-        /// <returns>Status.</returns>
-        bool SaveFile(TabPage tpg, string fn = "")
-        {
-            bool ok = false;
-
-            if (tpg.Controls[0] is ClipEditor)
-            {
-                // TODO get all rendered data and save to audio file - to fn if specified else old.
-
-            }
-
-            return ok;
-        }
-
-        /// <summary>
         /// Allows the user to select an audio clip or midi from file system.
         /// </summary>
         void Open_Click()
@@ -568,12 +554,30 @@ namespace Wavicler
         }
 
         /// <summary>
+        /// Common file saver.
+        /// </summary>
+        /// <param name="cled">Data source.</param>
+        /// <param name="fn">The file to save to.</param>
+        /// <returns>Status.</returns>
+        bool SaveFile(ClipEditor? cled, string fn = "")
+        {
+            bool ok = false;
+
+            if (cled is not null)
+            {
+                // TODO1 get all rendered data and save to audio file - to fn if specified else old.
+            }
+
+            return ok;
+        }
+
+        /// <summary>
         /// Save the file in the current page.
         /// </summary>
-        /// <param name="tpg">The page.</param>
-        void SaveFileAs(TabPage tpg)
+        /// <param name="cled">Data source.</param>
+        void SaveFileAs(ClipEditor? cled)
         {
-            if (tpg.Controls[0] is ClipEditor)
+            if (cled is not null)
             {
                 using SaveFileDialog saveDlg = new()
                 {
@@ -583,7 +587,7 @@ namespace Wavicler
 
                 if (saveDlg.ShowDialog() == DialogResult.OK)
                 {
-                    SaveFile(tpg, saveDlg.FileName);
+                    SaveFile(cled, saveDlg.FileName);
                 }
             }
         }
@@ -591,7 +595,7 @@ namespace Wavicler
         /// <summary>
         /// General closer/saver.
         /// </summary>
-        /// <param name="all"></param>
+        /// <param name="all">Close all if true otherwise just the current selected.</param>
         /// <returns></returns>
         bool Close(bool all)
         {
@@ -599,16 +603,12 @@ namespace Wavicler
 
             if (all)
             {
-                for (int i = 0; i < tabControl.TabCount; i++)
+                while(tabControl.TabCount > 0)
                 {
-                    var tpg = tabControl.TabPages[i];
-                    if (tpg.Controls[0] is ClipEditor)
-                    {
-                        CloseOne(tpg);
-                    }
+                    CloseOne(tabControl.TabPages[0]);
                 }
             }
-            else
+            else if (tabControl.TabCount > 0)
             {
                 CloseOne(tabControl.SelectedTab);
             }
@@ -616,19 +616,15 @@ namespace Wavicler
             // Local function.
             void CloseOne(TabPage tpg)
             {
-                if (tpg.Controls[0] is ClipEditor)
+                var cled = tpg.Controls[0] as ClipEditor;
+                if (cled.Dirty)
                 {
-                    var ed = tpg.Controls[0] as ClipEditor;
-                    if (ed.Dirty)
-                    {
-                        // TODO ask to save.
-                    }
-
-                    ed.Dispose();
-                    tabControl.TabPages.Remove(tpg);
-                    tpg.Dispose();
+                    // TODO1 ask to save.
                 }
-                // else leave alone
+
+                cled.Dispose();
+                tabControl.TabPages.Remove(tpg);
+                tpg.Dispose();
             }
 
             UpdateMenu();
@@ -643,7 +639,7 @@ namespace Wavicler
         /// </summary>
         void EditSettings()
         {
-            var changes = _settings.Edit("User Settings", 300);
+            var changes = _settings.Edit("User Settings", 450);
 
             // TODO Check for meaningful changes.
 
