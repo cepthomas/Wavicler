@@ -14,7 +14,7 @@ using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib;
-
+using System.ComponentModel;
 
 namespace Wavicler
 {
@@ -42,7 +42,7 @@ namespace Wavicler
         public Color DrawColor
         {
             get { return waveViewer.DrawColor; }
-            set { waveViewer.DrawColor = value; sldGain.DrawColor = value; }
+            set { waveViewer.DrawColor = value; }
         }
 
         /// <summary>For styling.</summary>
@@ -57,6 +57,24 @@ namespace Wavicler
 
         /// <summary>How to select wave.</summary>
         public SelectionMode SelectionMode { get; set; } = SelectionMode.Sample;
+
+        /// <summary>Gain adjustment.</summary>
+        public double Gain
+        {
+            get { return waveViewer.Gain; }
+            set { waveViewer.Gain = (float)value; }
+        }
+        #endregion
+
+        #region Events
+        /// <summary>Ask the parent to do something.</summary>
+        public event EventHandler<ServiceRequestEventArgs>? ServiceRequestEvent;
+        public enum ServiceRequest { CopySelectionToNewClip, CloseMe }
+
+        public class ServiceRequestEventArgs
+        {
+            public ServiceRequest Request { get; set; }
+        }
         #endregion
 
         #region Lifecycle
@@ -71,12 +89,23 @@ namespace Wavicler
             InitializeComponent();
 
             SelectionSampleProvider = waveViewer;
-            Text = prov.GetInfoString();
 
             waveViewer.Init(prov);
-            waveViewer.GainChangedEvent += (_, __) => { sldGain.Value = waveViewer.Gain; };
 
-            sldGain.ValueChanged += (_, __) => { waveViewer.Gain = (float)sldGain.Value; };
+            contextMenu.Opening += (_, __) =>
+            {
+                contextMenu.Items.Clear();
+                contextMenu.Items.Add("Fit", null, (_, __) => { waveViewer.FitGain(); });
+                contextMenu.Items.Add("Reset", null, (_, __) => { waveViewer.Gain = 1.0f; });
+                contextMenu.Items.Add("Copy To New Clip", null, (_, __) =>
+                {
+                    ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip });
+                });
+                contextMenu.Items.Add("Close Me", null, (_, __) =>
+                {
+                    ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CloseMe });
+                });
+            };
         }
 
         /// <summary>
@@ -87,7 +116,6 @@ namespace Wavicler
         {
             // _logger.Info($"OK to log now!!");
 
-            waveViewer.SelColor = GraphicsUtils.HalfMix(BackColor, Color.White);
         }
 
         /// <summary>

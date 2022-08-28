@@ -19,29 +19,11 @@ namespace Wavicler
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.sldGain = new NBagOfUis.Slider();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.waveViewer = new AudioLib.WaveViewer();
+            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.hsbClipDisplay = new System.Windows.Forms.HScrollBar();
             this.SuspendLayout();
-            // 
-            // sldGain
-            // 
-            this.sldGain.BackColor = System.Drawing.Color.Gainsboro;
-            this.sldGain.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.sldGain.DrawColor = System.Drawing.Color.Blue;
-            this.sldGain.Label = "Gain";
-            this.sldGain.Location = new System.Drawing.Point(14, 13);
-            this.sldGain.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.sldGain.Maximum = 5D;
-            this.sldGain.Minimum = 0D;
-            this.sldGain.Name = "sldGain";
-            this.sldGain.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.sldGain.Resolution = 0.01D;
-            this.sldGain.Size = new System.Drawing.Size(38, 102);
-            this.sldGain.TabIndex = 36;
-            this.toolTip.SetToolTip(this.sldGain, "Gain");
-            this.sldGain.Value = 1D;
             // 
             // waveViewer
             // 
@@ -49,29 +31,32 @@ namespace Wavicler
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.waveViewer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.waveViewer.ContextMenuStrip = this.contextMenu;
             this.waveViewer.DrawColor = System.Drawing.Color.Orange;
-            this.waveViewer.Gain = 0.8F;
+            this.waveViewer.Gain = 1F;
+            this.waveViewer.GainIncrement = 0.05F;
             this.waveViewer.GridColor = System.Drawing.Color.LightGray;
-            this.waveViewer.Location = new System.Drawing.Point(70, 13);
+            this.waveViewer.Location = new System.Drawing.Point(13, 13);
             this.waveViewer.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.waveViewer.Name = "waveViewer";
-            this.waveViewer.SelColor = System.Drawing.Color.White;
-            this.waveViewer.SelLength = 0;
-            this.waveViewer.SelStart = 0;
-            this.waveViewer.Size = new System.Drawing.Size(973, 323);
+            this.waveViewer.MarkColor = System.Drawing.Color.OrangeRed;
+            this.waveViewer.Size = new System.Drawing.Size(1030, 323);
             this.waveViewer.TabIndex = 34;
             this.toolTip.SetToolTip(this.waveViewer, "Navigation");
-            this.waveViewer.ViewCursor = -1;
-            this.waveViewer.VisLength = 0;
-            this.waveViewer.VisStart = 0;
+            // 
+            // contextMenu
+            // 
+            this.contextMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenu.Name = "contextMenu";
+            this.contextMenu.Size = new System.Drawing.Size(61, 4);
             // 
             // hsbClipDisplay
             // 
             this.hsbClipDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.hsbClipDisplay.Location = new System.Drawing.Point(70, 345);
+            this.hsbClipDisplay.Location = new System.Drawing.Point(13, 345);
             this.hsbClipDisplay.Name = "hsbClipDisplay";
-            this.hsbClipDisplay.Size = new System.Drawing.Size(970, 26);
+            this.hsbClipDisplay.Size = new System.Drawing.Size(1027, 26);
             this.hsbClipDisplay.TabIndex = 40;
             // 
             // ClipEditor
@@ -80,7 +65,6 @@ namespace Wavicler
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.hsbClipDisplay);
             this.Controls.Add(this.waveViewer);
-            this.Controls.Add(this.sldGain);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ClipEditor";
             this.Size = new System.Drawing.Size(1057, 386);
@@ -89,9 +73,9 @@ namespace Wavicler
         }
 
         #endregion
-        private Slider sldGain;
         private WaveViewer waveViewer;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.HScrollBar hsbClipDisplay;
+        private System.Windows.Forms.ContextMenuStrip contextMenu;
     }
 }

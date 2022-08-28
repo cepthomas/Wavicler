@@ -17,9 +17,17 @@ using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
 
 
-//snap on/off
-//public float Snap;
-//public enum SelectionMode { Sample, BarBeat, Time };
+//TODO1 cmbSelMode: Sample, Beat, Time + Snap on/off
+// - Beats mode:
+//   - Establish timing by select two samples and identify corresponding number of beats.
+//   - Show in waveform.
+//   - Subsequent selections are by beat using snap.
+// - Time mode:
+//   - Select two times using ?? resolution.
+//   - Shows number of samples and time in UI.
+// - Sample mode:
+//   - Select two samples using ?? resolution.
+//   - Shows number of samples and time in UI.
 
 
 namespace Wavicler
@@ -105,23 +113,6 @@ namespace Wavicler
             //    // timeBar.Current = _reader.CurrentTime;
             //};
 
-            // Tab pages.
-            tabControl.TabPages.Clear();
-            tabControl.TabIndexChanged += (_, __) =>
-            {
-                var cled = ActiveClipEditor();
-                if(cled is not null)
-                {
-                    _waveOutSwapper.SetInput(cled.SelectionSampleProvider);
-                    statusInfo.Text = cled.SelectionSampleProvider.GetInfoString();
-                }
-                else
-                {
-                    _waveOutSwapper.SetInput(null);
-                    statusInfo.Text = "";
-                }
-            };
-
             // Other UI items.
             toolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
 
@@ -138,13 +129,20 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => { _player.Volume = (float)sldVolume.Value; };
 
-            sldBPM.DrawColor = _settings.ControlColor;
-            sldBPM.Value = _settings.BPM;
-            sldBPM.ValueChanged += (_, __) => { _settings.BPM = sldBPM.Value; };
+            //sldBPM.DrawColor = _settings.ControlColor;
+            //sldBPM.Value = _settings.BPM;
+            //sldBPM.ValueChanged += (_, __) => { _settings.BPM = sldBPM.Value; };
 
-            cmbSelMode.Items.Add(SelectionMode.Sample);
-            cmbSelMode.Items.Add(SelectionMode.BarBeat);
+            txtBPM.Text = _settings.BPM.ToString();
+            txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) =>
+            {
+                KeyUtils.TestForNumber_KeyPress(sender!, e);
+                _settings.BPM = double.Parse(txtBPM.Text);
+            };
+
             cmbSelMode.Items.Add(SelectionMode.Time);
+            cmbSelMode.Items.Add(SelectionMode.Beat);
+            cmbSelMode.Items.Add(SelectionMode.Sample);
             cmbSelMode.SelectedItem = _settings.SelectionMode;
             cmbSelMode.SelectedIndexChanged += (_, __) => { _settings.SelectionMode = (SelectionMode)cmbSelMode.SelectedItem; };
 
@@ -152,7 +150,7 @@ namespace Wavicler
             btnPlay.Click += (_, __) => { UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop); };
 
             // File handling.
-            NewMenuItem.Click += (_, __) => { OpenFile(); };
+            //NewMenuItem.Click += (_, __) => { OpenFile(); };
             OpenMenuItem.Click += (_, __) => { Open_Click(); };
             SaveMenuItem.Click += (_, __) => { SaveFile(ActiveClipEditor()); };
             SaveAsMenuItem.Click += (_, __) => { SaveFileAs(ActiveClipEditor()); };
@@ -162,12 +160,6 @@ namespace Wavicler
             menuStrip.MenuActivate += (_, __) => { UpdateMenu(); };
             FileMenuItem.DropDownOpening += Recent_DropDownOpening;
             ftree.FileSelectedEvent += (object? sender, string fn) => { OpenFile(fn); };
-
-            // Edit menu.
-            CutMenuItem.Click += (_, __) => { Cut(); };
-            CopyMenuItem.Click += (_, __) => { Copy(); };
-            PasteMenuItem.Click += (_, __) => { Paste(); };
-            ReplaceMenuItem.Click += (_, __) => { Replace(); };
 
             // Tools.
             AboutMenuItem.Click += (_, __) => { MiscUtils.ShowReadme("Wavicler"); };
@@ -179,11 +171,15 @@ namespace Wavicler
         }
 
 
+
+
         ClipEditor? ActiveClipEditor()
         {
             ClipEditor? cled = tabControl.TabPages.Count > 0 ? tabControl.SelectedTab.Controls[0] as ClipEditor : null;
             return cled;
         }
+
+
 
 
 
@@ -255,7 +251,7 @@ namespace Wavicler
         /// <summary>
         /// Initialize tree from user settings.
         /// </summary>
-        void InitNavigator()
+        void InitNavigator() //TODO probably don't need this after all.
         {
             var s = AudioLibDefs.AUDIO_FILE_TYPES;
             ftree.FilterExts = s.SplitByTokens("|;*");
@@ -301,7 +297,7 @@ namespace Wavicler
                     }
                     break;
 
-                case AppState.Play:
+                case AppState.Play: //TODO1 support play selection or all
                     Play();
                     break;
 
@@ -416,39 +412,12 @@ namespace Wavicler
             btnRewind.Enabled = anyOpen;
             btnPlay.Enabled = anyOpen;
             sldVolume.Enabled = true;
-            NewMenuItem.Enabled = true;
             OpenMenuItem.Enabled = true;
             SaveMenuItem.Enabled = dirty;
             SaveAsMenuItem.Enabled = dirty;
             CloseMenuItem.Enabled = anyOpen;
             CloseAllMenuItem.Enabled = anyOpen;
             ExitMenuItem.Enabled = true;
-            CutMenuItem.Enabled = anyOpen;
-            CopyMenuItem.Enabled = anyOpen;
-            PasteMenuItem.Enabled = hasClip;
-            ReplaceMenuItem.Enabled = anyOpen && hasClip;
-        }
-        #endregion
-
-        #region Cut/copy/paste TODO1??
-        void Cut()
-        {
-
-        }
-
-        void Copy()
-        {
-
-        }
-
-        void Paste()
-        {
-
-        }
-
-        void Replace()
-        {
-
         }
         #endregion
 
@@ -473,12 +442,11 @@ namespace Wavicler
                     CreateTab(prov, "*");
                     ok = true;
                 }
-
                 else
                 {
                     if (!File.Exists(fn))
                     {
-                        throw new InvalidOperationException($"Invalid file: {fn}");
+                        throw new InvalidOperationException($"Invalid file.");
                     }
 
                     var ext = Path.GetExtension(fn).ToLower();
@@ -486,24 +454,27 @@ namespace Wavicler
 
                     if (!AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
                     {
-                        throw new InvalidOperationException($"Invalid file type: {fn}");
+                        throw new InvalidOperationException($"Invalid file type.");
                     }
 
                     using (new WaitCursor())
                     {
                         _logger.Info($"Opening file: {fn}");
 
-                        // If sample rate doesn't match, create a resampled temp file.
-                        var reader = new AudioFileReader(fn);
+                        var reader = new AudioFileReader(fn); // TODO these need to be disposed. See test host.
+                        // If sample rate doesn't match, notify user.
                         if (reader.WaveFormat.SampleRate != AudioLibDefs.SAMPLE_RATE)
                         {
-                            reader = reader.Resample();
+                            throw new InvalidOperationException($"This file needs to be resampled.");
                         }
+
                         reader.Validate(false);
 
                         // Make controls for our data. Add to tab.
                         if (reader.WaveFormat.Channels == 2) // stereo interleaved
                         {
+                            // TODO If stereo ask what to do: Left/right/both/mono.
+
                             CreateTab(new ClipSampleProvider(fn, StereoCoercion.Left), baseFn + " LEFT");
                             CreateTab(new ClipSampleProvider(fn, StereoCoercion.Right), baseFn + " RIGHT");
                         }
@@ -565,7 +536,7 @@ namespace Wavicler
 
             if (cled is not null)
             {
-                // TODO1 get all rendered data and save to audio file - to fn if specified else old.
+                // TODO get all rendered data and save to audio file - to fn if specified else old.
             }
 
             return ok;
@@ -619,7 +590,7 @@ namespace Wavicler
                 var cled = tpg.Controls[0] as ClipEditor;
                 if (cled.Dirty)
                 {
-                    // TODO1 ask to save.
+                    // TODO ask to save.
                 }
 
                 cled.Dispose();
@@ -656,6 +627,50 @@ namespace Wavicler
         #endregion
 
         #region Misc stuff
+
+        #endregion
+
+
+
+        void ResampleMenuItem_Click(object sender, EventArgs e)
+        {
+            //TODO get two file names and execute.
+
+        }
+
+        void StereoSplitMenuItem_Click(object sender, EventArgs e)
+        {
+            //TODO get one file name and execute.
+
+        }
+
+        void StereoToMonoMenuItem_Click(object sender, EventArgs e)
+        {
+            //TODO get one file name and execute.
+
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void ClipEditor_ServiceRequest(object? sender, ClipEditor.ServiceRequestEventArgs e)
+        {
+            var cled = sender as ClipEditor;
+
+            switch(e.Request)
+            {
+                case ClipEditor.ServiceRequest.CloseMe:
+                    Close(false);
+                    break;
+
+                case ClipEditor.ServiceRequest.CopySelectionToNewClip: // TODO
+                    break;
+            }
+        }
+
         /// <summary>
         /// Function to open a new tab.
         /// </summary>
@@ -670,6 +685,8 @@ namespace Wavicler
                 GridColor = Color.LightGray
             };
 
+            ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
+
             TabPage tpg = new()
             {
                 Text = tabName
@@ -678,6 +695,21 @@ namespace Wavicler
             tabControl.Controls.Add(tpg);
             tabControl.SelectedTab = tpg;
         }
-        #endregion
+
+
+        void TabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var cled = ActiveClipEditor();
+            if (cled is not null)
+            {
+                _waveOutSwapper.SetInput(cled.SelectionSampleProvider);
+                statusInfo.Text = cled.SelectionSampleProvider.GetInfoString();
+            }
+            else
+            {
+                _waveOutSwapper.SetInput(null);
+                statusInfo.Text = "";
+            }
+        }
     }
 }

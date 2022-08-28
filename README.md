@@ -1,51 +1,60 @@
 # Wavicler
 
-Play tool for editing audio waves.
+Play tool for manipulating and slicing audio waves. The general idea is to use it to
+chop up pieces of audio into chunks that can be used in a music production DAW. The
+selection can be by sample, time, or beats with user supplied BPM.
 
-- Everything internal is 32bit fp 44100Hz.
-- Using int for sample index. This gives us a max time of about 1.3 hours. Plenty for the purpose of this application.
+Caveats:
+- Everything internal is 32 bit fp 44100Hz.
+- Uses int for sample index. This gives us a theoretical maximum clip time of about 1.3 hours.
+  In actuality it uses a setting from AudioLib to limit this (default is 5 minutes).
+  This gives plenty of time for the purpose of this application.
+
+# UI
+
+## Main
+- Standard file menu.
+- Open an audio file. This is a now a `clip` in a clip editor tab page.
+- If it's a stereo file the user is asked to open as left, right, mono, or both.
+- Selection play, rewind, loop on/off, auto-start on/off.
+
+## Selection
+- Beats mode:
+  - Establish timing by select two samples and identify corresponding number of beats.
+  - Show in waveform.
+  - Subsequent selections are by beat using snap.
+
+- Time mode:
+  - Select two times using ?? resolution.
+  - Shows number of samples and time in UI.
+
+- Sample mode:
+  - Select two samples using ?? resolution.
+  - Shows number of samples and time in UI.
+
+## Mouse
+- Wheel alone is time shift (x shift).
+- Wheel + ctrl is time zoom (x zoom).
+- Wheel + shift is gain (y zoom).
+- Left click is selection start.
+- Left click + ctrl is selection length.
+- Right click is context menu.
+
+## Context Menu
+- Copy selection to new clip.
+- Close.
+- Set gain to fill or default.
+
+## Tools
+- Stereo file: split into two wavs, combine to mono wav.
+- Resample file.
+- ? Detect tempo.
+- Edit settings.
+- About.
 
 
-## UI/Tools
-
-- Main
-  - standard file, about/settings stuff
-  - Open an audio file. This is a now a `clip` in a ClipEditor tab page.
-  - If stereo file ask to open as mono/L/R/both
-  - Clip play, loop on/off, auto-start on/off, rewind
-
-- bars/beats mode
-  - Select two samples
-  - identify as number of bars/beats - show in UI
-  - Select two bars/beats. Uses snap mode: bars or beats
-
-- time/samples mode
-  - Select two samples
-  - Show num and time in UI
-  - Select two time/samples. Uses snap mode: numsamples or time
-
-- Context or edit menu
-  - Copy selection to new clip
-
-- Tools
-  - stereo file: split into two wavs, combine to mono wav. Does resampling.
-  - detect tempo.
-
-- Navigation :
-  - wheel no mods is x shift
-  - wheel + ctrl is x zoom
-  - wheel + shift is gain (y zoom)
-  - left click is SelStart
-  - left click + ctrl is SelLength
-
-
-## TODO-future
-  - New empty clip.
+## Future
   - Combine multiple clips, incl blank.
-  - Render to new clip/file.
-  - cut/copy/paste/insert
-  - Set gain in selection
-  - show/select altered gain.
-  - Gain envelope. Simple only for now.
+  - Edit - cut/copy/paste/insert.
+  - Gain envelope.
   - Stretch/fit etc.
-  - R click opens context menu

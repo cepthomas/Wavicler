@@ -24,16 +24,11 @@ namespace Wavicler
     public enum AppState { Stop, Play, Rewind, Complete, Dead }
 
     /// <summary>Selection.</summary>
-    public enum SelectionMode { Sample, BarBeat, Time };
+    public enum SelectionMode { Beat, Time, Sample };
     #endregion
 
     public static class Utils
     {
-        // sampleRate: 44100
-        // smplPerSec:: 22.67573696145125 usec
-        // tempo: 100 beatsPerMin == 100 / 60 beatsPerSec == 60 / 100 secPerBeat
-        // smplPerBeat = sampleRate * secPerBeat
-
         /// <summary>
         /// Conversion function.
         /// </summary>
