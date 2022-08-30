@@ -22,7 +22,7 @@ namespace Wavicler
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.waveViewer = new AudioLib.WaveViewer();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.hsbClipDisplay = new System.Windows.Forms.HScrollBar();
+            this.scrollDisplay = new System.Windows.Forms.HScrollBar();
             this.SuspendLayout();
             // 
             // waveViewer
@@ -50,20 +50,20 @@ namespace Wavicler
             this.contextMenu.Name = "contextMenu";
             this.contextMenu.Size = new System.Drawing.Size(61, 4);
             // 
-            // hsbClipDisplay
+            // scrollDisplay
             // 
-            this.hsbClipDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.scrollDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.hsbClipDisplay.Location = new System.Drawing.Point(13, 345);
-            this.hsbClipDisplay.Name = "hsbClipDisplay";
-            this.hsbClipDisplay.Size = new System.Drawing.Size(1027, 26);
-            this.hsbClipDisplay.TabIndex = 40;
+            this.scrollDisplay.Location = new System.Drawing.Point(13, 345);
+            this.scrollDisplay.Name = "scrollDisplay";
+            this.scrollDisplay.Size = new System.Drawing.Size(1027, 26);
+            this.scrollDisplay.TabIndex = 40;
             // 
             // ClipEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.hsbClipDisplay);
+            this.Controls.Add(this.scrollDisplay);
             this.Controls.Add(this.waveViewer);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ClipEditor";
@@ -75,7 +75,7 @@ namespace Wavicler
         #endregion
         private WaveViewer waveViewer;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.HScrollBar hsbClipDisplay;
+        private System.Windows.Forms.HScrollBar scrollDisplay;
         private System.Windows.Forms.ContextMenuStrip contextMenu;
     }
 }

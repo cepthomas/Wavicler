@@ -15,6 +15,7 @@ using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
+using static System.Collections.Specialized.BitVector32;
 
 
 //TODO1 cmbSelMode: Sample, Beat, Time + Snap on/off
@@ -57,7 +58,7 @@ namespace Wavicler
         #region Lifecycle
         public MainForm()
         {
-            SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
+            //SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
@@ -88,7 +89,7 @@ namespace Wavicler
             StartPosition = FormStartPosition.Manual;
             Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
             Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
-            KeyPreview = true; // for routing kbd strokes through OnKeyDown
+            // TODO not working... KeyPreview = true; // for routing kbd strokes through OnKeyDown
 
             // Create output.
             _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), _waveOutSwapper);
@@ -170,19 +171,6 @@ namespace Wavicler
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
         }
 
-
-
-
-        ClipEditor? ActiveClipEditor()
-        {
-            ClipEditor? cled = tabControl.TabPages.Count > 0 ? tabControl.SelectedTab.Controls[0] as ClipEditor : null;
-            return cled;
-        }
-
-
-
-
-
         /// <summary>
         /// Form is legal now. Init things that want to log.
         /// </summary>
@@ -202,7 +190,7 @@ namespace Wavicler
             InitNavigator();
 
             // TODO Debugging >>>>>>>>>>>>>>>>>>>
-            OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
+//            OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
             //OpenFile(@"C:\Dev\repos\TestAudioFiles\ref-stereo.wav");
 
             // Internal test stuff.
@@ -213,6 +201,8 @@ namespace Wavicler
 
             //var bb = Utils.SampleToBarBeat(1000000, 100); // 9, 1
             //var smpl = Utils.BarBeatToSample(20, 3, 100); // 2196179
+
+            base.OnLoad(e);
         }
 
         /// <summary>
@@ -261,6 +251,7 @@ namespace Wavicler
             try
             {
                 ftree.Init();
+                ftree.Invalidate();
             }
             catch (DirectoryNotFoundException)
             {
@@ -461,20 +452,13 @@ namespace Wavicler
                     {
                         _logger.Info($"Opening file: {fn}");
 
-                        var reader = new AudioFileReader(fn); // TODO these need to be disposed. See test host.
-                        // If sample rate doesn't match, notify user.
-                        if (reader.WaveFormat.SampleRate != AudioLibDefs.SAMPLE_RATE)
-                        {
-                            throw new InvalidOperationException($"This file needs to be resampled.");
-                        }
-
+                        // Find out about the requested file.
+                        using var reader = new AudioFileReader(fn);
                         reader.Validate(false);
 
-                        // Make controls for our data. Add to tab.
-                        if (reader.WaveFormat.Channels == 2) // stereo interleaved
+                        // Make tab control(s) for our data.
+                        if (reader.WaveFormat.Channels == 2)
                         {
-                            // TODO If stereo ask what to do: Left/right/both/mono.
-
                             CreateTab(new ClipSampleProvider(fn, StereoCoercion.Left), baseFn + " LEFT");
                             CreateTab(new ClipSampleProvider(fn, StereoCoercion.Right), baseFn + " RIGHT");
                         }
@@ -484,8 +468,8 @@ namespace Wavicler
                         }
 
                         _settings.RecentFiles.UpdateMru(fn);
-
                         ok = true;
+
                         if (_settings.Autoplay)
                         {
                             UpdateState(AppState.Rewind);
@@ -631,6 +615,17 @@ namespace Wavicler
         #endregion
 
 
+        /// <summary>
+        /// Helper function.
+        /// </summary>
+        /// <returns></returns>
+        ClipEditor? ActiveClipEditor()
+        {
+            ClipEditor? cled = tabControl.TabPages.Count > 0 ? tabControl.SelectedTab.Controls[0] as ClipEditor : null;
+            return cled;
+        }
+
+
 
         void ResampleMenuItem_Click(object sender, EventArgs e)
         {
@@ -662,7 +657,7 @@ namespace Wavicler
 
             switch(e.Request)
             {
-                case ClipEditor.ServiceRequest.CloseMe:
+                case ClipEditor.ServiceRequest.Close:
                     Close(false);
                     break;
 
@@ -684,20 +679,20 @@ namespace Wavicler
                 DrawColor = _settings.ControlColor,
                 GridColor = Color.LightGray
             };
-
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
-
-            TabPage tpg = new()
-            {
-                Text = tabName
-            };
-            tpg.Controls.Add(ed);
-            tabControl.Controls.Add(tpg);
-            tabControl.SelectedTab = tpg;
+            
+            TabPage page = new() { Text = tabName };
+            page.Controls.Add(ed);
+            tabControl.TabPages.Add(page);
+            tabControl.SelectedTab = page;
         }
 
-
-        void TabControl_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
         {
             var cled = ActiveClipEditor();
             if (cled is not null)
