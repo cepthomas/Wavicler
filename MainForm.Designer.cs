@@ -30,6 +30,10 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.ExitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resampleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splitStereoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stereoToMonoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.SettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
@@ -52,15 +56,10 @@
             this.txtBPM = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.ftree = new NBagOfUis.FilTree();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvLog = new NBagOfUis.TextViewer();
-            this.resampleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.splitStereoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.stereoToMonoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -173,16 +172,42 @@
             this.ToolsMenuItem.Size = new System.Drawing.Size(58, 24);
             this.ToolsMenuItem.Text = "Tools";
             // 
+            // resampleToolStripMenuItem
+            // 
+            this.resampleToolStripMenuItem.Name = "resampleToolStripMenuItem";
+            this.resampleToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.resampleToolStripMenuItem.Text = "Resample";
+            this.resampleToolStripMenuItem.Click += new System.EventHandler(this.ResampleMenuItem_Click);
+            // 
+            // splitStereoToolStripMenuItem
+            // 
+            this.splitStereoToolStripMenuItem.Name = "splitStereoToolStripMenuItem";
+            this.splitStereoToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.splitStereoToolStripMenuItem.Text = "Stereo Split";
+            this.splitStereoToolStripMenuItem.Click += new System.EventHandler(this.StereoSplitMenuItem_Click);
+            // 
+            // stereoToMonoToolStripMenuItem
+            // 
+            this.stereoToMonoToolStripMenuItem.Name = "stereoToMonoToolStripMenuItem";
+            this.stereoToMonoToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.stereoToMonoToolStripMenuItem.Text = "Stereo to Mono";
+            this.stereoToMonoToolStripMenuItem.Click += new System.EventHandler(this.StereoToMonoMenuItem_Click);
+            // 
+            // toolStripSeparator8
+            // 
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(193, 6);
+            // 
             // SettingsMenuItem
             // 
             this.SettingsMenuItem.Name = "SettingsMenuItem";
-            this.SettingsMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.SettingsMenuItem.Size = new System.Drawing.Size(196, 26);
             this.SettingsMenuItem.Text = "Settings";
             // 
             // AboutMenuItem
             // 
             this.AboutMenuItem.Name = "AboutMenuItem";
-            this.AboutMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.AboutMenuItem.Size = new System.Drawing.Size(196, 26);
             this.AboutMenuItem.Text = "About";
             // 
             // toolStrip
@@ -358,17 +383,6 @@
             this.toolStripSeparator12.Name = "toolStripSeparator12";
             this.toolStripSeparator12.Size = new System.Drawing.Size(6, 43);
             // 
-            // ftree
-            // 
-            this.ftree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.ftree.Location = new System.Drawing.Point(8, 80);
-            this.ftree.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.ftree.Name = "ftree";
-            this.ftree.SingleClickSelect = true;
-            this.ftree.Size = new System.Drawing.Size(430, 377);
-            this.ftree.TabIndex = 89;
-            // 
             // tabControl
             // 
             this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -412,32 +426,6 @@
             this.tvLog.TabStop = false;
             this.tvLog.WordWrap = true;
             // 
-            // resampleToolStripMenuItem
-            // 
-            this.resampleToolStripMenuItem.Name = "resampleToolStripMenuItem";
-            this.resampleToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.resampleToolStripMenuItem.Text = "Resample";
-            this.resampleToolStripMenuItem.Click += new System.EventHandler(this.ResampleMenuItem_Click);
-            // 
-            // splitStereoToolStripMenuItem
-            // 
-            this.splitStereoToolStripMenuItem.Name = "splitStereoToolStripMenuItem";
-            this.splitStereoToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.splitStereoToolStripMenuItem.Text = "Stereo Split";
-            this.splitStereoToolStripMenuItem.Click += new System.EventHandler(this.StereoSplitMenuItem_Click);
-            // 
-            // stereoToMonoToolStripMenuItem
-            // 
-            this.stereoToMonoToolStripMenuItem.Name = "stereoToMonoToolStripMenuItem";
-            this.stereoToMonoToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.stereoToMonoToolStripMenuItem.Text = "Stereo to Mono";
-            this.stereoToMonoToolStripMenuItem.Click += new System.EventHandler(this.StereoToMonoMenuItem_Click);
-            // 
-            // toolStripSeparator8
-            // 
-            this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(221, 6);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -445,7 +433,6 @@
             this.ClientSize = new System.Drawing.Size(1242, 576);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.tabControl);
-            this.Controls.Add(this.ftree);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip);
             this.Controls.Add(this.tvLog);
@@ -453,6 +440,7 @@
             this.MainMenuStrip = this.menuStrip;
             this.Name = "MainForm";
             this.Text = "MainForm";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.toolStrip.ResumeLayout(false);
@@ -492,7 +480,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripButton btnRewind;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
-        private NBagOfUis.FilTree ftree;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.ToolStripComboBox cmbSelMode;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;

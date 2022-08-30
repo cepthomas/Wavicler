@@ -159,8 +159,7 @@ namespace Wavicler
             CloseAllMenuItem.Click += (_, __) => { Close(true); };
             ExitMenuItem.Click += (_, __) => { Close(true); };
             menuStrip.MenuActivate += (_, __) => { UpdateMenu(); };
-            FileMenuItem.DropDownOpening += Recent_DropDownOpening;
-            ftree.FileSelectedEvent += (object? sender, string fn) => { OpenFile(fn); };
+            FileMenuItem.DropDownOpening += File_DropDownOpening;
 
             // Tools.
             AboutMenuItem.Click += (_, __) => { MiscUtils.ShowReadme("Wavicler"); };
@@ -177,7 +176,8 @@ namespace Wavicler
         /// <param name="e"></param>
         protected override void OnLoad(EventArgs e)
         {
-            _logger.Info($"OK to log now!!");
+            //_logger.Info($"OK to log now!!");
+            _logger.Info($"OnLoad()");
 
             if (!_player.Valid)
             {
@@ -186,11 +186,8 @@ namespace Wavicler
                 UpdateState(AppState.Dead);
             }
 
-            // Initialize tree from user settings.
-            InitNavigator();
-
             // TODO Debugging >>>>>>>>>>>>>>>>>>>
-//            OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
+      //      OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
             //OpenFile(@"C:\Dev\repos\TestAudioFiles\ref-stereo.wav");
 
             // Internal test stuff.
@@ -203,6 +200,13 @@ namespace Wavicler
             //var smpl = Utils.BarBeatToSample(20, 3, 100); // 2196179
 
             base.OnLoad(e);
+        }
+
+        
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            _logger.Info($"MainForm_Load()");
+
         }
 
         /// <summary>
@@ -234,29 +238,6 @@ namespace Wavicler
             _player.Dispose();
 
             base.Dispose(disposing);
-        }
-        #endregion
-
-        #region Navigator
-        /// <summary>
-        /// Initialize tree from user settings.
-        /// </summary>
-        void InitNavigator() //TODO probably don't need this after all.
-        {
-            var s = AudioLibDefs.AUDIO_FILE_TYPES;
-            ftree.FilterExts = s.SplitByTokens("|;*");
-            ftree.RootDirs = _settings.RootDirs;
-            ftree.SingleClickSelect = true;
-
-            try
-            {
-                ftree.Init();
-                ftree.Invalidate();
-            }
-            catch (DirectoryNotFoundException)
-            {
-                _logger.Warn("No tree directories");
-            }
         }
         #endregion
 
@@ -367,8 +348,13 @@ namespace Wavicler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Recent_DropDownOpening(object? sender, EventArgs e)
+        void File_DropDownOpening(object? sender, EventArgs e)
         {
+            var vv = FileMenuItem.DropDownItems;
+
+            // fname fpath info thumbnail
+
+
             RecentMenuItem.DropDownItems.Clear();
 
             _settings.RecentFiles.ForEach(f =>
@@ -418,7 +404,7 @@ namespace Wavicler
         /// </summary>
         /// <param name="fn">The file to open or create new if empty.</param>
         /// <returns>Status.</returns>
-        bool OpenFile(string fn = "")
+        bool OpenFile(string fn = "") //TODO1 don't reopen one already open - select instead
         {
             bool ok = false;
             UpdateState(AppState.Stop);
