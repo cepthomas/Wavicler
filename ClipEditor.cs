@@ -8,13 +8,14 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Drawing.Design;
 using System.Text.Json.Serialization;
+using System.ComponentModel;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib;
-using System.ComponentModel;
+
 
 namespace Wavicler
 {    
@@ -42,7 +43,7 @@ namespace Wavicler
         public Color DrawColor
         {
             get { return waveViewer.DrawColor; }
-            set { waveViewer.DrawColor = value; }
+            set { waveViewer.DrawColor = value; waveNav.DrawColor = value; }
         }
 
         /// <summary>For styling.</summary>
@@ -77,47 +78,6 @@ namespace Wavicler
         }
         #endregion
 
-
-        // TODO1 scrollDisplay Navigation.
-        // navBar.SmallChange = 1;
-        // navBar.LargeChange = 100;
-        //
-        // //     Gets or sets a numeric value that represents the current position of the scroll box on the scroll bar control.
-        // public int Value { get; set; }
-        // //     Gets or sets the value to be added to or subtracted from the System.Windows.Forms.ScrollBar.Value property when the scroll box is moved a small distance.
-        // public int SmallChange { get; set; }
-        // //     Gets or sets the lower limit of values of the scrollable range.
-        // public int Minimum { get; set; }
-        // //     Gets or sets a value to be added to or subtracted from the System.Windows.Forms.ScrollBar.Value property when the scroll box is moved a large distance.
-        // public int LargeChange { get; set; }
-        // //     Gets or sets the foreground color of the scroll bar control.
-        // public override Color ForeColor { get; set; }
-        // //     Gets or sets the background image layout as defined in the System.Windows.Forms.ImageLayout enumeration.
-        // public override ImageLayout BackgroundImageLayout { get; set; }
-        // //     Gets or sets the background image displayed in the control.
-        // public override Image? BackgroundImage { get; set; }
-        // //     Gets or sets the upper limit of values of the scrollable range.
-        // public int Maximum { get; set; }
-        // //     Gets or sets a value indicating whether the System.Windows.Forms.ScrollBar is automatically resized to fit its contents.
-        // public override bool AutoSize { get; set; }
-        // //     Gets or sets the background color for the control.
-        // public override Color BackColor { get; set; }
-
-        // // Events:
-        // public event MouseEventHandler? MouseClick;
-        // public event EventHandler? DoubleClick;
-        // public event MouseEventHandler? MouseDoubleClick;
-        // public event MouseEventHandler? MouseDown;
-        // public event MouseEventHandler? MouseUp;
-        // public event MouseEventHandler? MouseMove;
-        // public event ScrollEventHandler? Scroll;
-        // public event EventHandler? ValueChanged;
-        // protected override void OnMouseWheel(MouseEventArgs e);
-        // protected virtual void OnScroll(ScrollEventArgs se);
-        // protected virtual void OnValueChanged(EventArgs e);
-
-
-
         #region Lifecycle
         /// <summary>
         /// Normal constructor.
@@ -129,16 +89,20 @@ namespace Wavicler
 
             InitializeComponent();
 
+            // Main wave.
             SelectionSampleProvider = waveViewer;
-
-            waveViewer.Init(prov);
+            waveViewer.Init(prov, false);
+            
+            // Navigation.
+            waveNav.Init(prov, true);
+            waveNav.MarkerChangedEvent += (_, __) => waveViewer.Center(waveNav.Marker);
 
             contextMenu.Opening += (_, __) =>
             {
                 contextMenu.Items.Clear();
-                contextMenu.Items.Add("Fit Gain", null, (_, __) => { waveViewer.FitGain(); });
-                contextMenu.Items.Add("Reset Gain", null, (_, __) => { waveViewer.Gain = 1.0f; });
-                contextMenu.Items.Add("Remove Marker", null, (_, __) => { waveViewer.Marker = -1; });
+                contextMenu.Items.Add("Fit Gain", null, (_, __) => waveViewer.FitGain());
+                contextMenu.Items.Add("Reset Gain", null, (_, __) => waveViewer.Gain = 1.0f);
+                contextMenu.Items.Add("Remove Marker", null, (_, __) => waveViewer.Marker = -1);
                 contextMenu.Items.Add("Copy To New Clip", null, (_, __) =>
                 {
                     ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip });
@@ -157,7 +121,6 @@ namespace Wavicler
         protected override void OnLoad(EventArgs e)
         {
             // _logger.Info($"OK to log now!!");
-
             base.OnLoad(e);
         }
 
@@ -170,12 +133,9 @@ namespace Wavicler
             if (disposing && (components != null))
             {
                 waveViewer.Dispose();
-                //_textFont.Dispose();
-                //_format.Dispose();
+                waveNav.Dispose();
                 components.Dispose();
             }
-            //_reader?.Dispose();
-            //_reader = null;
 
             base.Dispose(disposing);
         }

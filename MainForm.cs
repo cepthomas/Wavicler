@@ -118,21 +118,21 @@ namespace Wavicler
             toolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
 
             btnAutoplay.Checked = _settings.Autoplay;
-            btnAutoplay.Click += (_, __) => { _settings.Autoplay = btnAutoplay.Checked; };
+            btnAutoplay.Click += (_, __) => _settings.Autoplay = btnAutoplay.Checked;
 
             btnLoop.Checked = _settings.Loop;
-            btnLoop.Click += (_, __) => { _settings.Loop = btnLoop.Checked; };
+            btnLoop.Click += (_, __) => _settings.Loop = btnLoop.Checked;
 
             btnSnap.Checked = _settings.Snap;
-            btnSnap.Click += (_, __) => { _settings.Snap = btnSnap.Checked; };
+            btnSnap.Click += (_, __) => _settings.Snap = btnSnap.Checked;
 
             sldVolume.DrawColor = _settings.ControlColor;
             sldVolume.Value = _settings.Volume;
-            sldVolume.ValueChanged += (_, __) => { _player.Volume = (float)sldVolume.Value; };
+            sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
             //sldBPM.DrawColor = _settings.ControlColor;
             //sldBPM.Value = _settings.BPM;
-            //sldBPM.ValueChanged += (_, __) => { _settings.BPM = sldBPM.Value; };
+            //sldBPM.ValueChanged += (_, __) => _settings.BPM = sldBPM.Value;
 
             txtBPM.Text = _settings.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) =>
@@ -145,29 +145,31 @@ namespace Wavicler
             cmbSelMode.Items.Add(SelectionMode.Beat);
             cmbSelMode.Items.Add(SelectionMode.Sample);
             cmbSelMode.SelectedItem = _settings.SelectionMode;
-            cmbSelMode.SelectedIndexChanged += (_, __) => { _settings.SelectionMode = (SelectionMode)cmbSelMode.SelectedItem; };
+            cmbSelMode.SelectedIndexChanged += (_, __) => _settings.SelectionMode = (SelectionMode)cmbSelMode.SelectedItem;
 
-            btnRewind.Click += (_, __) => { UpdateState(AppState.Rewind); };
-            btnPlay.Click += (_, __) => { UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop); };
+            btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
+            btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
 
             // File handling.
-            //NewMenuItem.Click += (_, __) => { OpenFile(); };
-            OpenMenuItem.Click += (_, __) => { Open_Click(); };
-            SaveMenuItem.Click += (_, __) => { SaveFile(ActiveClipEditor()); };
-            SaveAsMenuItem.Click += (_, __) => { SaveFileAs(ActiveClipEditor()); };
-            CloseMenuItem.Click += (_, __) => { Close(false); };
-            CloseAllMenuItem.Click += (_, __) => { Close(true); };
-            ExitMenuItem.Click += (_, __) => { Close(true); };
-            menuStrip.MenuActivate += (_, __) => { UpdateMenu(); };
+            //NewMenuItem.Click += (_, __) => OpenFile();
+            OpenMenuItem.Click += (_, __) => Open_Click();
+            SaveMenuItem.Click += (_, __) => SaveFile(ActiveClipEditor());
+            SaveAsMenuItem.Click += (_, __) => SaveFileAs(ActiveClipEditor());
+            CloseMenuItem.Click += (_, __) => Close(false);
+            CloseAllMenuItem.Click += (_, __) => Close(true);
+            ExitMenuItem.Click += (_, __) => Close(true);
+            menuStrip.MenuActivate += (_, __) => UpdateMenu();
             FileMenuItem.DropDownOpening += File_DropDownOpening;
 
             // Tools.
-            AboutMenuItem.Click += (_, __) => { MiscUtils.ShowReadme("Wavicler"); };
-            SettingsMenuItem.Click += (_, __) => { EditSettings(); };
+            AboutMenuItem.Click += (_, __) => MiscUtils.ShowReadme("Wavicler");
+            SettingsMenuItem.Click += (_, __) => EditSettings();
 
             UpdateMenu();
 
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
+
+            btnGo.Click += (_, __) => OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
         }
 
         /// <summary>

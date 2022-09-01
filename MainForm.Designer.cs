@@ -60,6 +60,7 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvLog = new NBagOfUis.TextViewer();
+            this.btnGo = new System.Windows.Forms.Button();
             this.menuStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -426,11 +427,21 @@
             this.tvLog.TabStop = false;
             this.tvLog.WordWrap = true;
             // 
+            // btnGo
+            // 
+            this.btnGo.Location = new System.Drawing.Point(35, 104);
+            this.btnGo.Name = "btnGo";
+            this.btnGo.Size = new System.Drawing.Size(94, 29);
+            this.btnGo.TabIndex = 93;
+            this.btnGo.Text = "Go";
+            this.btnGo.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1242, 576);
+            this.Controls.Add(this.btnGo);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.toolStrip);
@@ -497,5 +508,6 @@
         private System.Windows.Forms.ToolStripMenuItem splitStereoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stereoToMonoToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
+        private System.Windows.Forms.Button btnGo;
     }
 }

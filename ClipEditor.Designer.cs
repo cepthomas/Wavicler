@@ -22,7 +22,7 @@ namespace Wavicler
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.waveViewer = new AudioLib.WaveViewer();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.scrollDisplay = new System.Windows.Forms.HScrollBar();
+            this.waveNav = new AudioLib.WaveViewer();
             this.SuspendLayout();
             // 
             // waveViewer
@@ -38,11 +38,13 @@ namespace Wavicler
             this.waveViewer.GridColor = System.Drawing.Color.LightGray;
             this.waveViewer.Location = new System.Drawing.Point(13, 13);
             this.waveViewer.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.waveViewer.Name = "waveViewer";
             this.waveViewer.MarkColor = System.Drawing.Color.OrangeRed;
-            this.waveViewer.Size = new System.Drawing.Size(1030, 323);
+            this.waveViewer.Name = "waveViewer";
+            this.waveViewer.ShiftIncrement = 10;
+            this.waveViewer.Size = new System.Drawing.Size(1030, 321);
             this.waveViewer.TabIndex = 34;
-            this.toolTip.SetToolTip(this.waveViewer, "Navigation");
+            this.waveViewer.WheelResolution = 8;
+            this.waveViewer.ZoomFactor = 20;
             // 
             // contextMenu
             // 
@@ -50,20 +52,29 @@ namespace Wavicler
             this.contextMenu.Name = "contextMenu";
             this.contextMenu.Size = new System.Drawing.Size(61, 4);
             // 
-            // scrollDisplay
+            // waveNav
             // 
-            this.scrollDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.waveNav.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.scrollDisplay.Location = new System.Drawing.Point(13, 345);
-            this.scrollDisplay.Name = "scrollDisplay";
-            this.scrollDisplay.Size = new System.Drawing.Size(1027, 26);
-            this.scrollDisplay.TabIndex = 40;
+            this.waveNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.waveNav.DrawColor = System.Drawing.Color.Black;
+            this.waveNav.Gain = 1F;
+            this.waveNav.GainIncrement = 0.05F;
+            this.waveNav.GridColor = System.Drawing.Color.LightGray;
+            this.waveNav.Location = new System.Drawing.Point(13, 343);
+            this.waveNav.MarkColor = System.Drawing.Color.Red;
+            this.waveNav.Name = "waveNav";
+            this.waveNav.ShiftIncrement = 10;
+            this.waveNav.Size = new System.Drawing.Size(1030, 33);
+            this.waveNav.TabIndex = 41;
+            this.waveNav.WheelResolution = 8;
+            this.waveNav.ZoomFactor = 20;
             // 
             // ClipEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.scrollDisplay);
+            this.Controls.Add(this.waveNav);
             this.Controls.Add(this.waveViewer);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ClipEditor";
@@ -75,7 +86,7 @@ namespace Wavicler
         #endregion
         private WaveViewer waveViewer;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.HScrollBar scrollDisplay;
         private System.Windows.Forms.ContextMenuStrip contextMenu;
+        private WaveViewer waveNav;
     }
 }
