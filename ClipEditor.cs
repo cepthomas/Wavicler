@@ -18,20 +18,18 @@ using AudioLib;
 
 
 namespace Wavicler
-{    
+{
+    [ToolboxItem(false), Browsable(false)] // not useable in designer
     public partial class ClipEditor : UserControl
     {
         #region Fields
         /// <summary>My logger.</summary>
         readonly Logger _logger = LogManager.CreateLogger("ClipEditor");
-
-        // my new >>>>>
-        UndoStack _stack = new(); //TODO
         #endregion
 
         #region Properties
         /// <summary>The selected/rendered data for client playing or persisting.</summary>
-        public ISampleProvider SelectionSampleProvider { get; private set; }
+        public ISampleProvider SelectionSampleProvider { get { return waveViewer; } }
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
@@ -54,10 +52,18 @@ namespace Wavicler
         }
 
         /// <summary>Snap control.</summary>
-        public bool Snap { get; set; } = true;
+        public bool Snap
+        {
+            get { return waveViewer.Snap; }
+            set { waveViewer.Snap = value; }
+        }
 
         /// <summary>How to select wave.</summary>
-        public SelectionMode SelectionMode { get; set; } = SelectionMode.Sample;
+        public WaveSelectionMode SelectionMode
+        {
+            get { return waveViewer.SelectionMode; }
+            set { waveViewer.SelectionMode = value; }
+        }
 
         /// <summary>Gain adjustment.</summary>
         public double Gain
@@ -90,7 +96,7 @@ namespace Wavicler
             InitializeComponent();
 
             // Main wave.
-            SelectionSampleProvider = waveViewer;
+            //SelectionSampleProvider = waveViewer;
             waveViewer.Init(prov, false);
             
             // Navigation.

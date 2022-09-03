@@ -22,44 +22,5 @@ namespace Wavicler
     #region Types
     /// <summary>What are we doing.</summary>
     public enum AppState { Stop, Play, Rewind, Complete, Dead }
-
-    /// <summary>Selection.</summary>
-    public enum SelectionMode { Beat, Time, Sample };
     #endregion
-
-    public static class Utils
-    {
-        /// <summary>
-        /// Conversion function.
-        /// </summary>
-        /// <param name="sample"></param>
-        /// <param name="bpm"></param>
-        /// <returns>(bar, beat)</returns>
-        public static (int bar, int beat) SampleToBarBeat(int sample, float bpm)
-        {
-            float minPerBeat = 1.0f / bpm;
-            float secPerBeat = minPerBeat * 60;
-            float smplPerBeat = AudioLibDefs.SAMPLE_RATE * secPerBeat;
-            int totalBeats = (int)(sample / smplPerBeat);
-            int bar = totalBeats / 4;
-            int beat = totalBeats % 4;
-            return (bar, beat);
-        }
-
-        /// <summary>
-        /// Conversion function.
-        /// </summary>
-        /// <param name="bar"></param>
-        /// <param name="beat"></param>
-        /// <param name="bpm"></param>
-        /// <returns>Sample</returns>
-        public static int BarBeatToSample(int bar, int beat, float bpm)
-        {
-            int totalBeats = 4 * bar + beat;
-            float minPerBeat = 1.0f / bpm;
-            float secPerBeat = minPerBeat * 60;
-            float smplPerBeat = AudioLibDefs.SAMPLE_RATE * secPerBeat;
-            return (int)(totalBeats * smplPerBeat);
-        }
-    }
 }

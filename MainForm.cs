@@ -15,7 +15,7 @@ using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
-using static System.Collections.Specialized.BitVector32;
+
 
 
 //TODO1 cmbSelMode: Sample, Beat, Time + Snap on/off
@@ -43,23 +43,18 @@ namespace Wavicler
         readonly AudioPlayer _player;
 
         /// <summary>Dynamically connect input providers to the player.</summary>
-        SwappableSampleProvider _waveOutSwapper = new();
+        readonly SwappableSampleProvider _waveOutSwapper = new();
 
         /// <summary>Where we be.</summary>
         AppState _currentState = AppState.Stop;
 
-        /// <summary>Where to put stuff.</summary>
-        string _outPath;
-
         /// <summary>The settings.</summary>
-        UserSettings _settings;
+        readonly UserSettings _settings;
         #endregion
 
         #region Lifecycle
         public MainForm()
         {
-            //SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
-
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
             _settings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
@@ -68,54 +63,30 @@ namespace Wavicler
 
             InitializeComponent();
 
-            Icon = Properties.Resources.tiger;
-
             // Init logging.
             LogManager.MinLevelFile = _settings.FileLogLevel;
             LogManager.MinLevelNotif = _settings.NotifLogLevel;
             LogManager.LogEvent += (object? sender, LogEventArgs e) => { this.InvokeIfRequired(_ => { tvLog.AppendLine($"{e.Message}"); }); };
-            LogManager.Run();
+            LogManager.Run(Path.Join(appDir, "log.txt"), 100000);
+
+            // Log display.
             tvLog.Font = Font;
             tvLog.MatchColors.Add("ERR", Color.LightPink);
             tvLog.MatchColors.Add("WRN:", Color.Plum);
 
-            // Set up paths.
-            _outPath = Path.Combine(appDir, "out");
-            DirectoryInfo di = new(_outPath);
-            di.Create();
-
-            // Init main form from settings
+            // Init main form from settings.
             WindowState = FormWindowState.Normal;
             StartPosition = FormStartPosition.Manual;
             Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
             Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
-            // TODO not working... KeyPreview = true; // for routing kbd strokes through OnKeyDown
+            // TODO not working?... KeyPreview = true; // for routing kbd strokes through OnKeyDown
 
             // Create output.
             _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), _waveOutSwapper);
-            // Usually end of file but could be error.
-            _player.PlaybackStopped += (object? sender, StoppedEventArgs e) =>
-            {
-                if (e.Exception is not null)
-                {
-                    _logger.Exception(e.Exception, "Other NAudio error");
-                    UpdateState(AppState.Dead);
-                }
-                else
-                {
-                    UpdateState(AppState.Complete);
-                }
-            };
-
-            // Hook up audio processing chain.
-            //var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10);
-            //postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) =>
-            //{
-            //    // timeBar.Current = _reader.CurrentTime;
-            //};
+            _player.PlaybackStopped += Player_PlaybackStopped;
 
             // Other UI items.
-            toolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
+            ToolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
 
             btnAutoplay.Checked = _settings.Autoplay;
             btnAutoplay.Click += (_, __) => _settings.Autoplay = btnAutoplay.Checked;
@@ -130,22 +101,21 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            //sldBPM.DrawColor = _settings.ControlColor;
-            //sldBPM.Value = _settings.BPM;
-            //sldBPM.ValueChanged += (_, __) => _settings.BPM = sldBPM.Value;
-
             txtBPM.Text = _settings.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) =>
             {
                 KeyUtils.TestForNumber_KeyPress(sender!, e);
-                _settings.BPM = double.Parse(txtBPM.Text);
+                if(e.Handled)
+                {
+                    _settings.BPM = double.Parse(txtBPM.Text);
+                }
             };
 
-            cmbSelMode.Items.Add(SelectionMode.Time);
-            cmbSelMode.Items.Add(SelectionMode.Beat);
-            cmbSelMode.Items.Add(SelectionMode.Sample);
+            cmbSelMode.Items.Add(WaveSelectionMode.Time);
+            cmbSelMode.Items.Add(WaveSelectionMode.Beat);
+            cmbSelMode.Items.Add(WaveSelectionMode.Sample);
             cmbSelMode.SelectedItem = _settings.SelectionMode;
-            cmbSelMode.SelectedIndexChanged += (_, __) => _settings.SelectionMode = (SelectionMode)cmbSelMode.SelectedItem;
+            cmbSelMode.SelectedIndexChanged += (_, __) => _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
@@ -158,12 +128,16 @@ namespace Wavicler
             CloseMenuItem.Click += (_, __) => Close(false);
             CloseAllMenuItem.Click += (_, __) => Close(true);
             ExitMenuItem.Click += (_, __) => Close(true);
-            menuStrip.MenuActivate += (_, __) => UpdateMenu();
+            MenuStrip.MenuActivate += (_, __) => UpdateMenu();
             FileMenuItem.DropDownOpening += File_DropDownOpening;
 
             // Tools.
             AboutMenuItem.Click += (_, __) => MiscUtils.ShowReadme("Wavicler");
             SettingsMenuItem.Click += (_, __) => EditSettings();
+
+            // Tab control.
+            TabControl.TabPages.Clear();
+            TabControl.MouseDoubleClick += TabControl_MouseDoubleClick;
 
             UpdateMenu();
 
@@ -178,8 +152,10 @@ namespace Wavicler
         /// <param name="e"></param>
         protected override void OnLoad(EventArgs e)
         {
-            //_logger.Info($"OK to log now!!");
-            _logger.Info($"OnLoad()");
+            //_logger.Info($"OnLoad()");
+
+            // Initialize tree from user settings.
+            InitNavigator();
 
             if (!_player.Valid)
             {
@@ -188,27 +164,7 @@ namespace Wavicler
                 UpdateState(AppState.Dead);
             }
 
-            // TODO Debugging >>>>>>>>>>>>>>>>>>>
-      //      OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
-            //OpenFile(@"C:\Dev\repos\TestAudioFiles\ref-stereo.wav");
-
-            // Internal test stuff.
-            //int max = int.MaxValue;
-            //int smplPerSec = 441000;
-            //int sec = max / smplPerSec;
-            //TimeSpan tmax = new TimeSpan(0, 0, sec);
-
-            //var bb = Utils.SampleToBarBeat(1000000, 100); // 9, 1
-            //var smpl = Utils.BarBeatToSample(20, 3, 100); // 2196179
-
             base.OnLoad(e);
-        }
-
-        
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            _logger.Info($"MainForm_Load()");
-
         }
 
         /// <summary>
@@ -327,6 +283,24 @@ namespace Wavicler
         }
 
         /// <summary>
+        /// Usually end of file but could be error.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void Player_PlaybackStopped(object? sender, StoppedEventArgs e)
+        {
+            if (e.Exception is not null)
+            {
+                _logger.Exception(e.Exception, "Other NAudio error");
+                UpdateState(AppState.Dead);
+            }
+            else
+            {
+                UpdateState(AppState.Complete);
+            }
+        }
+
+        /// <summary>
         /// Do some global key handling. Space bar is used for stop/start playing.
         /// </summary>
         /// <param name="sender"></param>
@@ -379,7 +353,6 @@ namespace Wavicler
         {
             bool anyOpen = false;
             bool dirty = false;
-            bool hasClip = false;
 
             var cled = ActiveClipEditor();
             if (cled is not null)
@@ -508,7 +481,7 @@ namespace Wavicler
 
             if (cled is not null)
             {
-                // TODO get all rendered data and save to audio file - to fn if specified else old.
+                // TODOF get all rendered data and save to audio file - to fn if specified else old.
             }
 
             return ok;
@@ -546,33 +519,63 @@ namespace Wavicler
 
             if (all)
             {
-                while(tabControl.TabCount > 0)
+                while(TabControl.TabCount > 0)
                 {
-                    CloseOne(tabControl.TabPages[0]);
+                    CloseOne(TabControl.TabPages[0]);
                 }
             }
-            else if (tabControl.TabCount > 0)
+            else if (TabControl.TabCount > 0)
             {
-                CloseOne(tabControl.SelectedTab);
+                CloseOne(TabControl.SelectedTab);
             }
 
             // Local function.
             void CloseOne(TabPage tpg)
             {
                 var cled = tpg.Controls[0] as ClipEditor;
-                if (cled.Dirty)
+                if (cled is not null && cled.Dirty)
                 {
-                    // TODO ask to save.
+                    // TODOF ask to save.
                 }
 
                 cled.Dispose();
-                tabControl.TabPages.Remove(tpg);
+                TabControl.TabPages.Remove(tpg);
                 tpg.Dispose();
             }
 
             UpdateMenu();
 
             return ok;
+        }
+
+        /// <summary>
+        /// Initialize tree from user settings.
+        /// </summary>
+        void InitNavigator()
+        {
+            var s = AudioLibDefs.AUDIO_FILE_TYPES;
+            ftree.FilterExts = s.SplitByTokens("|;*");
+            ftree.RootDirs = _settings.RootDirs;
+            ftree.SingleClickSelect = true;
+
+            try
+            {
+                ftree.Init();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                _logger.Warn("No tree directories");
+            }
+        }
+
+        /// <summary>
+        /// Tree has selected a file to play.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="fn"></param>
+        void Navigator_FileSelectedEvent(object? sender, string fn)
+        {
+            OpenFile(fn);
         }
         #endregion
 
@@ -582,10 +585,40 @@ namespace Wavicler
         /// </summary>
         void EditSettings()
         {
-            var changes = _settings.Edit("User Settings", 450);
+            var changes = _settings.Edit("User Settings", 500);
 
-            // TODO Check for meaningful changes.
+            // Detect changes of interest.
+            bool navChange = false;
+            bool restart = false;
 
+            foreach (var (name, cat) in changes)
+            {
+                switch(name) //TODO check all these names
+                {
+                    case "WavOutDevice":
+                    case "Latency":
+                    case "ControlColor":
+                    case "WaveColor":
+                        restart = true;
+                        break;
+
+                    case "RootDirs":
+                        navChange = true;
+                        break;
+                }
+            }
+
+            if (restart)
+            {
+                MessageBox.Show("Restart required for device changes to take effect");
+            }
+
+            if (navChange)
+            {
+                InitNavigator();
+            }
+
+            SaveSettings();
         }
 
         /// <summary>
@@ -598,9 +631,8 @@ namespace Wavicler
         }
         #endregion
 
-        #region Misc stuff
 
-        #endregion
+
 
 
         /// <summary>
@@ -609,30 +641,42 @@ namespace Wavicler
         /// <returns></returns>
         ClipEditor? ActiveClipEditor()
         {
-            ClipEditor? cled = tabControl.TabPages.Count > 0 ? tabControl.SelectedTab.Controls[0] as ClipEditor : null;
+            ClipEditor? cled = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab.Controls[0] as ClipEditor : null;
             return cled;
         }
 
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void ResampleMenuItem_Click(object sender, EventArgs e)
         {
             //TODO get two file names and execute.
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void StereoSplitMenuItem_Click(object sender, EventArgs e)
         {
             //TODO get one file name and execute.
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void StereoToMonoMenuItem_Click(object sender, EventArgs e)
         {
             //TODO get one file name and execute.
 
         }
-
 
         /// <summary>
         /// 
@@ -664,19 +708,20 @@ namespace Wavicler
             ClipEditor ed = new(prov)
             {
                 Dock = DockStyle.Fill,
-                DrawColor = _settings.ControlColor,
+                DrawColor = _settings.WaveColor,
                 GridColor = Color.LightGray
             };
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
             
             TabPage page = new() { Text = tabName };
+            page.DoubleClick += (_, __) => Close(false);
             page.Controls.Add(ed);
-            tabControl.TabPages.Add(page);
-            tabControl.SelectedTab = page;
+            TabControl.TabPages.Add(page);
+            TabControl.SelectedTab = page;
         }
 
         /// <summary>
-        /// 
+        /// User changes tab of interest.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -692,6 +737,24 @@ namespace Wavicler
             {
                 _waveOutSwapper.SetInput(null);
                 statusInfo.Text = "";
+            }
+        }
+
+        /// <summary>
+        /// User wants to close this tab.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void TabControl_MouseDoubleClick(object? sender, MouseEventArgs e)
+        {
+            for (int i = 0; i < TabControl.TabCount; ++i)
+            {
+                if (TabControl.GetTabRect(i).Contains(e.Location))
+                {
+                    // Found it, do something TODOF close maybe
+                    //...
+                    break;
+                }
             }
         }
     }

@@ -44,7 +44,7 @@ namespace Wavicler
             this.waveViewer.Size = new System.Drawing.Size(1030, 321);
             this.waveViewer.TabIndex = 34;
             this.waveViewer.WheelResolution = 8;
-            this.waveViewer.ZoomFactor = 20;
+            this.waveViewer.ZoomIncrement = 20;
             // 
             // contextMenu
             // 
@@ -68,7 +68,7 @@ namespace Wavicler
             this.waveNav.Size = new System.Drawing.Size(1030, 33);
             this.waveNav.TabIndex = 41;
             this.waveNav.WheelResolution = 8;
-            this.waveNav.ZoomFactor = 20;
+            this.waveNav.ZoomIncrement = 20;
             // 
             // ClipEditor
             // 

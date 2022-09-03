@@ -28,6 +28,12 @@ namespace Wavicler
         [JsonConverter(typeof(JsonColorConverter))]
         public Color ControlColor { get; set; } = Color.MediumOrchid;
 
+        [DisplayName("Wave Color")]
+        [Description("Pick what you like.")]
+        [Browsable(true)]
+        [JsonConverter(typeof(JsonColorConverter))]
+        public Color WaveColor { get; set; } = Color.ForestGreen;
+
         [DisplayName("File Log Level")]
         [Description("Log level for file write.")]
         [Browsable(true)]
@@ -62,7 +68,7 @@ namespace Wavicler
 
         [Browsable(false)]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public SelectionMode SelectionMode { get; set; } = SelectionMode.Sample;
+        public WaveSelectionMode SelectionMode { get; set; } = WaveSelectionMode.Sample;
 
         [Browsable(false)]
         public double BPM { get; set; } = 100.0;
