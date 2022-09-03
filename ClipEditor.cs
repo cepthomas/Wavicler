@@ -120,15 +120,15 @@ namespace Wavicler
             };
         }
 
-        /// <summary>
-        /// Form is legal now. Init things that want to log.
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnLoad(EventArgs e)
-        {
-            // _logger.Info($"OK to log now!!");
-            base.OnLoad(e);
-        }
+        ///// <summary>
+        ///// Form is legal now.
+        ///// </summary>
+        ///// <param name="e"></param>
+        //protected override void OnLoad(EventArgs e)
+        //{
+        //    // _logger.Info($"OK to log now!!");
+        //    base.OnLoad(e);
+        //}
 
         /// <summary>
         /// Clean up any resources being used.

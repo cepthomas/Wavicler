@@ -17,20 +17,6 @@ using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
 
 
-
-//TODO1 cmbSelMode: Sample, Beat, Time + Snap on/off
-// - Beats mode:
-//   - Establish timing by select two samples and identify corresponding number of beats.
-//   - Show in waveform.
-//   - Subsequent selections are by beat using snap.
-// - Time mode:
-//   - Select two times using ?? resolution.
-//   - Shows number of samples and time in UI.
-// - Sample mode:
-//   - Select two samples using ?? resolution.
-//   - Shows number of samples and time in UI.
-
-
 namespace Wavicler
 {
     public partial class MainForm : Form
@@ -123,7 +109,7 @@ namespace Wavicler
             // File handling.
             //NewMenuItem.Click += (_, __) => OpenFile();
             OpenMenuItem.Click += (_, __) => Open_Click();
-            SaveMenuItem.Click += (_, __) => SaveFile(ActiveClipEditor());
+            //SaveMenuItem.Click += (_, __) => SaveFile(ActiveClipEditor());
             SaveAsMenuItem.Click += (_, __) => SaveFileAs(ActiveClipEditor());
             CloseMenuItem.Click += (_, __) => Close(false);
             CloseAllMenuItem.Click += (_, __) => Close(true);
@@ -365,7 +351,7 @@ namespace Wavicler
             btnPlay.Enabled = anyOpen;
             sldVolume.Enabled = true;
             OpenMenuItem.Enabled = true;
-            SaveMenuItem.Enabled = dirty;
+            SaveMenuItem.Enabled = false;
             SaveAsMenuItem.Enabled = dirty;
             CloseMenuItem.Enabled = anyOpen;
             CloseAllMenuItem.Enabled = anyOpen;
@@ -709,7 +695,9 @@ namespace Wavicler
             {
                 Dock = DockStyle.Fill,
                 DrawColor = _settings.WaveColor,
-                GridColor = Color.LightGray
+                GridColor = Color.LightGray,
+                SelectionMode = _settings.SelectionMode
+                
             };
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
             
