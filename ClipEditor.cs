@@ -22,11 +22,6 @@ namespace Wavicler
     [ToolboxItem(false), Browsable(false)] // not useable in designer
     public partial class ClipEditor : UserControl
     {
-        #region Fields
-        /// <summary>My logger.</summary>
-        readonly Logger _logger = LogManager.CreateLogger("ClipEditor");
-        #endregion
-
         #region Properties
         /// <summary>The selected/rendered data for client playing or persisting.</summary>
         public ISampleProvider SelectionSampleProvider { get { return waveViewer; } }
@@ -38,32 +33,19 @@ namespace Wavicler
         public bool Dirty { get; set; } = false;
 
         /// <summary>For styling.</summary>
-        public Color DrawColor
-        {
-            get { return waveViewer.DrawColor; }
-            set { waveViewer.DrawColor = value; waveNav.DrawColor = value; }
-        }
+        public Color DrawColor { set { waveViewer.DrawColor = value; waveNav.DrawColor = value; } }
 
         /// <summary>For styling.</summary>
-        public Color GridColor
-        {
-            get { return waveViewer.GridColor; }
-            set { waveViewer.GridColor = value; }
-        }
+        public Color GridColor { set { waveViewer.GridColor = value; } }
 
         /// <summary>Snap control.</summary>
-        public bool Snap
-        {
-            get { return waveViewer.Snap; }
-            set { waveViewer.Snap = value; }
-        }
+        public bool Snap { set { waveViewer.Snap = value; } }
+
+        /// <summary>For beat mode.</summary>
+        public float BPM { set { waveViewer.BPM = value; } }
 
         /// <summary>How to select wave.</summary>
-        public WaveSelectionMode SelectionMode
-        {
-            get { return waveViewer.SelectionMode; }
-            set { waveViewer.SelectionMode = value; }
-        }
+        public WaveSelectionMode SelectionMode { set { waveViewer.SelectionMode = value; } }
 
         /// <summary>Gain adjustment.</summary>
         public double Gain

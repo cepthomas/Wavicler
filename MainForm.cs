@@ -364,12 +364,12 @@ namespace Wavicler
         /// Common file opener.
         /// </summary>
         /// <param name="fn">The file to open or create new if empty.</param>
-        /// <returns>Status.</returns>
-        bool OpenFile(string fn = "") //TODO1 don't reopen one already open - select instead
+        /// <returns>Success.</returns>
+        bool OpenFile(string fn = "")
         {
-            bool ok = false;
+            bool ok = true;
+
             UpdateState(AppState.Stop);
-            _logger.Info($"Opening file: {fn}");
 
             try
             {
@@ -378,10 +378,10 @@ namespace Wavicler
                     _logger.Info($"Creating new tab");
                     ClipSampleProvider prov = new(Array.Empty<float>());
                     CreateTab(prov, "*");
-                    ok = true;
                 }
                 else
                 {
+                    // Do validity checks.
                     if (!File.Exists(fn))
                     {
                         throw new InvalidOperationException($"Invalid file.");
@@ -395,32 +395,109 @@ namespace Wavicler
                         throw new InvalidOperationException($"Invalid file type.");
                     }
 
+                    // Valid file name.
                     using (new WaitCursor())
                     {
                         _logger.Info($"Opening file: {fn}");
 
                         // Find out about the requested file.
                         using var reader = new AudioFileReader(fn);
+
+                        // Check sample rate etc.
                         reader.Validate(false);
 
-                        // Make tab control(s) for our data.
+                        // Create a tab page or select if it already exists.
                         if (reader.WaveFormat.Channels == 2)
                         {
-                            CreateTab(new ClipSampleProvider(fn, StereoCoercion.Left), baseFn + " LEFT");
-                            CreateTab(new ClipSampleProvider(fn, StereoCoercion.Right), baseFn + " RIGHT");
+                            // Ask user what to do with a stereo file.
+                            MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
+                            selector.SetOptions(new() { "Left", "Right", "Mono" });
+                            var dlgres = selector.ShowDialog();
+                            if (dlgres == DialogResult.OK)
+                            {
+                                var selopt = selector.SelectedOption;
+
+                                switch (selopt)
+                                {
+                                    case "Left":
+                                        {
+                                            var tabName = baseFn + " LEFT";
+                                            var tab = GetTab(tabName);
+                                            if(tab is null)
+                                            {
+                                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Left), tabName);
+                                            }
+                                            else
+                                            {
+                                                TabControl.SelectedTab = tab;
+                                            }
+                                        }
+                                        break;
+
+                                    case "Right":
+                                        {
+                                            var tabName = baseFn + " RIGHT";
+                                            var tab = GetTab(tabName);
+                                            if (tab is null)
+                                            {
+                                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Right), tabName);
+                                            }
+                                            else
+                                            {
+                                                TabControl.SelectedTab = tab;
+                                            }
+                                        }
+                                        break;
+
+                                    case "Mono":
+                                        {
+                                            var tabName = baseFn + " MONO";
+                                            var tab = GetTab(tabName);
+                                            if (tab is null)
+                                            {
+                                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Mono), tabName);
+                                            }
+                                            else
+                                            {
+                                                TabControl.SelectedTab = tab;
+                                            }
+                                        }
+                                        break;
+
+                                    default:
+                                        ok = false;
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                // Bail out.
+                                ok = false;
+                            }
                         }
-                        else
+                        else // mono
                         {
-                            CreateTab(new ClipSampleProvider(reader, StereoCoercion.Mono), baseFn);
+                            var tabName = baseFn;
+                            var tab = GetTab(tabName);
+                            if (tab is null)
+                            {
+                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Mono), tabName);
+                            }
+                            else
+                            {
+                                TabControl.SelectedTab = tab;
+                            }
                         }
 
-                        _settings.RecentFiles.UpdateMru(fn);
-                        ok = true;
-
-                        if (_settings.Autoplay)
+                        if (ok)
                         {
-                            UpdateState(AppState.Rewind);
-                            UpdateState(AppState.Play);
+                            _settings.RecentFiles.UpdateMru(fn);
+
+                            if (_settings.Autoplay)
+                            {
+                                UpdateState(AppState.Rewind);
+                                UpdateState(AppState.Play);
+                            }
                         }
                     }
                 }
@@ -522,9 +599,10 @@ namespace Wavicler
                 if (cled is not null && cled.Dirty)
                 {
                     // TODOF ask to save.
+
+                    cled.Dispose();
                 }
 
-                cled.Dispose();
                 TabControl.TabPages.Remove(tpg);
                 tpg.Dispose();
             }
@@ -631,6 +709,27 @@ namespace Wavicler
             return cled;
         }
 
+
+        /// <summary>
+        /// Helper function.
+        /// </summary>
+        /// <returns></returns>
+        TabPage? GetTab(string tabName)
+        {
+            TabPage? tab = null;
+            for (int i = 0; i < TabControl.TabPages.Count; i++)
+            {
+                if (TabControl.TabPages[i].Text == tabName)
+                {
+                    tab = TabControl.TabPages[i];
+                    break;
+                }
+            }
+            return tab;
+        }
+
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -696,8 +795,8 @@ namespace Wavicler
                 Dock = DockStyle.Fill,
                 DrawColor = _settings.WaveColor,
                 GridColor = Color.LightGray,
-                SelectionMode = _settings.SelectionMode
-                
+                SelectionMode = _settings.SelectionMode,
+                BPM = (float)_settings.BPM
             };
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
             
