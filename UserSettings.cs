@@ -34,6 +34,11 @@ namespace Wavicler
         [JsonConverter(typeof(JsonColorConverter))]
         public Color WaveColor { get; set; } = Color.ForestGreen;
 
+        [DisplayName("Auto Convert Stereo")]
+        [Description("Automatically convert stereo files to mono otherwise ask.")]
+        [Browsable(true)]
+        public bool AutoConvert { get; set; } = false;
+
         [DisplayName("File Log Level")]
         [Description("Log level for file write.")]
         [Browsable(true)]

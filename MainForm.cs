@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Buffers.Text;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
@@ -409,84 +410,52 @@ namespace Wavicler
                         // Create a tab page or select if it already exists.
                         if (reader.WaveFormat.Channels == 2)
                         {
-                            // Ask user what to do with a stereo file.
-                            MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
-                            selector.SetOptions(new() { "Left", "Right", "Mono" });
-                            var dlgres = selector.ShowDialog();
-                            if (dlgres == DialogResult.OK)
+                            if (!_settings.AutoConvert)
                             {
-                                var selopt = selector.SelectedOption;
-
-                                switch (selopt)
+                                // Ask user what to do with a stereo file.
+                                MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
+                                selector.SetOptions(new() { "Left", "Right", "Mono" });
+                                var dlgres = selector.ShowDialog();
+                                if (dlgres == DialogResult.OK)
                                 {
-                                    case "Left":
-                                        {
-                                            var tabName = baseFn + " LEFT";
-                                            var tab = GetTab(tabName);
-                                            if(tab is null)
-                                            {
-                                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Left), tabName);
-                                            }
-                                            else
-                                            {
-                                                TabControl.SelectedTab = tab;
-                                            }
-                                        }
-                                        break;
+                                    var selopt = selector.SelectedOption;
 
-                                    case "Right":
-                                        {
-                                            var tabName = baseFn + " RIGHT";
-                                            var tab = GetTab(tabName);
-                                            if (tab is null)
-                                            {
-                                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Right), tabName);
-                                            }
-                                            else
-                                            {
-                                                TabControl.SelectedTab = tab;
-                                            }
-                                        }
-                                        break;
+                                    switch (selopt)
+                                    {
+                                        case "Left":
+                                            CreateOrSelect(StereoCoercion.Left);
+                                            break;
 
-                                    case "Mono":
-                                        {
-                                            var tabName = baseFn + " MONO";
-                                            var tab = GetTab(tabName);
-                                            if (tab is null)
-                                            {
-                                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Mono), tabName);
-                                            }
-                                            else
-                                            {
-                                                TabControl.SelectedTab = tab;
-                                            }
-                                        }
-                                        break;
+                                        case "Right":
+                                            CreateOrSelect(StereoCoercion.Right);
+                                            break;
 
-                                    default:
-                                        ok = false;
-                                        break;
+                                        case "Mono":
+                                            CreateOrSelect(StereoCoercion.Mono);
+                                            break;
+
+                                        default:
+                                            ok = false;
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    // Bail out.
+                                    ok = false;
                                 }
                             }
                             else
                             {
-                                // Bail out.
-                                ok = false;
+                                if(CreateOrSelect(StereoCoercion.Mono))
+                                {
+                                    _logger.Info($"Autoconvert {baseFn} to mono");
+                                }
                             }
                         }
                         else // mono
                         {
-                            var tabName = baseFn;
-                            var tab = GetTab(tabName);
-                            if (tab is null)
-                            {
-                                CreateTab(new ClipSampleProvider(fn, StereoCoercion.Mono), tabName);
-                            }
-                            else
-                            {
-                                TabControl.SelectedTab = tab;
-                            }
+                            CreateOrSelect(StereoCoercion.Mono);
                         }
 
                         if (ok)
@@ -500,6 +469,41 @@ namespace Wavicler
                             }
                         }
                     }
+
+                    // Local function.
+                    bool CreateOrSelect(StereoCoercion stmode)
+                    {
+                        bool newTab = false;
+                        var tmod = stmode switch
+                        {
+                            StereoCoercion.Right => " RIGHT",
+                            StereoCoercion.Left => " LEFT",
+                            StereoCoercion.Mono => " MONO",
+                            _ => "",
+                        };
+
+                        // Is this already open?
+                        var tabName = baseFn + tmod;
+                        //var tab = GetTab(tabName);
+                        TabPage? tab = null;
+                        for (int i = 0; i < TabControl.TabPages.Count; i++)
+                        {
+                            if (TabControl.TabPages[i].Text == tabName)
+                            {
+                                tab = TabControl.TabPages[i];
+                                TabControl.SelectedTab = TabControl.TabPages[i];
+                                break;
+                            }
+                        }
+
+                        if (tab is null)
+                        {
+                            var prov = new ClipSampleProvider(fn, stmode);
+                            CreateTab(prov, tabName);
+                            newTab = true;
+                        }
+                        return newTab;
+                    }
                 }
             }
             catch (Exception ex)
@@ -507,6 +511,7 @@ namespace Wavicler
                 _logger.Error($"Couldn't open the file: {fn} because: {ex.Message}");
                 ok = false;
             }
+
 
             btnPlay.Enabled = ok;
             UpdateMenu();
@@ -709,27 +714,6 @@ namespace Wavicler
             return cled;
         }
 
-
-        /// <summary>
-        /// Helper function.
-        /// </summary>
-        /// <returns></returns>
-        TabPage? GetTab(string tabName)
-        {
-            TabPage? tab = null;
-            for (int i = 0; i < TabControl.TabPages.Count; i++)
-            {
-                if (TabControl.TabPages[i].Text == tabName)
-                {
-                    tab = TabControl.TabPages[i];
-                    break;
-                }
-            }
-            return tab;
-        }
-
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -738,7 +722,6 @@ namespace Wavicler
         void ResampleMenuItem_Click(object sender, EventArgs e)
         {
             //TODO get two file names and execute.
-
         }
 
         /// <summary>
@@ -749,7 +732,6 @@ namespace Wavicler
         void StereoSplitMenuItem_Click(object sender, EventArgs e)
         {
             //TODO get one file name and execute.
-
         }
 
         /// <summary>
@@ -760,7 +742,6 @@ namespace Wavicler
         void StereoToMonoMenuItem_Click(object sender, EventArgs e)
         {
             //TODO get one file name and execute.
-
         }
 
         /// <summary>

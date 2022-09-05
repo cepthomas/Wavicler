@@ -31,7 +31,9 @@ namespace Wavicler
 
         /// <summary>Edited flag.</summary>
         public bool Dirty { get; set; } = false;
+        #endregion
 
+        #region Properties - mainly pass through TODO just expose the wave viewer?
         /// <summary>For styling.</summary>
         public Color DrawColor { set { waveViewer.DrawColor = value; waveNav.DrawColor = value; } }
 
@@ -48,15 +50,11 @@ namespace Wavicler
         public WaveSelectionMode SelectionMode { set { waveViewer.SelectionMode = value; } }
 
         /// <summary>Gain adjustment.</summary>
-        public double Gain
-        {
-            get { return waveViewer.Gain; }
-            set { waveViewer.Gain = (float)value; }
-        }
+        public double Gain { get { return waveViewer.Gain; } set { waveViewer.Gain = (float)value; } }
         #endregion
 
         #region Events
-        /// <summary>Ask the parent to do something.</summary>
+        /// <summary>Ask the owner to do something.</summary>
         public event EventHandler<ServiceRequestEventArgs>? ServiceRequestEvent;
         public enum ServiceRequest { CopySelectionToNewClip, Close }
 
@@ -101,16 +99,6 @@ namespace Wavicler
                 });
             };
         }
-
-        ///// <summary>
-        ///// Form is legal now.
-        ///// </summary>
-        ///// <param name="e"></param>
-        //protected override void OnLoad(EventArgs e)
-        //{
-        //    // _logger.Info($"OK to log now!!");
-        //    base.OnLoad(e);
-        //}
 
         /// <summary>
         /// Clean up any resources being used.
