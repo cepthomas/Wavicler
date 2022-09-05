@@ -252,9 +252,7 @@ namespace Wavicler
             void Rewind()
             {
                 _waveOutSwapper.Rewind();
-                
                 //_player.Rewind();
-
                 //timeBar.Current = TimeSpan.Zero;
             }
         }
@@ -771,13 +769,14 @@ namespace Wavicler
         /// <param name="tabName"></param>
         void CreateTab(ClipSampleProvider prov, string tabName)
         {
-            ClipEditor ed = new(prov)
+            ClipEditor ed = new()
             {
                 Dock = DockStyle.Fill,
                 DrawColor = _settings.WaveColor,
                 GridColor = Color.LightGray,
                 SelectionMode = _settings.SelectionMode,
-                BPM = (float)_settings.BPM
+                BPM = (float)_settings.BPM,
+                SampleProvider = prov
             };
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
             
@@ -798,8 +797,8 @@ namespace Wavicler
             var cled = ActiveClipEditor();
             if (cled is not null)
             {
-                _waveOutSwapper.SetInput(cled.SelectionSampleProvider);
-                statusInfo.Text = cled.SelectionSampleProvider.GetInfoString();
+                _waveOutSwapper.SetInput(cled.SampleProvider);
+                statusInfo.Text = cled.SampleProvider.GetInfoString();
             }
             else
             {

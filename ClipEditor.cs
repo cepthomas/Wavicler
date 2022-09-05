@@ -22,9 +22,28 @@ namespace Wavicler
     [ToolboxItem(false), Browsable(false)] // not useable in designer
     public partial class ClipEditor : UserControl
     {
+        ISampleProvider _prov = new NullSampleProvider();
+
         #region Properties
-        /// <summary>The selected/rendered data for client playing or persisting.</summary>
-        public ISampleProvider SelectionSampleProvider { get { return waveViewer; } }
+        ///// <summary>The selected/rendered data for client playing or persisting.</summary>
+        //public ISampleProvider SelectionSampleProvider { get { return waveViewer; } }
+
+        /// <summary>The sample provider.</summary>
+        public ISampleProvider SampleProvider
+        {
+            get
+            {
+                return _prov;
+            }
+            set
+            {
+                _prov = value;
+                // Main wave.
+                waveViewer.Init(_prov, false);
+                // Navigation.
+                waveNav.Init(_prov, true);
+            }
+        }
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
@@ -33,7 +52,7 @@ namespace Wavicler
         public bool Dirty { get; set; } = false;
         #endregion
 
-        #region Properties - mainly pass through TODO just expose the wave viewer?
+        #region Properties - mainly pass through TODO1 or just expose the wave viewer?
         /// <summary>For styling.</summary>
         public Color DrawColor { set { waveViewer.DrawColor = value; waveNav.DrawColor = value; } }
 
@@ -68,19 +87,12 @@ namespace Wavicler
         /// <summary>
         /// Normal constructor.
         /// </summary>
-        /// <param name="prov">Data source.</param>
-        public ClipEditor(ClipSampleProvider prov)
+        public ClipEditor()
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 
             InitializeComponent();
 
-            // Main wave.
-            //SelectionSampleProvider = waveViewer;
-            waveViewer.Init(prov, false);
-            
-            // Navigation.
-            waveNav.Init(prov, true);
             waveNav.MarkerChangedEvent += (_, __) => waveViewer.Center(waveNav.Marker);
 
             contextMenu.Opening += (_, __) =>
