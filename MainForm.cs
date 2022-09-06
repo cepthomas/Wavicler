@@ -82,19 +82,28 @@ namespace Wavicler
             btnLoop.Click += (_, __) => _settings.Loop = btnLoop.Checked;
 
             btnSnap.Checked = _settings.Snap;
-            btnSnap.Click += (_, __) => _settings.Snap = btnSnap.Checked;
+            btnSnap.Click += (_, __) =>
+            {
+                _settings.Snap = btnSnap.Checked;
+                // Notify the kids. TODO klunky, refactor all these.
+                foreach (TabPage page in TabControl.TabPages)
+                {
+                    (page.Controls[0] as ClipEditor)!.Snap = _settings.Snap;
+                }
+            };
 
             sldVolume.DrawColor = _settings.ControlColor;
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
             txtBPM.Text = _settings.BPM.ToString();
-            txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) =>
+            txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
+            txtBPM.LostFocus += (_, __) =>
             {
-                KeyUtils.TestForNumber_KeyPress(sender!, e);
-                if(e.Handled)
+                _settings.BPM = double.Parse(txtBPM.Text);
+                foreach (TabPage page in TabControl.TabPages)
                 {
-                    _settings.BPM = double.Parse(txtBPM.Text);
+                    (page.Controls[0] as ClipEditor)!.BPM = (float)_settings.BPM;
                 }
             };
 
@@ -102,7 +111,14 @@ namespace Wavicler
             cmbSelMode.Items.Add(WaveSelectionMode.Beat);
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
             cmbSelMode.SelectedItem = _settings.SelectionMode;
-            cmbSelMode.SelectedIndexChanged += (_, __) => _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+            cmbSelMode.SelectedIndexChanged += (_, __) =>
+            {
+                _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+                foreach (TabPage page in TabControl.TabPages)
+                {
+                    (page.Controls[0] as ClipEditor)!.SelectionMode = _settings.SelectionMode;
+                }
+            };
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
@@ -313,9 +329,6 @@ namespace Wavicler
         {
             var vv = FileMenuItem.DropDownItems;
 
-            // fname fpath info thumbnail
-
-
             RecentMenuItem.DropDownItems.Clear();
 
             _settings.RecentFiles.ForEach(f =>
@@ -374,9 +387,9 @@ namespace Wavicler
             {
                 if (fn == "")
                 {
-                    _logger.Info($"Creating new tab");
-                    ClipSampleProvider prov = new(Array.Empty<float>());
-                    CreateTab(prov, "*");
+                    // _logger.Info($"Creating new tab");
+                    // ClipSampleProvider prov = new(Array.Empty<float>());
+                    // CreateTab(prov, "*");
                 }
                 else
                 {
@@ -483,18 +496,18 @@ namespace Wavicler
                         // Is this already open?
                         var tabName = baseFn + tmod;
                         //var tab = GetTab(tabName);
-                        TabPage? tab = null;
-                        for (int i = 0; i < TabControl.TabPages.Count; i++)
+                        TabPage? seltab = null;
+                        foreach (TabPage tab in TabControl.TabPages)
                         {
-                            if (TabControl.TabPages[i].Text == tabName)
+                            if (tab.Text == tabName)
                             {
-                                tab = TabControl.TabPages[i];
-                                TabControl.SelectedTab = TabControl.TabPages[i];
+                                seltab = tab;
+                                TabControl.SelectedTab = seltab;
                                 break;
                             }
                         }
 
-                        if (tab is null)
+                        if (seltab is null)
                         {
                             var prov = new ClipSampleProvider(fn, stmode);
                             CreateTab(prov, tabName);
@@ -509,7 +522,6 @@ namespace Wavicler
                 _logger.Error($"Couldn't open the file: {fn} because: {ex.Message}");
                 ok = false;
             }
-
 
             btnPlay.Enabled = ok;
             UpdateMenu();
@@ -547,7 +559,7 @@ namespace Wavicler
 
             if (cled is not null)
             {
-                // TODOF get all rendered data and save to audio file - to fn if specified else old.
+                // TODO get all rendered data and save to audio file - to fn if specified else old.
             }
 
             return ok;
@@ -601,7 +613,7 @@ namespace Wavicler
                 var cled = tpg.Controls[0] as ClipEditor;
                 if (cled is not null && cled.Dirty)
                 {
-                    // TODOF ask to save.
+                    // TODO ask to save.
 
                     cled.Dispose();
                 }
@@ -614,7 +626,9 @@ namespace Wavicler
 
             return ok;
         }
+        #endregion
 
+        #region Navigator
         /// <summary>
         /// Initialize tree from user settings.
         /// </summary>
@@ -643,6 +657,69 @@ namespace Wavicler
         void Navigator_FileSelectedEvent(object? sender, string fn)
         {
             OpenFile(fn);
+        }
+        #endregion
+
+        #region Tabs
+        /// <summary>
+        /// Function to open a new tab.
+        /// </summary>
+        /// <param name="prov"></param>
+        /// <param name="tabName"></param>
+        void CreateTab(ClipSampleProvider prov, string tabName)
+        {
+            ClipEditor ed = new(prov)
+            {
+                Dock = DockStyle.Fill,
+                DrawColor = _settings.WaveColor,
+                GridColor = Color.LightGray,
+                SelectionMode = _settings.SelectionMode,
+                BPM = (float)_settings.BPM,
+            };
+            ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
+
+            TabPage page = new() { Text = tabName };
+            page.Controls.Add(ed);
+            TabControl.TabPages.Add(page);
+            TabControl.SelectedTab = page;
+        }
+
+        /// <summary>
+        /// User changes tab of interest.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            var cled = ActiveClipEditor();
+            if (cled is not null)
+            {
+                _waveOutSwapper.SetInput(cled.SampleProvider);
+                statusInfo.Text = cled.SampleProvider.GetInfoString();
+            }
+            else
+            {
+                _waveOutSwapper.SetInput(null);
+                statusInfo.Text = "";
+            }
+        }
+
+        /// <summary>
+        /// User wants to close this tab.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void TabControl_MouseDoubleClick(object? sender, MouseEventArgs e)
+        {
+            for (int i = 0; i < TabControl.TabCount; ++i)
+            {
+                if (TabControl.GetTabRect(i).Contains(e.Location))
+                {
+                    // Found it, do something TODO close maybe
+                    //...
+                    break;
+                }
+            }
         }
         #endregion
 
@@ -698,20 +775,7 @@ namespace Wavicler
         }
         #endregion
 
-
-
-
-
-        /// <summary>
-        /// Helper function.
-        /// </summary>
-        /// <returns></returns>
-        ClipEditor? ActiveClipEditor()
-        {
-            ClipEditor? cled = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab.Controls[0] as ClipEditor : null;
-            return cled;
-        }
-
+        #region Utilities
         /// <summary>
         /// 
         /// </summary>
@@ -741,6 +805,20 @@ namespace Wavicler
         {
             //TODO get one file name and execute.
         }
+        #endregion
+
+
+
+        /// <summary>
+        /// Helper function.
+        /// </summary>
+        /// <returns></returns>
+        ClipEditor? ActiveClipEditor()
+        {
+            ClipEditor? cled = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab.Controls[0] as ClipEditor : null;
+            return cled;
+        }
+
 
         /// <summary>
         /// 
@@ -751,7 +829,7 @@ namespace Wavicler
         {
             var cled = sender as ClipEditor;
 
-            switch(e.Request)
+            switch (e.Request)
             {
                 case ClipEditor.ServiceRequest.Close:
                     Close(false);
@@ -759,69 +837,6 @@ namespace Wavicler
 
                 case ClipEditor.ServiceRequest.CopySelectionToNewClip: // TODO
                     break;
-            }
-        }
-
-        /// <summary>
-        /// Function to open a new tab.
-        /// </summary>
-        /// <param name="prov"></param>
-        /// <param name="tabName"></param>
-        void CreateTab(ClipSampleProvider prov, string tabName)
-        {
-            ClipEditor ed = new()
-            {
-                Dock = DockStyle.Fill,
-                DrawColor = _settings.WaveColor,
-                GridColor = Color.LightGray,
-                SelectionMode = _settings.SelectionMode,
-                BPM = (float)_settings.BPM,
-                SampleProvider = prov
-            };
-            ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
-            
-            TabPage page = new() { Text = tabName };
-            page.DoubleClick += (_, __) => Close(false);
-            page.Controls.Add(ed);
-            TabControl.TabPages.Add(page);
-            TabControl.SelectedTab = page;
-        }
-
-        /// <summary>
-        /// User changes tab of interest.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            var cled = ActiveClipEditor();
-            if (cled is not null)
-            {
-                _waveOutSwapper.SetInput(cled.SampleProvider);
-                statusInfo.Text = cled.SampleProvider.GetInfoString();
-            }
-            else
-            {
-                _waveOutSwapper.SetInput(null);
-                statusInfo.Text = "";
-            }
-        }
-
-        /// <summary>
-        /// User wants to close this tab.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void TabControl_MouseDoubleClick(object? sender, MouseEventArgs e)
-        {
-            for (int i = 0; i < TabControl.TabCount; ++i)
-            {
-                if (TabControl.GetTabRect(i).Contains(e.Location))
-                {
-                    // Found it, do something TODOF close maybe
-                    //...
-                    break;
-                }
             }
         }
     }

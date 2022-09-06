@@ -22,28 +22,16 @@ namespace Wavicler
     [ToolboxItem(false), Browsable(false)] // not useable in designer
     public partial class ClipEditor : UserControl
     {
+        #region Fields
         ISampleProvider _prov = new NullSampleProvider();
+        #endregion
 
         #region Properties
         ///// <summary>The selected/rendered data for client playing or persisting.</summary>
         //public ISampleProvider SelectionSampleProvider { get { return waveViewer; } }
 
-        /// <summary>The sample provider.</summary>
-        public ISampleProvider SampleProvider
-        {
-            get
-            {
-                return _prov;
-            }
-            set
-            {
-                _prov = value;
-                // Main wave.
-                waveViewer.Init(_prov, false);
-                // Navigation.
-                waveNav.Init(_prov, true);
-            }
-        }
+        /// <summary>The bound input sample provider.</summary>
+        public ISampleProvider SampleProvider { get { return _prov; } }
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
@@ -52,7 +40,7 @@ namespace Wavicler
         public bool Dirty { get; set; } = false;
         #endregion
 
-        #region Properties - mainly pass through TODO1 or just expose the wave viewer?
+        #region Properties - mainly pass through to wave viewer
         /// <summary>For styling.</summary>
         public Color DrawColor { set { waveViewer.DrawColor = value; waveNav.DrawColor = value; } }
 
@@ -87,11 +75,16 @@ namespace Wavicler
         /// <summary>
         /// Normal constructor.
         /// </summary>
-        public ClipEditor()
+        /// <param name="prov">The bound input sample provider.</param>
+        public ClipEditor(ISampleProvider prov)
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 
             InitializeComponent();
+
+            _prov = prov;
+            waveViewer.Init(_prov, false);
+            waveNav.Init(_prov, true);
 
             waveNav.MarkerChangedEvent += (_, __) => waveViewer.Center(waveNav.Marker);
 
@@ -100,7 +93,7 @@ namespace Wavicler
                 contextMenu.Items.Clear();
                 contextMenu.Items.Add("Fit Gain", null, (_, __) => waveViewer.FitGain());
                 contextMenu.Items.Add("Reset Gain", null, (_, __) => waveViewer.Gain = 1.0f);
-                contextMenu.Items.Add("Remove Marker", null, (_, __) => waveViewer.Marker = -1);
+                contextMenu.Items.Add("Remove Marker", null, (_, __) => waveViewer.Marker = 0);
                 contextMenu.Items.Add("Copy To New Clip", null, (_, __) =>
                 {
                     ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip });
