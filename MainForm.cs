@@ -37,6 +37,9 @@ namespace Wavicler
 
         /// <summary>The settings.</summary>
         readonly UserSettings _settings;
+
+        /// <summary>UI indicator.</summary>
+        const string NEW_FILE_IND = "*";
         #endregion
 
         #region Lifecycle
@@ -66,7 +69,7 @@ namespace Wavicler
             StartPosition = FormStartPosition.Manual;
             Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
             Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
-            // TODO not working?... KeyPreview = true; // for routing kbd strokes through OnKeyDown
+            KeyPreview = true; // for routing kbd strokes through OnKeyDown
 
             // Create output.
             _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), _waveOutSwapper);
@@ -230,7 +233,7 @@ namespace Wavicler
                     }
                     break;
 
-                case AppState.Play: //TODO1 support play selection or all
+                case AppState.Play:
                     Play();
                     break;
 
@@ -352,11 +355,11 @@ namespace Wavicler
             bool anyOpen = false;
             bool dirty = false;
 
-            var cled = ActiveClipEditor();
-            if (cled is not null)
+            var page = ActivePage();
+            if (page is not null)
             {
                 anyOpen = true;
-                dirty = cled.Dirty;
+                dirty = page.Text == NEW_FILE_IND;
             }
 
             btnRewind.Enabled = anyOpen;
@@ -387,9 +390,9 @@ namespace Wavicler
             {
                 if (fn == "")
                 {
-                    // _logger.Info($"Creating new tab");
-                    // ClipSampleProvider prov = new(Array.Empty<float>());
-                    // CreateTab(prov, "*");
+                    _logger.Info($"Creating new tab");
+                    ClipSampleProvider prov = new(Array.Empty<float>());
+                    CreateTab(prov, NEW_FILE_IND);
                 }
                 else
                 {
@@ -597,7 +600,7 @@ namespace Wavicler
 
             if (all)
             {
-                while(TabControl.TabCount > 0)
+                while (TabControl.TabCount > 0)
                 {
                     CloseOne(TabControl.TabPages[0]);
                 }
@@ -608,18 +611,19 @@ namespace Wavicler
             }
 
             // Local function.
-            void CloseOne(TabPage tpg)
+            void CloseOne(TabPage page)
             {
-                var cled = tpg.Controls[0] as ClipEditor;
-                if (cled is not null && cled.Dirty)
+                if (page.Text == NEW_FILE_IND)
                 {
                     // TODO ask to save.
 
-                    cled.Dispose();
                 }
 
-                TabControl.TabPages.Remove(tpg);
-                tpg.Dispose();
+                var cled = page.Controls[0] as ClipEditor;
+                cled?.Dispose();
+
+                TabControl.TabPages.Remove(page);
+                page.Dispose();
             }
 
             UpdateMenu();
@@ -808,6 +812,16 @@ namespace Wavicler
         #endregion
 
 
+
+        /// <summary>
+        /// Helper function.
+        /// </summary>
+        /// <returns></returns>
+        TabPage? ActivePage()
+        {
+            TabPage? page = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab as TabPage : null;
+            return page;
+        }
 
         /// <summary>
         /// Helper function.

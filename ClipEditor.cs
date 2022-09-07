@@ -23,41 +23,36 @@ namespace Wavicler
     public partial class ClipEditor : UserControl
     {
         #region Fields
-        ISampleProvider _prov = new NullSampleProvider();
+        /// <summary>The bound input sample provider.</summary>
+        ClipSampleProvider _prov = new(Array.Empty<float>());
         #endregion
 
         #region Properties
-        ///// <summary>The selected/rendered data for client playing or persisting.</summary>
-        //public ISampleProvider SelectionSampleProvider { get { return waveViewer; } }
-
         /// <summary>The bound input sample provider.</summary>
         public ISampleProvider SampleProvider { get { return _prov; } }
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
-
-        /// <summary>Edited flag.</summary>
-        public bool Dirty { get; set; } = false;
         #endregion
 
         #region Properties - mainly pass through to wave viewer
         /// <summary>For styling.</summary>
-        public Color DrawColor { set { waveViewer.DrawColor = value; waveNav.DrawColor = value; } }
+        public Color DrawColor { set { wvData.DrawColor = value; wvNav.DrawColor = value; } }
 
         /// <summary>For styling.</summary>
-        public Color GridColor { set { waveViewer.GridColor = value; } }
+        public Color GridColor { set { wvData.GridColor = value; } }
 
         /// <summary>Snap control.</summary>
-        public bool Snap { set { waveViewer.Snap = value; } }
+        public bool Snap { set { wvData.Snap = value; } }
 
         /// <summary>For beat mode.</summary>
-        public float BPM { set { waveViewer.BPM = value; } }
+        public float BPM { set { wvData.BPM = value; } }
 
         /// <summary>How to select wave.</summary>
-        public WaveSelectionMode SelectionMode { set { waveViewer.SelectionMode = value; } }
+        public WaveSelectionMode SelectionMode { set { wvData.SelectionMode = value; } }
 
         /// <summary>Gain adjustment.</summary>
-        public double Gain { get { return waveViewer.Gain; } set { waveViewer.Gain = (float)value; } }
+        public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
         #endregion
 
         #region Events
@@ -76,24 +71,27 @@ namespace Wavicler
         /// Normal constructor.
         /// </summary>
         /// <param name="prov">The bound input sample provider.</param>
-        public ClipEditor(ISampleProvider prov)
+        public ClipEditor(ClipSampleProvider prov)
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 
             InitializeComponent();
 
             _prov = prov;
-            waveViewer.Init(_prov, false);
-            waveNav.Init(_prov, true);
 
-            waveNav.MarkerChangedEvent += (_, __) => waveViewer.Center(waveNav.Marker);
+            // Hook up provider and ui.
+            wvData.Init(_prov, false);
+            wvNav.Init(_prov, true);
+            InitSelection();
+            wvNav.MarkerChangedEvent += (_, __) => wvData.Center(wvNav.Marker);
+            wvData.SelectionChangedEvent += (_, __) => InitSelection();
 
             contextMenu.Opening += (_, __) =>
             {
                 contextMenu.Items.Clear();
-                contextMenu.Items.Add("Fit Gain", null, (_, __) => waveViewer.FitGain());
-                contextMenu.Items.Add("Reset Gain", null, (_, __) => waveViewer.Gain = 1.0f);
-                contextMenu.Items.Add("Remove Marker", null, (_, __) => waveViewer.Marker = 0);
+                contextMenu.Items.Add("Fit Gain", null, (_, __) => wvData.FitGain());
+                contextMenu.Items.Add("Reset Gain", null, (_, __) => wvData.Gain = 1.0f);
+                contextMenu.Items.Add("Remove Marker", null, (_, __) => wvData.Marker = 0);
                 contextMenu.Items.Add("Copy To New Clip", null, (_, __) =>
                 {
                     ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip });
@@ -113,13 +111,22 @@ namespace Wavicler
         {
             if (disposing && (components != null))
             {
-                waveViewer.Dispose();
-                waveNav.Dispose();
+                wvData.Dispose();
+                wvNav.Dispose();
                 components.Dispose();
             }
 
             base.Dispose(disposing);
         }
         #endregion
+
+        /// <summary>
+        /// Helper.
+        /// </summary>
+        void InitSelection()
+        {
+            _prov.SelStart = wvData.SelStart;
+            _prov.SelLength = wvData.SelLength;
+        }
     }
 }

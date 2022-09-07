@@ -70,7 +70,7 @@
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // menuStrip
+            // MenuStrip
             // 
             this.MenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -78,7 +78,7 @@
             this.ToolsMenuItem});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.MdiWindowListItem = this.FileMenuItem;
-            this.MenuStrip.Name = "menuStrip";
+            this.MenuStrip.Name = "MenuStrip";
             this.MenuStrip.Size = new System.Drawing.Size(1242, 28);
             this.MenuStrip.TabIndex = 0;
             this.MenuStrip.Text = "menuStrip";
@@ -215,7 +215,7 @@
             this.AboutMenuItem.Size = new System.Drawing.Size(196, 26);
             this.AboutMenuItem.Text = "About";
             // 
-            // toolStrip
+            // ToolStrip
             // 
             this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -403,14 +403,14 @@
             this.toolStripSeparator13.Name = "toolStripSeparator13";
             this.toolStripSeparator13.Size = new System.Drawing.Size(6, 43);
             // 
-            // tabControl
+            // TabControl
             // 
             this.TabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TabControl.Controls.Add(this.tabPage1);
             this.TabControl.Location = new System.Drawing.Point(445, 80);
-            this.TabControl.Name = "tabControl";
+            this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
             this.TabControl.Size = new System.Drawing.Size(797, 381);
             this.TabControl.TabIndex = 90;
@@ -464,9 +464,10 @@
             this.ftree.Location = new System.Drawing.Point(8, 80);
             this.ftree.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.ftree.Name = "ftree";
-            this.ftree.SingleClickSelect = true;
+            this.ftree.SingleClickSelect = false;
             this.ftree.Size = new System.Drawing.Size(435, 379);
             this.ftree.TabIndex = 89;
+            this.toolTip.SetToolTip(this.ftree, "File selection");
             this.ftree.FileSelectedEvent += new System.EventHandler<string>(this.Navigator_FileSelectedEvent);
             // 
             // MainForm
