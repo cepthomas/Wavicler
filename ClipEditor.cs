@@ -66,6 +66,13 @@ namespace Wavicler
         }
         #endregion
 
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+        }
+
+
         #region Lifecycle
         /// <summary>
         /// Normal constructor.

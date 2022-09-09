@@ -319,6 +319,8 @@ namespace Wavicler
                     e.Handled = true;
                     break;
             }
+
+            base.OnKeyDown(e);
         }
         #endregion
 
@@ -641,7 +643,6 @@ namespace Wavicler
             var s = AudioLibDefs.AUDIO_FILE_TYPES;
             ftree.FilterExts = s.SplitByTokens("|;*");
             ftree.RootDirs = _settings.RootDirs;
-            ftree.SingleClickSelect = true;
 
             try
             {
