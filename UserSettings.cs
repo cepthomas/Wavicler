@@ -66,22 +66,12 @@ namespace Wavicler
         public bool Loop { get; set; } = false;
 
         [Browsable(false)]
-        public bool Snap { get; set; } = true;
-
-        [Browsable(false)]
         public double Volume { get; set; } = AudioLibDefs.VOLUME_MAX / 2;
-
-        [Browsable(false)]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public WaveSelectionMode SelectionMode { get; set; } = WaveSelectionMode.Sample;
-
-        [Browsable(false)]
-        public double BPM { get; set; } = 100.0;
         #endregion
 
-        #region Non-persisted Properties
-        [Browsable(false)]
-        public bool Valid { get; set; } = false;
-        #endregion
+        //#region Non-persisted Properties
+        //[Browsable(false)]
+        //public bool Valid { get; set; } = false;
+        //#endregion
     }
 }

@@ -7,14 +7,13 @@ using System.IO;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Drawing.Design;
-using System.Text.Json.Serialization;
 using System.ComponentModel;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
-using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib;
+using System.Runtime;
 
 
 namespace Wavicler
@@ -33,23 +32,12 @@ namespace Wavicler
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
-        #endregion
 
-        #region Properties - mainly pass through to wave viewer
         /// <summary>For styling.</summary>
         public Color DrawColor { set { wvData.DrawColor = value; wvNav.DrawColor = value; } }
 
         /// <summary>For styling.</summary>
         public Color GridColor { set { wvData.GridColor = value; } }
-
-        /// <summary>Snap control.</summary>
-        public bool Snap { set { wvData.Snap = value; } }
-
-        /// <summary>For beat mode.</summary>
-        public float BPM { set { wvData.BPM = value; } }
-
-        /// <summary>How to select wave.</summary>
-        public WaveSelectionMode SelectionMode { set { wvData.SelectionMode = value; } }
 
         /// <summary>Gain adjustment.</summary>
         public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
@@ -65,13 +53,6 @@ namespace Wavicler
             public ServiceRequest Request { get; set; }
         }
         #endregion
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-
-        }
-
 
         #region Lifecycle
         /// <summary>
@@ -90,7 +71,7 @@ namespace Wavicler
             wvData.Init(_prov, false);
             wvNav.Init(_prov, true);
             InitSelection();
-            wvNav.MarkerChangedEvent += (_, __) => wvData.Center(wvNav.Marker);
+            wvNav.MarkerChangedEvent += (_, __) => wvData.Recenter(wvNav.Marker);
             wvData.SelectionChangedEvent += (_, __) => InitSelection();
 
             contextMenu.Opening += (_, __) =>
@@ -126,6 +107,15 @@ namespace Wavicler
             base.Dispose(disposing);
         }
         #endregion
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void UpdateSettings()
+        {
+            wvData.Invalidate();
+            wvNav.Invalidate();
+        }
 
         /// <summary>
         /// Helper.

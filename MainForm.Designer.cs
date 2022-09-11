@@ -46,24 +46,20 @@
             this.btnPlay = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRewind = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-            this.cmbSelMode = new System.Windows.Forms.ToolStripComboBox();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnSnap = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.txtBPM = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnGo = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.ftree = new NBagOfUis.FilTree();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvLog = new NBagOfUis.TextViewer();
-            this.ftree = new NBagOfUis.FilTree();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.cmbSelMode = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.MenuStrip.SuspendLayout();
             this.ToolStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
@@ -228,17 +224,13 @@
             this.btnPlay,
             this.toolStripSeparator9,
             this.btnRewind,
-            this.toolStripSeparator10,
-            this.toolStripLabel2,
-            this.cmbSelMode,
-            this.toolStripSeparator4,
-            this.btnSnap,
             this.toolStripSeparator11,
             this.toolStripLabel1,
             this.txtBPM,
             this.toolStripSeparator12,
-            this.btnGo,
-            this.toolStripSeparator13});
+            this.toolStripLabel2,
+            this.cmbSelMode,
+            this.toolStripSeparator4});
             this.ToolStrip.Location = new System.Drawing.Point(0, 28);
             this.ToolStrip.Name = "ToolStrip";
             this.ToolStrip.Size = new System.Drawing.Size(1242, 43);
@@ -332,41 +324,6 @@
             this.btnRewind.Text = "toolStripButton1";
             this.btnRewind.ToolTipText = "Rewind";
             // 
-            // toolStripSeparator10
-            // 
-            this.toolStripSeparator10.Name = "toolStripSeparator10";
-            this.toolStripSeparator10.Size = new System.Drawing.Size(6, 43);
-            // 
-            // toolStripLabel2
-            // 
-            this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Size = new System.Drawing.Size(52, 40);
-            this.toolStripLabel2.Text = "Select:";
-            // 
-            // cmbSelMode
-            // 
-            this.cmbSelMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbSelMode.Name = "cmbSelMode";
-            this.cmbSelMode.Size = new System.Drawing.Size(90, 43);
-            this.cmbSelMode.ToolTipText = "Selection mode";
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 43);
-            // 
-            // btnSnap
-            // 
-            this.btnSnap.AutoSize = false;
-            this.btnSnap.CheckOnClick = true;
-            this.btnSnap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.btnSnap.Image = global::Wavicler.Properties.Resources.glyphicons_242_flash;
-            this.btnSnap.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnSnap.Name = "btnSnap";
-            this.btnSnap.Size = new System.Drawing.Size(40, 40);
-            this.btnSnap.Text = "toolStripButton1";
-            this.btnSnap.ToolTipText = "Snap";
-            // 
             // toolStripSeparator11
             // 
             this.toolStripSeparator11.Name = "toolStripSeparator11";
@@ -390,18 +347,18 @@
             this.toolStripSeparator12.Name = "toolStripSeparator12";
             this.toolStripSeparator12.Size = new System.Drawing.Size(6, 43);
             // 
-            // btnGo
+            // ftree
             // 
-            this.btnGo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnGo.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnGo.Name = "btnGo";
-            this.btnGo.Size = new System.Drawing.Size(32, 40);
-            this.btnGo.Text = "Go";
-            // 
-            // toolStripSeparator13
-            // 
-            this.toolStripSeparator13.Name = "toolStripSeparator13";
-            this.toolStripSeparator13.Size = new System.Drawing.Size(6, 43);
+            this.ftree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.ftree.Location = new System.Drawing.Point(8, 80);
+            this.ftree.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
+            this.ftree.Name = "ftree";
+            this.ftree.SingleClickSelect = false;
+            this.ftree.Size = new System.Drawing.Size(435, 379);
+            this.ftree.TabIndex = 89;
+            this.toolTip.SetToolTip(this.ftree, "File selection");
+            this.ftree.FileSelectedEvent += new System.EventHandler<string>(this.Navigator_FileSelectedEvent);
             // 
             // TabControl
             // 
@@ -457,18 +414,23 @@
             this.tvLog.TabStop = false;
             this.tvLog.WordWrap = true;
             // 
-            // ftree
+            // toolStripLabel2
             // 
-            this.ftree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.ftree.Location = new System.Drawing.Point(8, 80);
-            this.ftree.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
-            this.ftree.Name = "ftree";
-            this.ftree.SingleClickSelect = false;
-            this.ftree.Size = new System.Drawing.Size(435, 379);
-            this.ftree.TabIndex = 89;
-            this.toolTip.SetToolTip(this.ftree, "File selection");
-            this.ftree.FileSelectedEvent += new System.EventHandler<string>(this.Navigator_FileSelectedEvent);
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(52, 40);
+            this.toolStripLabel2.Text = "Select:";
+            // 
+            // cmbSelMode
+            // 
+            this.cmbSelMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSelMode.Name = "cmbSelMode";
+            this.cmbSelMode.Size = new System.Drawing.Size(90, 43);
+            this.cmbSelMode.ToolTipText = "Selection mode";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 43);
             // 
             // MainForm
             // 
@@ -524,11 +486,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
         private System.Windows.Forms.ToolStripButton btnRewind;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
         private System.Windows.Forms.TabControl TabControl;
-        private System.Windows.Forms.ToolStripComboBox cmbSelMode;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private System.Windows.Forms.ToolStripButton btnSnap;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripStatusLabel statusInfo;
@@ -538,13 +496,13 @@
         private System.Windows.Forms.ToolStripTextBox txtBPM;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
         private System.Windows.Forms.ToolStripButton btnPlay;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripMenuItem resampleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem splitStereoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stereoToMonoToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.ToolStripButton btnGo;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripComboBox cmbSelMode;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
     }
 }

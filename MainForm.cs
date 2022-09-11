@@ -16,6 +16,7 @@ using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
+using System.Xml.Linq;
 
 
 namespace Wavicler
@@ -84,42 +85,34 @@ namespace Wavicler
             btnLoop.Checked = _settings.Loop;
             btnLoop.Click += (_, __) => _settings.Loop = btnLoop.Checked;
 
-            btnSnap.Checked = _settings.Snap;
-            btnSnap.Click += (_, __) =>
-            {
-                _settings.Snap = btnSnap.Checked;
-                // Notify the kids. TODO klunky, refactor all these.
-                foreach (TabPage page in TabControl.TabPages)
-                {
-                    (page.Controls[0] as ClipEditor)!.Snap = _settings.Snap;
-                }
-            };
-
             sldVolume.DrawColor = _settings.ControlColor;
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            txtBPM.Text = _settings.BPM.ToString();
+
+            txtBPM.Text = _settings.AudioSettings.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
             txtBPM.LostFocus += (_, __) =>
             {
-                _settings.BPM = double.Parse(txtBPM.Text);
+                _settings.AudioSettings.BPM = double.Parse(txtBPM.Text);
+                // Notify the kids. TODO klunky, refactor all these.
                 foreach (TabPage page in TabControl.TabPages)
                 {
-                    (page.Controls[0] as ClipEditor)!.BPM = (float)_settings.BPM;
+                    (page.Controls[0] as ClipEditor)!.UpdateSettings();
                 }
             };
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Beat);
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
-            cmbSelMode.SelectedItem = _settings.SelectionMode;
+            cmbSelMode.SelectedItem = _settings.AudioSettings.SelectionMode;
             cmbSelMode.SelectedIndexChanged += (_, __) =>
             {
-                _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+                _settings.AudioSettings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+                // Notify the kids. TODO klunky, refactor all these.
                 foreach (TabPage page in TabControl.TabPages)
                 {
-                    (page.Controls[0] as ClipEditor)!.SelectionMode = _settings.SelectionMode;
+                    (page.Controls[0] as ClipEditor)!.UpdateSettings();
                 }
             };
 
@@ -148,8 +141,6 @@ namespace Wavicler
             UpdateMenu();
 
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
-
-            btnGo.Click += (_, __) => OpenFile(@"C:\Dev\repos\TestAudioFiles\Cave Ceremony 01.wav");
         }
 
         /// <summary>
@@ -158,8 +149,6 @@ namespace Wavicler
         /// <param name="e"></param>
         protected override void OnLoad(EventArgs e)
         {
-            //_logger.Info($"OnLoad()");
-
             // Initialize tree from user settings.
             InitNavigator();
 
@@ -678,8 +667,6 @@ namespace Wavicler
                 Dock = DockStyle.Fill,
                 DrawColor = _settings.WaveColor,
                 GridColor = Color.LightGray,
-                SelectionMode = _settings.SelectionMode,
-                BPM = (float)_settings.BPM,
             };
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
 
