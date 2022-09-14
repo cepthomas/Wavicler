@@ -90,10 +90,10 @@ namespace Wavicler
             txtBPM.LostFocus += (_, __) =>
             {
                 _settings.AudioSettings.BPM = double.Parse(txtBPM.Text);
-                // Notify the kids. TODO1 klunky, refactor all these.
+                // Notify the kids.
                 foreach (TabPage page in TabControl.TabPages)
                 {
-                    (page.Controls[0] as ClipEditor)!.UpdateSettings();
+                    (page.Controls[0] as ClipEditor)!.BPM = _settings.AudioSettings.BPM;
                 }
             };
 
@@ -104,10 +104,10 @@ namespace Wavicler
             cmbSelMode.SelectedIndexChanged += (_, __) =>
             {
                 _settings.AudioSettings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
-                // Notify the kids. TODO1 klunky, refactor all these.
+                // Notify the kids.
                 foreach (TabPage page in TabControl.TabPages)
                 {
-                    (page.Controls[0] as ClipEditor)!.UpdateSettings();
+                    (page.Controls[0] as ClipEditor)!.DefaultSelectionMode = _settings.AudioSettings.SelectionMode;
                 }
             };
 

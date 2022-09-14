@@ -41,6 +41,13 @@ namespace Wavicler
 
         /// <summary>Gain adjustment.</summary>
         public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
+
+        /// <summary>Global mode - overridden from keyboard.</summary>
+        public WaveSelectionMode DefaultSelectionMode { set { wvData.DefaultSelectionMode = value; } }
+
+        /// <summary>Global tempo if using Beat selection mode.</summary>
+        public double BPM { set { wvData.BPM = value; } }
+
         #endregion
 
         #region Events
@@ -107,15 +114,6 @@ namespace Wavicler
             base.Dispose(disposing);
         }
         #endregion
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void UpdateSettings()
-        {
-            wvData.Invalidate(); //TODO1 nope - pass bpm, snap
-            wvNav.Invalidate();
-        }
 
         /// <summary>
         /// Helper.
