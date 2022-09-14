@@ -113,7 +113,7 @@ namespace Wavicler
         /// </summary>
         public void UpdateSettings()
         {
-            wvData.Invalidate();
+            wvData.Invalidate(); //TODO1 nope - pass bpm, snap
             wvNav.Invalidate();
         }
 

@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
-using System.Buffers.Text;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
-using System.Xml.Linq;
 
 
 namespace Wavicler
@@ -95,7 +90,7 @@ namespace Wavicler
             txtBPM.LostFocus += (_, __) =>
             {
                 _settings.AudioSettings.BPM = double.Parse(txtBPM.Text);
-                // Notify the kids. TODO klunky, refactor all these.
+                // Notify the kids. TODO1 klunky, refactor all these.
                 foreach (TabPage page in TabControl.TabPages)
                 {
                     (page.Controls[0] as ClipEditor)!.UpdateSettings();
@@ -109,7 +104,7 @@ namespace Wavicler
             cmbSelMode.SelectedIndexChanged += (_, __) =>
             {
                 _settings.AudioSettings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
-                // Notify the kids. TODO klunky, refactor all these.
+                // Notify the kids. TODO1 klunky, refactor all these.
                 foreach (TabPage page in TabControl.TabPages)
                 {
                     (page.Controls[0] as ClipEditor)!.UpdateSettings();
