@@ -13,7 +13,6 @@ using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfUis;
 using AudioLib;
-using System.Runtime;
 
 
 namespace Wavicler
@@ -41,13 +40,6 @@ namespace Wavicler
 
         /// <summary>Gain adjustment.</summary>
         public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
-
-        /// <summary>Global mode - overridden from keyboard.</summary>
-        public WaveSelectionMode DefaultSelectionMode { set { wvData.DefaultSelectionMode = value; } }
-
-        /// <summary>Global tempo if using Beat selection mode.</summary>
-        public double BPM { set { wvData.BPM = value; } }
-
         #endregion
 
         #region Events
@@ -114,6 +106,19 @@ namespace Wavicler
             base.Dispose(disposing);
         }
         #endregion
+
+        /// <summary>
+        /// Update main viewer with user settings.
+        /// </summary>
+        /// <param name="selectionMode"></param>
+        /// <param name="snap"></param>
+        /// <param name="bpm"></param>
+        public void UpdateSettings(WaveSelectionMode selectionMode, double bpm)
+        {
+            wvData.SelectionMode = selectionMode;
+            //wvData.DefaultSnapType = snap;
+            wvData.BPM = (float)bpm;
+        }
 
         /// <summary>
         /// Helper.

@@ -20,11 +20,6 @@ Caveats:
 - Selection play, rewind, loop on/off, auto-start on/off.
 
 ## Selection
-- Beats mode:
-  - Establish timing by select two samples and identify corresponding number of beats.
-  - Show in waveform.
-  - Subsequent selections are by beat using snap.
-
 - Time mode:
   - Select two times using ?? resolution.
   - Shows number of samples and time in UI.
@@ -33,12 +28,26 @@ Caveats:
   - Select two samples using ?? resolution.
   - Shows number of samples and time in UI.
 
+- Beat mode:
+  - Establish timing by select two samples and identify corresponding number of beats.
+  - Show in waveform.
+  - Subsequent selections are by beat using snap.
+
+## Keys
+- G: reset gain
+- H: reset to initial full view
+- M: go to marker
+- S: go to selection
+- F: snap fine
+- C: snap coarse
+- N: snap none
+
 ## Mouse
 - Wheel alone is time shift (x shift).
 - Wheel + ctrl is time zoom (x zoom).
 - Wheel + shift is gain (y zoom).
 - Left click is selection start.
-- Left click + ctrl is selection length.
+- Left click + ctrl is selection end/length.
 - Right click is context menu.
 
 ## Context Menu
@@ -49,13 +58,13 @@ Caveats:
 ## Tools
 - Stereo file: split into two wavs, combine to mono wav.
 - Resample file.
-- ? Detect tempo.
 - Edit settings.
 - About.
 
 
 ## Future
-  - Combine multiple clips, incl blank.
-  - Edit - cut/copy/paste/insert.
-  - Gain envelope.
-  - Stretch/fit etc.
+- Combine multiple clips, incl blank.
+- Edit - cut/copy/paste/insert.
+- Gain envelope.
+- Stretch/fit etc.
+- Detect tempo.

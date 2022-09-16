@@ -84,32 +84,15 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-
-            txtBPM.Text = _settings.AudioSettings.BPM.ToString();
+            txtBPM.Text = _settings.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) =>
-            {
-                _settings.AudioSettings.BPM = double.Parse(txtBPM.Text);
-                // Notify the kids.
-                foreach (TabPage page in TabControl.TabPages)
-                {
-                    (page.Controls[0] as ClipEditor)!.BPM = _settings.AudioSettings.BPM;
-                }
-            };
+            txtBPM.LostFocus += (_, __) => UpdateTabSettings();
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Beat);
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
-            cmbSelMode.SelectedItem = _settings.AudioSettings.SelectionMode;
-            cmbSelMode.SelectedIndexChanged += (_, __) =>
-            {
-                _settings.AudioSettings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
-                // Notify the kids.
-                foreach (TabPage page in TabControl.TabPages)
-                {
-                    (page.Controls[0] as ClipEditor)!.DefaultSelectionMode = _settings.AudioSettings.SelectionMode;
-                }
-            };
+            cmbSelMode.SelectedItem = _settings.SelectionMode;
+            cmbSelMode.SelectedIndexChanged += (_, __) => UpdateTabSettings();
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
@@ -663,6 +646,7 @@ namespace Wavicler
                 DrawColor = _settings.WaveColor,
                 GridColor = Color.LightGray,
             };
+            ed.UpdateSettings(_settings.SelectionMode, _settings.BPM);
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
 
             TabPage page = new() { Text = tabName };
@@ -708,6 +692,21 @@ namespace Wavicler
                 }
             }
         }
+
+        /// <summary>
+        /// Tell the children about settings they are interested in.
+        /// </summary>
+        void UpdateTabSettings()
+        {
+            _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+            _settings.BPM = double.Parse(txtBPM.Text);
+
+            // Notify the kids.
+            foreach (TabPage page in TabControl.TabPages)
+            {
+                (page.Controls[0] as ClipEditor)!.UpdateSettings(_settings.SelectionMode, _settings.BPM);
+            }
+        }        
         #endregion
 
         #region Settings
@@ -802,7 +801,7 @@ namespace Wavicler
         /// <returns></returns>
         TabPage? ActivePage()
         {
-            TabPage? page = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab as TabPage : null;
+            TabPage? page = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab : null;
             return page;
         }
 

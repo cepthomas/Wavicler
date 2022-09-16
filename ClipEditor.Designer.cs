@@ -147,17 +147,17 @@ namespace Wavicler
 
         #endregion
         private WaveViewer wvData;
-        private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.ContextMenuStrip contextMenu;
         private WaveViewer wvNav;
+        private System.Windows.Forms.ToolStripTextBox txtStart;
+        private System.Windows.Forms.ToolStripTextBox txtLength;
+        private System.Windows.Forms.ContextMenuStrip contextMenu;
+        private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ToolStrip toolStrip;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripTextBox txtStart;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;
-        private System.Windows.Forms.ToolStripTextBox txtLength;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
     }
 }

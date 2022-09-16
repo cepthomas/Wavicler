@@ -67,11 +67,13 @@ namespace Wavicler
 
         [Browsable(false)]
         public double Volume { get; set; } = AudioLibDefs.VOLUME_MAX / 2;
-        #endregion
 
-        //#region Non-persisted Properties
-        //[Browsable(false)]
-        //public bool Valid { get; set; } = false;
-        //#endregion
+        [Browsable(false)]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public WaveSelectionMode SelectionMode { get; set; } = WaveSelectionMode.Time;
+
+        [Browsable(false)]
+        public double BPM { get; set; } = 100.0;
+        #endregion
     }
 }

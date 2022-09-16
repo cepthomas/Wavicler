@@ -50,6 +50,9 @@
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.txtBPM = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.cmbSelMode = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.ftree = new NBagOfUis.FilTree();
             this.TabControl = new System.Windows.Forms.TabControl();
@@ -57,9 +60,7 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvLog = new NBagOfUis.TextViewer();
-            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-            this.cmbSelMode = new System.Windows.Forms.ToolStripComboBox();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.MenuStrip.SuspendLayout();
             this.ToolStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
@@ -230,7 +231,8 @@
             this.toolStripSeparator12,
             this.toolStripLabel2,
             this.cmbSelMode,
-            this.toolStripSeparator4});
+            this.toolStripSeparator4,
+            this.toolStripLabel3});
             this.ToolStrip.Location = new System.Drawing.Point(0, 28);
             this.ToolStrip.Name = "ToolStrip";
             this.ToolStrip.Size = new System.Drawing.Size(1242, 43);
@@ -347,6 +349,24 @@
             this.toolStripSeparator12.Name = "toolStripSeparator12";
             this.toolStripSeparator12.Size = new System.Drawing.Size(6, 43);
             // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(52, 40);
+            this.toolStripLabel2.Text = "Select:";
+            // 
+            // cmbSelMode
+            // 
+            this.cmbSelMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSelMode.Name = "cmbSelMode";
+            this.cmbSelMode.Size = new System.Drawing.Size(90, 43);
+            this.cmbSelMode.ToolTipText = "Selection mode";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 43);
+            // 
             // ftree
             // 
             this.ftree.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -414,23 +434,11 @@
             this.tvLog.TabStop = false;
             this.tvLog.WordWrap = true;
             // 
-            // toolStripLabel2
+            // toolStripLabel3
             // 
-            this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Size = new System.Drawing.Size(52, 40);
-            this.toolStripLabel2.Text = "Select:";
-            // 
-            // cmbSelMode
-            // 
-            this.cmbSelMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbSelMode.Name = "cmbSelMode";
-            this.cmbSelMode.Size = new System.Drawing.Size(90, 43);
-            this.cmbSelMode.ToolTipText = "Selection mode";
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 43);
+            this.toolStripLabel3.Name = "toolStripLabel3";
+            this.toolStripLabel3.Size = new System.Drawing.Size(45, 40);
+            this.toolStripLabel3.Text = "Snap:";
             // 
             // MainForm
             // 
@@ -504,5 +512,6 @@
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripComboBox cmbSelMode;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel3;
     }
 }
