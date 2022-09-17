@@ -24,14 +24,19 @@ namespace Wavicler
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.wvNav = new AudioLib.WaveViewer();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
-            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.txtStart = new System.Windows.Forms.ToolStripTextBox();
+            this.txtSelStart = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
-            this.txtLength = new System.Windows.Forms.ToolStripTextBox();
+            this.txtSelLength = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.txtMarker = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel4 = new System.Windows.Forms.ToolStripLabel();
+            this.txtGain = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,29 +75,23 @@ namespace Wavicler
             // 
             this.toolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripLabel2,
             this.toolStripLabel1,
-            this.txtStart,
+            this.txtSelStart,
             this.toolStripSeparator2,
             this.toolStripLabel3,
-            this.txtLength,
-            this.toolStripSeparator3});
+            this.txtSelLength,
+            this.toolStripSeparator3,
+            this.toolStripLabel2,
+            this.txtMarker,
+            this.toolStripSeparator4,
+            this.toolStripLabel4,
+            this.txtGain,
+            this.toolStripSeparator5});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Size = new System.Drawing.Size(1057, 28);
             this.toolStrip.TabIndex = 42;
             this.toolStrip.Text = "toolStrip1";
-            // 
-            // toolStripLabel2
-            // 
-            this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Size = new System.Drawing.Size(52, 25);
-            this.toolStripLabel2.Text = "Select:";
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 28);
             // 
             // toolStripLabel1
             // 
@@ -100,11 +99,11 @@ namespace Wavicler
             this.toolStripLabel1.Size = new System.Drawing.Size(43, 25);
             this.toolStripLabel1.Text = "Start:";
             // 
-            // txtStart
+            // txtSelStart
             // 
-            this.txtStart.AutoSize = false;
-            this.txtStart.Name = "txtStart";
-            this.txtStart.Size = new System.Drawing.Size(100, 28);
+            this.txtSelStart.AutoSize = false;
+            this.txtSelStart.Name = "txtSelStart";
+            this.txtSelStart.Size = new System.Drawing.Size(100, 28);
             // 
             // toolStripSeparator2
             // 
@@ -117,16 +116,56 @@ namespace Wavicler
             this.toolStripLabel3.Size = new System.Drawing.Size(57, 25);
             this.toolStripLabel3.Text = "Length:";
             // 
-            // txtLength
+            // txtSelLength
             // 
-            this.txtLength.AutoSize = false;
-            this.txtLength.Name = "txtLength";
-            this.txtLength.Size = new System.Drawing.Size(100, 28);
+            this.txtSelLength.AutoSize = false;
+            this.txtSelLength.Name = "txtSelLength";
+            this.txtSelLength.Size = new System.Drawing.Size(100, 28);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 28);
+            // 
+            // toolStripLabel2
+            // 
+            this.toolStripLabel2.Name = "toolStripLabel2";
+            this.toolStripLabel2.Size = new System.Drawing.Size(58, 25);
+            this.toolStripLabel2.Text = "Marker:";
+            // 
+            // txtMarker
+            // 
+            this.txtMarker.AutoSize = false;
+            this.txtMarker.Name = "txtMarker";
+            this.txtMarker.Size = new System.Drawing.Size(100, 28);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 28);
+            // 
+            // toolStripLabel4
+            // 
+            this.toolStripLabel4.Name = "toolStripLabel4";
+            this.toolStripLabel4.Size = new System.Drawing.Size(42, 25);
+            this.toolStripLabel4.Text = "Gain:";
+            // 
+            // txtGain
+            // 
+            this.txtGain.AutoSize = false;
+            this.txtGain.Name = "txtGain";
+            this.txtGain.Size = new System.Drawing.Size(60, 28);
+            this.txtGain.Text = "1.0";
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 28);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 28);
             // 
             // ClipEditor
             // 
@@ -148,16 +187,21 @@ namespace Wavicler
         #endregion
         private WaveViewer wvData;
         private WaveViewer wvNav;
-        private System.Windows.Forms.ToolStripTextBox txtStart;
-        private System.Windows.Forms.ToolStripTextBox txtLength;
+        private System.Windows.Forms.ToolStripTextBox txtSelStart;
+        private System.Windows.Forms.ToolStripTextBox txtSelLength;
         private System.Windows.Forms.ContextMenuStrip contextMenu;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ToolStrip toolStrip;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripTextBox txtMarker;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel4;
+        private System.Windows.Forms.ToolStripTextBox txtGain;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
     }
 }

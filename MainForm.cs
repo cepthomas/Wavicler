@@ -65,7 +65,7 @@ namespace Wavicler
             StartPosition = FormStartPosition.Manual;
             Location = new Point(_settings.FormGeometry.X, _settings.FormGeometry.Y);
             Size = new Size(_settings.FormGeometry.Width, _settings.FormGeometry.Height);
-            KeyPreview = true; // for routing kbd strokes through OnKeyDown
+            KeyPreview = true; // for routing kbd strokes through OnKeyDown first.
 
             // Create output.
             _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), _waveOutSwapper);
