@@ -192,7 +192,7 @@ namespace Wavicler
                 case WaveSelectionMode.Time:
                     //mm:ss.fff
                     //public static bool TryParse (string? input, IFormatProvider? formatProvider, out TimeSpan result);
-
+    //TODO1                AudioTime.TryParse(string? input);
                     break;
 
                 case WaveSelectionMode.Beat:
