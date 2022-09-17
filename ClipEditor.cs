@@ -72,13 +72,13 @@ namespace Wavicler
             wvNav.Init(_prov, true);
             UpdateSettings(WaveSelectionMode.Sample, 100); // set some defaults
             // Viewer events.
-            wvData.ViewerChangeEvent += ViewerChangeEvent;
-            wvNav.ViewerChangeEvent += ViewerChangeEvent;
+            wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
+            wvNav.ViewerChangeEvent += ProcessViewerChangeEvent;
 
             // User inputs.
             txtGain.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
             txtGain.LostFocus += (_, __) => ProcessUiChange(UiChange.Gain);
-
+//>>>>>>>others...
 
 
 
@@ -144,7 +144,7 @@ namespace Wavicler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void ViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
+        void ProcessViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
         {
             switch ((sender as WaveViewer)!.Name, e.Change)
             {
@@ -167,6 +167,9 @@ namespace Wavicler
                 case ("wvNav", UiChange.Marker):
                     wvData.Recenter(wvNav.Marker);
                     break;
+
+                default:
+                    break;
             };
         }
 
@@ -188,6 +191,7 @@ namespace Wavicler
 
                 case WaveSelectionMode.Time:
                     //mm:ss.fff
+                    //public static bool TryParse (string? input, IFormatProvider? formatProvider, out TimeSpan result);
 
                     break;
 
