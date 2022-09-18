@@ -22,11 +22,8 @@
 
     <ItemGroup>
       <Compile Remove="lib\**" />
-      <Compile Remove="todo\**" />
       <EmbeddedResource Remove="lib\**" />
-      <EmbeddedResource Remove="todo\**" />
       <None Remove="lib\**" />
-      <None Remove="todo\**" />
     </ItemGroup>
 
     <ItemGroup>
