@@ -185,10 +185,13 @@ namespace Wavicler
         }
 
         #endregion
+        
         private WaveViewer wvData;
         private WaveViewer wvNav;
         private System.Windows.Forms.ToolStripTextBox txtSelStart;
         private System.Windows.Forms.ToolStripTextBox txtSelLength;
+        private System.Windows.Forms.ToolStripTextBox txtMarker;
+        private System.Windows.Forms.ToolStripTextBox txtGain;
         private System.Windows.Forms.ContextMenuStrip contextMenu;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ToolStrip toolStrip;
@@ -198,10 +201,8 @@ namespace Wavicler
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
-        private System.Windows.Forms.ToolStripTextBox txtMarker;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripLabel toolStripLabel4;
-        private System.Windows.Forms.ToolStripTextBox txtGain;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
     }
 }

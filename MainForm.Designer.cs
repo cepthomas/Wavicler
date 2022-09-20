@@ -469,8 +469,13 @@
 
         #endregion
 
+        private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ToolStrip ToolStrip;
         private System.Windows.Forms.MenuStrip MenuStrip;
+        private System.Windows.Forms.TabControl TabControl;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.ToolStripStatusLabel statusInfo;
+
         private System.Windows.Forms.ToolStripMenuItem FileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ToolsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AboutMenuItem;
@@ -482,36 +487,35 @@
         private System.Windows.Forms.ToolStripMenuItem CloseMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ExitMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CloseAllMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.ToolStripButton btnAutoplay;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-        private System.Windows.Forms.ToolStripButton btnLoop;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
-        private NBagOfUis.ToolStripSlider sldVolume;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
-        private System.Windows.Forms.ToolStripButton btnRewind;
-        private System.Windows.Forms.TabControl TabControl;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
-        private System.Windows.Forms.StatusStrip statusStrip;
-        private System.Windows.Forms.ToolStripStatusLabel statusInfo;
-        private NBagOfUis.FilTree ftree;
-        private NBagOfUis.TextViewer tvLog;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripTextBox txtBPM;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
-        private System.Windows.Forms.ToolStripButton btnPlay;
         private System.Windows.Forms.ToolStripMenuItem resampleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem splitStereoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stereoToMonoToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
-        private System.Windows.Forms.ToolStripComboBox cmbSelMode;
+
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator11;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator12;
+
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;
+
+        private System.Windows.Forms.ToolStripTextBox txtBPM;
+        private System.Windows.Forms.ToolStripButton btnPlay;
+        private System.Windows.Forms.ToolStripComboBox cmbSelMode;
+        private System.Windows.Forms.ToolStripButton btnAutoplay;
+        private System.Windows.Forms.ToolStripButton btnLoop;
+        private System.Windows.Forms.ToolStripButton btnRewind;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private NBagOfUis.FilTree ftree;
+        private NBagOfUis.TextViewer tvLog;
+        private NBagOfUis.ToolStripSlider sldVolume;
     }
 }
