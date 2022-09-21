@@ -127,158 +127,14 @@ namespace Wavicler
         #endregion
 
         #region Public functions
-        // /// <summary>
-        // /// Update main viewer with user settings.
-        // /// </summary>
-        // /// <param name="selectionMode"></param>
-        // /// <param name="snap"></param>
-        // /// <param name="bpm"></param>
-        // public void UpdateSettings(WaveSelectionMode selectionMode, double bpm)
-        // {
-        //     wvData.SelectionMode = selectionMode;
-        //     wvNav.SelectionMode = selectionMode;
-        //     wvData.BPM = (float)bpm;
-        // }
+
+
         #endregion
 
         #region Private functions
 
 
 
-        // // user changed ui field  - tell wv
-        // void ProcessPropertyChange(Property prop)
-        // {
-        //     //public enum ViewerChange { Gain, Marker, SelStart, SelLength }
-
-        //     switch (prop)
-        //     {
-        //         case (Property.Marker):
-        //             txtMarker.BackColor = wvData.UpdateProperty(Property.Marker, txtMarker.Text) ? _validColor : _invalidColor;
-        //             break;
-
-        //         case (Property.SelStart):
-        //             txtSelStart.BackColor = wvData.UpdateProperty(Property.SelStart, txtSelStart.Text) ? _validColor : _invalidColor;
-        //             break;
-
-        //         case (Property.SelLength):
-        //             txtSelLength.BackColor = wvData.UpdateProperty(Property.SelLength, txtSelLength.Text) ? _validColor : _invalidColor;
-        //             break;
-
-        //         case (Property.Gain):
-        //             txtGain.BackColor = wvData.UpdateProperty(Property.Gain, txtGain.Text) ? _validColor : _invalidColor;
-        //             break;
-        //     }
-        // }
-
-
-
-        // void ProcessUiChange(UiChange change)
-        // {
-        //     //public enum ViewerChange { Gain, Marker, SelStart, SelLength }
-
-        //     switch (change, wvData.SelectionMode)
-        //     {
-        //         case (UiChange.Marker, WaveSelectionMode.Sample):
-        //             if(int.TryParse(txtMarker.Text, out int marker))
-        //             {
-        //                 wvData.Marker = marker;
-        //                 txtMarker.BackColor = _validColor;
-        //             }
-        //             else
-        //             {
-        //                 txtMarker.BackColor = _invalidColor;
-        //             }
-        //             break;
-
-        //         case (UiChange.Marker, WaveSelectionMode.Time):
-        //             var time = AudioTime.Parse(txtMarker.Text);
-        //             if (time is not null)
-        //             {
-        //                 wvData.Marker = marker;
-        //                 txtMarker.BackColor = _validColor;
-        //             }
-        //             else
-        //             {
-        //                 txtMarker.BackColor = _invalidColor;
-        //             }
-
-        //             break;
-
-        //         case (UiChange.Marker, WaveSelectionMode.Beat):
-
-        //             break;
-
-
-        //         case (UiChange.SelStart, WaveSelectionMode.Sample):
-        //             if (int.TryParse(txtSelStart.Text, out int selstart))
-        //             {
-        //                 wvData.SelStart = selstart;
-        //                 txtSelStart.BackColor = _validColor;
-        //             }
-        //             else
-        //             {
-        //                 txtSelStart.BackColor = _invalidColor;
-        //             }
-        //             break;
-
-        //         case (UiChange.SelStart, WaveSelectionMode.Time):
-
-        //             break;
-
-        //         case (UiChange.SelStart, WaveSelectionMode.Beat):
-
-        //             break;
-
-
-        //         case (UiChange.SelLength, WaveSelectionMode.Sample):
-        //             if (int.TryParse(txtSelLength.Text, out int sellen))
-        //             {
-        //                 wvData.SelLength = sellen;
-        //                 txtSelLength.BackColor = _validColor;
-        //             }
-        //             else
-        //             {
-        //                 txtSelLength.BackColor = _invalidColor;
-        //             }
-        //             break;
-
-        //         case (UiChange.SelLength, WaveSelectionMode.Time):
-
-        //             break;
-
-        //         case (UiChange.SelLength, WaveSelectionMode.Beat):
-
-        //             break;
-
-
-
-
-
-        //         //case WaveSelectionMode.Sample:
-        //         //    // Determine whether the keystroke is a number.
-        //         //    char c = e.KeyChar;
-        //         //    e.Handled = !((c >= '0' && c <= '9') || (c == '\b') || (c == '-'));
-
-        //         //    break;
-
-        //         //case WaveSelectionMode.Time:
-        //         //    //mm:ss.fff
-        //         //    AudioTime.TryParse(string input);
-        //         //    break;
-
-        //         //case WaveSelectionMode.Beat:
-        //         //    //Bar+1.Beat+1.PartBeat:00-99
-        //         //    BarBeat.TryParse(string input);
-        //         //    break;
-
-
-        //         case (UiChange.Gain, WaveSelectionMode.Sample):
-        //         case (UiChange.Gain, WaveSelectionMode.Time):
-        //         case (UiChange.Gain, WaveSelectionMode.Beat):
-        //             // Later.
-        //             break;
-        //     }
-        // }
 
 
 
@@ -294,10 +150,6 @@ namespace Wavicler
             e.Handled = !((c >= '0' && c <= '9') || (c == '.') || (c == '\b'));
         }
 
-
-
-
-
         /// <summary>
         /// Process viewer UI changes.
         /// </summary>
@@ -305,40 +157,25 @@ namespace Wavicler
         /// <param name="e"></param>
         void ProcessViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
         {
-            //switch (e.Change)
-            //{
-            //    case Property.Gain when sender == wvData:
-            //        sldGain.Value = wvData.Gain;
-            //        break;
-
-            //    case Property.Marker when sender == wv2:
-            //        wv1.Recenter(wv2.Marker);
-            //        break;
-
-            //    default:
-            //        break;
-            //};
-
-
-            switch ((sender as WaveViewer)!.Name, e.Change)
+            switch (e.Change)
             {
-                case ("wvData", Property.Gain):
+                case Property.Gain when sender == wvData:
                     txtGain.Text = $"{wvData.Gain:0.00}";
                     break;
 
-                case ("wvData", Property.Marker):
+                case Property.Marker when sender == wvData:
                     txtMarker.Text = wvData.Marker.ToString();
                     break;
 
-                case ("wvData", Property.SelStart):
+                case Property.SelStart when sender == wvData:
                     txtSelStart.Text = wvData.SelStart.ToString();
                     break;
 
-                case ("wvData", Property.SelLength):
+                case Property.SelLength when sender == wvData:
                     txtSelLength.Text = wvData.SelLength.ToString();
                     break;
 
-                case ("wvNav", Property.Marker):
+                case Property.Marker when sender == wvNav:
                     wvData.Recenter(wvNav.Marker);
                     break;
 
@@ -346,8 +183,6 @@ namespace Wavicler
                     break;
             };
         }
-
-
         #endregion
     }
 }

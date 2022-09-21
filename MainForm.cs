@@ -86,13 +86,13 @@ namespace Wavicler
 
             txtBPM.Text = _settings.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) => UpdateTabSettings();
+            txtBPM.LostFocus += (_, __) => UpdateSettings();
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Beat);
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
             cmbSelMode.SelectedItem = _settings.SelectionMode;
-            cmbSelMode.SelectedIndexChanged += (_, __) => UpdateTabSettings();
+            cmbSelMode.SelectedIndexChanged += (_, __) => UpdateSettings();
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
@@ -237,9 +237,14 @@ namespace Wavicler
 
             void Rewind()
             {
-                _waveOutSwapper.Rewind();
+                var cled = ActiveClipEditor();
+                if(cled is not null)
+                {
+                    cled.SampleProvider.SetPosition(0);
+                }
+                //_waveOutSwapper.Rewind();
                 //_player.Rewind();
-                //timeBar.Current = TimeSpan.Zero;
+//>>>                timeBar.Current = TimeSpan.Zero;
             }
         }
 
@@ -632,7 +637,7 @@ namespace Wavicler
         }
         #endregion
 
-        #region Tabs
+        #region Tab management
         /// <summary>
         /// Function to open a new tab.
         /// </summary>
@@ -646,7 +651,6 @@ namespace Wavicler
                 DrawColor = _settings.WaveColor,
                 GridColor = Color.LightGray,
             };
-            ed.UpdateSettings(_settings.SelectionMode, _settings.BPM);
             ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
 
             TabPage page = new() { Text = tabName };
@@ -694,19 +698,14 @@ namespace Wavicler
         }
 
         /// <summary>
-        /// Tell the children about settings they are interested in.
+        /// Update global stuff.
         /// </summary>
-        void UpdateTabSettings()
+        void UpdateSettings()
         {
             _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
             _settings.BPM = double.Parse(txtBPM.Text);
-
-            // Notify the kids.
-            foreach (TabPage page in TabControl.TabPages)
-            {
-                (page.Controls[0] as ClipEditor)!.UpdateSettings(_settings.SelectionMode, _settings.BPM);
-            }
-        }        
+            BarBeat.BPM = (float)_settings.BPM;
+        }
         #endregion
 
         #region Settings
@@ -793,8 +792,7 @@ namespace Wavicler
         }
         #endregion
 
-
-
+        #region Helpers
         /// <summary>
         /// Helper function.
         /// </summary>
@@ -814,7 +812,7 @@ namespace Wavicler
             ClipEditor? cled = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab.Controls[0] as ClipEditor : null;
             return cled;
         }
-
+        #endregion
 
         /// <summary>
         /// 
