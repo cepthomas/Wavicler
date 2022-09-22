@@ -84,15 +84,23 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            txtBPM.Text = _settings.BPM.ToString();
+            txtBPM.Text = Globals.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) => UpdateSettings();
+            txtBPM.LostFocus += (_, __) => Globals.BPM = float.Parse(txtBPM.Text); 
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Beat);
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
-            cmbSelMode.SelectedItem = _settings.SelectionMode;
-            cmbSelMode.SelectedIndexChanged += (_, __) => UpdateSettings();
+            cmbSelMode.SelectedItem = WaveSelectionMode.Time;
+            cmbSelMode.SelectedIndexChanged += (_, __) =>
+            {
+                switch(cmbSelMode.SelectedItem)
+                {
+                    case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
+                    case WaveSelectionMode.Beat: Globals.ConverterOps = new BarBeatOps(); break;
+                    case WaveSelectionMode.Sample: Globals.ConverterOps = new SampleOps(); break;
+                }
+            };
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
@@ -695,16 +703,6 @@ namespace Wavicler
                     break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Update global stuff.
-        /// </summary>
-        void UpdateSettings()
-        {
-            _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
-            _settings.BPM = double.Parse(txtBPM.Text);
-            BarBeat.BPM = (float)_settings.BPM;
         }
         #endregion
 
