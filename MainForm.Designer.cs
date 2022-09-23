@@ -60,7 +60,6 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvLog = new NBagOfUis.TextViewer();
-            this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.MenuStrip.SuspendLayout();
             this.ToolStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
@@ -231,8 +230,7 @@
             this.toolStripSeparator12,
             this.toolStripLabel2,
             this.cmbSelMode,
-            this.toolStripSeparator4,
-            this.toolStripLabel3});
+            this.toolStripSeparator4});
             this.ToolStrip.Location = new System.Drawing.Point(0, 28);
             this.ToolStrip.Name = "ToolStrip";
             this.ToolStrip.Size = new System.Drawing.Size(1242, 43);
@@ -434,12 +432,6 @@
             this.tvLog.TabStop = false;
             this.tvLog.WordWrap = true;
             // 
-            // toolStripLabel3
-            // 
-            this.toolStripLabel3.Name = "toolStripLabel3";
-            this.toolStripLabel3.Size = new System.Drawing.Size(45, 40);
-            this.toolStripLabel3.Text = "Snap:";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -505,7 +497,6 @@
 
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel3;
 
         private System.Windows.Forms.ToolStripTextBox txtBPM;
         private System.Windows.Forms.ToolStripButton btnPlay;

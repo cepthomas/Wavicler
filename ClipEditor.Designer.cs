@@ -51,7 +51,7 @@ namespace Wavicler
             this.wvData.Location = new System.Drawing.Point(3, 32);
             this.wvData.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.wvData.Name = "wvData";
-            this.wvData.Size = new System.Drawing.Size(1051, 302);
+            this.wvData.Size = new System.Drawing.Size(1051, 279);
             this.wvData.TabIndex = 34;
             // 
             // contextMenu
@@ -66,9 +66,9 @@ namespace Wavicler
             | System.Windows.Forms.AnchorStyles.Right)));
             this.wvNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.wvNav.Gain = 1F;
-            this.wvNav.Location = new System.Drawing.Point(3, 343);
+            this.wvNav.Location = new System.Drawing.Point(3, 318);
             this.wvNav.Name = "wvNav";
-            this.wvNav.Size = new System.Drawing.Size(1051, 33);
+            this.wvNav.Size = new System.Drawing.Size(1051, 58);
             this.wvNav.TabIndex = 41;
             // 
             // toolStrip

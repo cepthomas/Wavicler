@@ -84,23 +84,25 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
+            Globals.BPM = (float)_settings.DefaultBPM;
             txtBPM.Text = Globals.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
             txtBPM.LostFocus += (_, __) => Globals.BPM = float.Parse(txtBPM.Text); 
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
-            cmbSelMode.Items.Add(WaveSelectionMode.Beat);
+            cmbSelMode.Items.Add(WaveSelectionMode.Bar);
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
-            cmbSelMode.SelectedItem = WaveSelectionMode.Time;
             cmbSelMode.SelectedIndexChanged += (_, __) =>
             {
                 switch(cmbSelMode.SelectedItem)
                 {
                     case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
-                    case WaveSelectionMode.Beat: Globals.ConverterOps = new BarBeatOps(); break;
+                    case WaveSelectionMode.Bar: Globals.ConverterOps = new BarOps(); break;
                     case WaveSelectionMode.Sample: Globals.ConverterOps = new SampleOps(); break;
                 }
+                ActiveClipEditor()?.Invalidate();
             };
+            cmbSelMode.SelectedItem = _settings.DefaultSelectionMode;
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
@@ -252,7 +254,7 @@ namespace Wavicler
                 }
                 //_waveOutSwapper.Rewind();
                 //_player.Rewind();
-//>>>                timeBar.Current = TimeSpan.Zero;
+  //              timeBar.Current = TimeSpan.Zero;
             }
         }
 
