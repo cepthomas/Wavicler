@@ -254,7 +254,7 @@ namespace Wavicler
                 }
                 //_waveOutSwapper.Rewind();
                 //_player.Rewind();
-  //              timeBar.Current = TimeSpan.Zero;
+  //TODO1               timeBar.Current = TimeSpan.Zero;
             }
         }
 

@@ -299,23 +299,6 @@
             <param name="source">Source provider to use.</param>
             <param name="mode">How to handle stereo files.</param>
         </member>
-        <member name="T:AudioLib.Converters">
-            <summary>
-            Functions to convert between the various time representation.
-            There will be a certain inaccuracy with these conversions. Small-ish for AudioTime and msec conversions,
-            worse for Bar. Such is the nature of things.
-            44.1 samples per msec == 0.0227 msec per sample
-            </summary>
-        </member>
-        <member name="M:AudioLib.Converters.Clamp(System.Int32,System.Int32,System.Boolean)">
-            <summary>
-            Snap to closest neighbor.
-            </summary>
-            <param name="val"></param>
-            <param name="granularity">The neighbors increment.</param>
-            <param name="round">Round or truncate.</param>
-            <returns></returns>
-        </member>
         <member name="T:AudioLib.NAudioEx">
             <summary>
             Extensions to enhance core NAudio for this application.
