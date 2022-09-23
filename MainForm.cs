@@ -71,6 +71,13 @@ namespace Wavicler
             _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), _waveOutSwapper);
             _player.PlaybackStopped += Player_PlaybackStopped;
 
+
+
+            var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10); // update every tenth second
+            postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) => timeBar.Current = _prov.GetCurrentTime();
+
+
+
             // Other UI items.
             ToolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
 
@@ -676,6 +683,8 @@ namespace Wavicler
         /// <param name="e"></param>
         void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            UpdateState(AppState.Stop);
+
             var cled = ActiveClipEditor();
             if (cled is not null)
             {

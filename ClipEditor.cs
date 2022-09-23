@@ -8,12 +8,12 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Drawing.Design;
 using System.ComponentModel;
+using System.Xml.Linq;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfUis;
 using AudioLib;
-using System.Xml.Linq;
 
 
 namespace Wavicler

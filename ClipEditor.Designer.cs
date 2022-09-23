@@ -37,7 +37,9 @@ namespace Wavicler
             this.txtGain = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.pbXXX = new System.Windows.Forms.PictureBox();
             this.toolStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbXXX)).BeginInit();
             this.SuspendLayout();
             // 
             // wvData
@@ -48,10 +50,10 @@ namespace Wavicler
             this.wvData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.wvData.ContextMenuStrip = this.contextMenu;
             this.wvData.Gain = 1F;
-            this.wvData.Location = new System.Drawing.Point(3, 32);
+            this.wvData.Location = new System.Drawing.Point(3, 70);
             this.wvData.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.wvData.Name = "wvData";
-            this.wvData.Size = new System.Drawing.Size(1051, 279);
+            this.wvData.Size = new System.Drawing.Size(1051, 241);
             this.wvData.TabIndex = 34;
             // 
             // contextMenu
@@ -167,10 +169,22 @@ namespace Wavicler
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 28);
             // 
+            // pbXXX
+            // 
+            this.pbXXX.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pbXXX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pbXXX.Location = new System.Drawing.Point(3, 31);
+            this.pbXXX.Name = "pbXXX";
+            this.pbXXX.Size = new System.Drawing.Size(1051, 32);
+            this.pbXXX.TabIndex = 43;
+            this.pbXXX.TabStop = false;
+            // 
             // ClipEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.pbXXX);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.wvNav);
             this.Controls.Add(this.wvData);
@@ -179,6 +193,7 @@ namespace Wavicler
             this.Size = new System.Drawing.Size(1057, 386);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbXXX)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -204,5 +219,6 @@ namespace Wavicler
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripLabel toolStripLabel4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.PictureBox pbXXX;
     }
 }
