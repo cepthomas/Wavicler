@@ -441,10 +441,6 @@ namespace Wavicler
                         {
                             coerce = StereoCoercion.Mono;
                             _logger.Info($"Autoconvert {baseFn} to mono");
-                            //if (CreateOrSelect(StereoCoercion.Mono))
-                            //{
-                            //    _logger.Info($"Autoconvert {baseFn} to mono");
-                            //}
                         }
                     }
                     else // mono
@@ -455,8 +451,6 @@ namespace Wavicler
 
                     if(ok)
                     {
-                        //bool CreateOrSelect(StereoCoercion stmode)
-                        bool newTab = false;
                         var tmod = coerce switch
                         {
                             StereoCoercion.Right => " RIGHT",
@@ -483,50 +477,9 @@ namespace Wavicler
                         {
                             var prov = new ClipSampleProvider(reader, coerce);
                             CreateTab(prov, tabName);
-                            newTab = true;
+                            //newTab = true;
                         }
-
                     }
-
-
-                    ////////////////////////////////////////////
-                    // Local function.
-                    //bool CreateOrSelect_XXX(StereoCoercion stmode)
-                    //{
-                    //    bool newTab = false;
-                    //    var tmod = stmode switch
-                    //    {
-                    //        StereoCoercion.Right => " RIGHT",
-                    //        StereoCoercion.Left => " LEFT",
-                    //        StereoCoercion.Mono => " MONO",
-                    //        _ => "",
-                    //    };
-
-                    //    // Is this already open?
-                    //    var tabName = baseFn + tmod;
-                    //    //var tab = GetTab(tabName);
-                    //    TabPage? seltab = null;
-                    //    foreach (TabPage tab in TabControl.TabPages)
-                    //    {
-                    //        if (tab.Text == tabName)
-                    //        {
-                    //            seltab = tab;
-                    //            TabControl.SelectedTab = seltab;
-                    //            break;
-                    //        }
-                    //    }
-
-                    //    if (seltab is null)
-                    //    {
-                    //        var prov = new ClipSampleProvider(reader, stmode);
-                    //        CreateTab(prov, tabName);
-                    //        newTab = true;
-                    //    }
-
-                    //    return newTab;
-                    //}
-
-
 
                     if (ok)
                     {

@@ -72,15 +72,8 @@ namespace Wavicler
 
             InitializeComponent();
 
-            _prov = prov;
-
-
-            // var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10); // update every tenth second
-            // postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) => { };//TODO1 ??
-            // _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), postVolumeMeter);
-
-
             // Hook up provider and ui.
+            _prov = prov;
             wvData.Init(_prov, false);
             wvNav.Init(_prov, true);
 
