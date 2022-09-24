@@ -58,7 +58,7 @@ namespace Wavicler
             // Log display.
             tvLog.Font = Font;
             tvLog.MatchColors.Add("ERR", Color.LightPink);
-            tvLog.MatchColors.Add("WRN:", Color.Plum);
+            tvLog.MatchColors.Add("WRN", Color.Plum);
 
             // Init main form from settings.
             WindowState = FormWindowState.Normal;
@@ -70,13 +70,6 @@ namespace Wavicler
             // Create output.
             _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), _waveOutSwapper);
             _player.PlaybackStopped += Player_PlaybackStopped;
-
-
-
-            var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10); // update every tenth second
-            postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) => timeBar.Current = _prov.GetCurrentTime();
-
-
 
             // Other UI items.
             ToolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
@@ -402,84 +395,69 @@ namespace Wavicler
                     }
 
                     // Valid file name.
-                    using (new WaitCursor())
+                    _logger.Info($"Opening file: {fn}");
+
+                    // Find out about the requested file.
+                    using var reader = new AudioFileReader(fn);
+
+                    // Check sample rate etc.
+                    reader.Validate(false);
+
+                    // Create a tab page or select if it already exists.
+                    var coerce = StereoCoercion.None;
+
+                    if (reader.WaveFormat.Channels == 2)
                     {
-                        _logger.Info($"Opening file: {fn}");
-
-                        // Find out about the requested file.
-                        using var reader = new AudioFileReader(fn);
-
-                        // Check sample rate etc.
-                        reader.Validate(false);
-
-                        // Create a tab page or select if it already exists.
-                        if (reader.WaveFormat.Channels == 2)
+                        if (!_settings.AutoConvert)
                         {
-                            if (!_settings.AutoConvert)
+                            // Ask user what to do with a stereo file.
+                            MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
+                            selector.SetOptions(new() { "Left", "Right", "Mono" });
+                            var dlgres = selector.ShowDialog();
+                            if (dlgres == DialogResult.OK)
                             {
-                                // Ask user what to do with a stereo file.
-                                MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
-                                selector.SetOptions(new() { "Left", "Right", "Mono" });
-                                var dlgres = selector.ShowDialog();
-                                if (dlgres == DialogResult.OK)
+                                coerce = selector.SelectedOption switch
                                 {
-                                    var selopt = selector.SelectedOption;
-
-                                    switch (selopt)
-                                    {
-                                        case "Left":
-                                            CreateOrSelect(StereoCoercion.Left);
-                                            break;
-
-                                        case "Right":
-                                            CreateOrSelect(StereoCoercion.Right);
-                                            break;
-
-                                        case "Mono":
-                                            CreateOrSelect(StereoCoercion.Mono);
-                                            break;
-
-                                        default:
-                                            ok = false;
-                                            break;
-                                    }
-                                }
-                                else
-                                {
-                                    // Bail out.
-                                    ok = false;
-                                }
+                                    "Left" => StereoCoercion.Left,
+                                    "Right" => StereoCoercion.Right,
+                                    "Mono" => StereoCoercion.Mono,
+                                    _ => StereoCoercion.None,
+                                };
+                                //switch (selector.SelectedOption)
+                                //{
+                                //    case "Left": CreateOrSelect(StereoCoercion.Left); break;
+                                //    case "Right": CreateOrSelect(StereoCoercion.Right); break;
+                                //    case "Mono": CreateOrSelect(StereoCoercion.Mono); break;
+                                //    default: ok = false; break;
+                                //}
                             }
                             else
                             {
-                                if(CreateOrSelect(StereoCoercion.Mono))
-                                {
-                                    _logger.Info($"Autoconvert {baseFn} to mono");
-                                }
+                                // Bail out.
+                                ok = false;
                             }
                         }
-                        else // mono
+                        else
                         {
-                            CreateOrSelect(StereoCoercion.Mono);
-                        }
-
-                        if (ok)
-                        {
-                            _settings.RecentFiles.UpdateMru(fn);
-
-                            if (_settings.Autoplay)
-                            {
-                                UpdateState(AppState.Rewind);
-                                UpdateState(AppState.Play);
-                            }
+                            coerce = StereoCoercion.Mono;
+                            _logger.Info($"Autoconvert {baseFn} to mono");
+                            //if (CreateOrSelect(StereoCoercion.Mono))
+                            //{
+                            //    _logger.Info($"Autoconvert {baseFn} to mono");
+                            //}
                         }
                     }
-
-                    // Local function.
-                    bool CreateOrSelect(StereoCoercion stmode)
+                    else // mono
                     {
+                        coerce = StereoCoercion.None;
+                        //CreateOrSelect(StereoCoercion.Mono);
+                    }
+
+                    if(ok)
+                    {
+                        //bool CreateOrSelect(StereoCoercion stmode)
                         bool newTab = false;
-                        var tmod = stmode switch
+                        var tmod = coerce switch
                         {
                             StereoCoercion.Right => " RIGHT",
                             StereoCoercion.Left => " LEFT",
@@ -503,11 +481,62 @@ namespace Wavicler
 
                         if (seltab is null)
                         {
-                            var prov = new ClipSampleProvider(fn, stmode);
+                            var prov = new ClipSampleProvider(reader, coerce);
                             CreateTab(prov, tabName);
                             newTab = true;
                         }
-                        return newTab;
+
+                    }
+
+
+                    ////////////////////////////////////////////
+                    // Local function.
+                    //bool CreateOrSelect_XXX(StereoCoercion stmode)
+                    //{
+                    //    bool newTab = false;
+                    //    var tmod = stmode switch
+                    //    {
+                    //        StereoCoercion.Right => " RIGHT",
+                    //        StereoCoercion.Left => " LEFT",
+                    //        StereoCoercion.Mono => " MONO",
+                    //        _ => "",
+                    //    };
+
+                    //    // Is this already open?
+                    //    var tabName = baseFn + tmod;
+                    //    //var tab = GetTab(tabName);
+                    //    TabPage? seltab = null;
+                    //    foreach (TabPage tab in TabControl.TabPages)
+                    //    {
+                    //        if (tab.Text == tabName)
+                    //        {
+                    //            seltab = tab;
+                    //            TabControl.SelectedTab = seltab;
+                    //            break;
+                    //        }
+                    //    }
+
+                    //    if (seltab is null)
+                    //    {
+                    //        var prov = new ClipSampleProvider(reader, stmode);
+                    //        CreateTab(prov, tabName);
+                    //        newTab = true;
+                    //    }
+
+                    //    return newTab;
+                    //}
+
+
+
+                    if (ok)
+                    {
+                        _settings.RecentFiles.UpdateMru(fn);
+
+                        if (_settings.Autoplay)
+                        {
+                            UpdateState(AppState.Rewind);
+                            UpdateState(AppState.Play);
+                        }
                     }
                 }
             }
@@ -818,7 +847,10 @@ namespace Wavicler
         /// <returns></returns>
         ClipEditor? ActiveClipEditor()
         {
-            ClipEditor? cled = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab.Controls[0] as ClipEditor : null;
+            ClipEditor? cled = 
+                TabControl.TabPages.Count > 0 && TabControl.SelectedTab.Controls.Count > 0 ?
+                TabControl.SelectedTab.Controls[0] as ClipEditor :
+                null;
             return cled;
         }
         #endregion

@@ -34,7 +34,7 @@ namespace Wavicler
 
         #region Properties
         /// <summary>The bound input sample provider.</summary>
-        public ISampleProvider SampleProvider { get { return _prov; } }
+        public ClipSampleProvider SampleProvider { get { return _prov; } }
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
@@ -72,6 +72,12 @@ namespace Wavicler
             InitializeComponent();
 
             _prov = prov;
+
+
+            // var postVolumeMeter = new MeteringSampleProvider(_waveOutSwapper, _waveOutSwapper.WaveFormat.SampleRate / 10); // update every tenth second
+            // postVolumeMeter.StreamVolume += (object? sender, StreamVolumeEventArgs e) => { };//TODO1 ??
+            // _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), postVolumeMeter);
+
 
             // Hook up provider and ui.
             wvData.Init(_prov, false);
