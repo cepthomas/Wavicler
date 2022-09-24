@@ -250,11 +250,11 @@ namespace Wavicler
                 var cled = ActiveClipEditor();
                 if(cled is not null)
                 {
-                    cled.SampleProvider.SetPosition(0);
+                    cled.SampleProvider.Position = 0;
                 }
                 //_waveOutSwapper.Rewind();
                 //_player.Rewind();
-  //TODO1               timeBar.Current = TimeSpan.Zero;
+                //TODO1               timeBar.Current = TimeSpan.Zero;
             }
         }
 

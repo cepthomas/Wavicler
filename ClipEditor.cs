@@ -15,6 +15,7 @@ using NBagOfTricks;
 using NBagOfUis;
 using AudioLib;
 
+//TODO1 need something like timebar that does three flavors.
 
 namespace Wavicler
 {
@@ -54,7 +55,7 @@ namespace Wavicler
         public event EventHandler<ServiceRequestEventArgs>? ServiceRequestEvent;
         public enum ServiceRequest { CopySelectionToNewClip, Close }
 
-        public class ServiceRequestEventArgs
+        public class ServiceRequestEventArgs : EventArgs
         {
             public ServiceRequest Request { get; set; }
         }
