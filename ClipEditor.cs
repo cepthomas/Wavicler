@@ -14,8 +14,8 @@ using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfUis;
 using AudioLib;
+using static AudioLib.Globals;
 
-//TODO1 need something like timebar that does three flavors.
 
 namespace Wavicler
 {
@@ -24,7 +24,7 @@ namespace Wavicler
     {
         #region Fields
         /// <summary>The bound input sample provider.</summary>
-        ClipSampleProvider _prov = new(Array.Empty<float>());
+        readonly ClipSampleProvider _prov = new(Array.Empty<float>());
 
         /// <summary>OK color.</summary>
         readonly Color _validColor = SystemColors.Window;
@@ -41,7 +41,7 @@ namespace Wavicler
         public string FileName { get; private set; } = "";
 
         /// <summary>For styling.</summary>
-        public Color DrawColor { set { wvData.DrawColor = value; wvNav.DrawColor = value; } }
+        public Color DrawColor { set { wvData.DrawColor = value; } }
 
         /// <summary>For styling.</summary>
         public Color GridColor { set { wvData.GridColor = value; } }
@@ -74,12 +74,12 @@ namespace Wavicler
 
             // Hook up provider and ui.
             _prov = prov;
-            wvData.Init(_prov, false);
-            wvNav.Init(_prov, true);
+            wvData.Init(_prov);
+            _prov.Rewind();
+            _prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
 
             // Viewer events.
             wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
-            wvNav.ViewerChangeEvent += ProcessViewerChangeEvent;
 
             // User inputs.
             txtGain.KeyPress += (object? sender, KeyPressEventArgs e) => TestValid_KeyPress(sender!, e);
@@ -93,6 +93,14 @@ namespace Wavicler
 
             txtSelLength.KeyPress += (object? sender, KeyPressEventArgs e) => TestValid_KeyPress(sender!, e);
             txtSelLength.LostFocus += (_, __) => txtSelLength.BackColor = wvData.UpdateProperty(Property.SelLength, txtSelLength.Text) ? _validColor : _invalidColor;
+
+            // Progress bar.
+            progBar.ProgressColor = Color.Green; //TODO1 get from settings.
+            progBar.Length = _prov.SamplesPerChannel;
+            progBar.Current = 0;
+            var thumb = wvData.Render(progBar.Width, progBar.Height, Color.Blue, SystemColors.Control, true);
+            progBar.Thumbnail = thumb;
+            progBar.CurrentChanged += (_, __) => { _prov.Position = progBar.Current; };
 
             // Context menu.
             contextMenu.Items.Clear();
@@ -118,7 +126,6 @@ namespace Wavicler
             if (disposing && (components != null))
             {
                 wvData.Dispose();
-                wvNav.Dispose();
                 components.Dispose();
             }
 
@@ -132,13 +139,6 @@ namespace Wavicler
         #endregion
 
         #region Private functions
-
-
-
-
-
-
-
         /// <summary>
         /// Allows user to enter only potentially valid characters - numbers and dp.
         /// s</summary>
@@ -173,10 +173,6 @@ namespace Wavicler
 
                 case Property.SelLength when sender == wvData:
                     txtSelLength.Text = wvData.SelLength.ToString();
-                    break;
-
-                case Property.Marker when sender == wvNav:
-                    wvData.Recenter(wvNav.Marker);
                     break;
 
                 default:

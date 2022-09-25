@@ -12,7 +12,10 @@ using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib; // TODO restore dll ref.
+using static AudioLib.Globals;
 
+
+//TODO1 ClipExplorer
 
 namespace Wavicler
 {
@@ -37,6 +40,9 @@ namespace Wavicler
         /// <summary>UI indicator.</summary>
         const string NEW_FILE_IND = "*";
         #endregion
+
+        /// <summary>What are we doing.</summary>
+        public enum AppState { Stop, Play, Rewind, Complete, Dead }
 
         #region Lifecycle
         public MainForm()
@@ -84,10 +90,10 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            Globals.BPM = (float)_settings.DefaultBPM;
-            txtBPM.Text = Globals.BPM.ToString();
+            BPM = (float)_settings.DefaultBPM;
+            txtBPM.Text = BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) => Globals.BPM = float.Parse(txtBPM.Text); 
+            txtBPM.LostFocus += (_, __) => BPM = float.Parse(txtBPM.Text); 
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Bar);
@@ -96,9 +102,9 @@ namespace Wavicler
             {
                 switch(cmbSelMode.SelectedItem)
                 {
-                    case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
-                    case WaveSelectionMode.Bar: Globals.ConverterOps = new BarOps(); break;
-                    case WaveSelectionMode.Sample: Globals.ConverterOps = new SampleOps(); break;
+                    case WaveSelectionMode.Time: ConverterOps = new TimeOps(); break;
+                    case WaveSelectionMode.Bar: ConverterOps = new BarOps(); break;
+                    case WaveSelectionMode.Sample: ConverterOps = new SampleOps(); break;
                 }
                 ActiveClipEditor()?.Invalidate();
             };
@@ -108,9 +114,7 @@ namespace Wavicler
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
 
             // File handling.
-            //NewMenuItem.Click += (_, __) => OpenFile();
             OpenMenuItem.Click += (_, __) => Open_Click();
-            //SaveMenuItem.Click += (_, __) => SaveFile(ActiveClipEditor());
             SaveAsMenuItem.Click += (_, __) => SaveFileAs(ActiveClipEditor());
             CloseMenuItem.Click += (_, __) => Close(false);
             CloseAllMenuItem.Click += (_, __) => Close(true);
@@ -237,6 +241,11 @@ namespace Wavicler
             {
                 btnPlay.Checked = true;
                 _player.Run(true);
+                if(!_player.Playing)
+                {
+                    _logger.Error($"Player won't run");
+                    btnPlay.Checked = false;
+                }
             }
 
             void Stop()
@@ -252,9 +261,6 @@ namespace Wavicler
                 {
                     cled.SampleProvider.Position = 0;
                 }
-                //_waveOutSwapper.Rewind();
-                //_player.Rewind();
-                //TODO1               timeBar.Current = TimeSpan.Zero;
             }
         }
 
@@ -423,13 +429,6 @@ namespace Wavicler
                                     "Mono" => StereoCoercion.Mono,
                                     _ => StereoCoercion.None,
                                 };
-                                //switch (selector.SelectedOption)
-                                //{
-                                //    case "Left": CreateOrSelect(StereoCoercion.Left); break;
-                                //    case "Right": CreateOrSelect(StereoCoercion.Right); break;
-                                //    case "Mono": CreateOrSelect(StereoCoercion.Mono); break;
-                                //    default: ok = false; break;
-                                //}
                             }
                             else
                             {
@@ -644,16 +643,18 @@ namespace Wavicler
         /// <param name="tabName"></param>
         void CreateTab(ClipSampleProvider prov, string tabName)
         {
-            ClipEditor ed = new(prov)
+            ClipEditor cled = new(prov)
             {
                 Dock = DockStyle.Fill,
                 DrawColor = _settings.WaveColor,
                 GridColor = Color.LightGray,
             };
-            ed.ServiceRequestEvent += ClipEditor_ServiceRequest;
+            cled.ServiceRequestEvent += ClipEditor_ServiceRequest;
+            _waveOutSwapper.SetInput(cled.SampleProvider);
+            statusInfo.Text = cled.SampleProvider.GetInfoString();
 
             TabPage page = new() { Text = tabName };
-            page.Controls.Add(ed);
+            page.Controls.Add(cled);
             TabControl.TabPages.Add(page);
             TabControl.SelectedTab = page;
         }
@@ -713,12 +714,14 @@ namespace Wavicler
 
             foreach (var (name, cat) in changes)
             {
-                switch(name) //TODO check all these names
+                switch(name)
                 {
                     case "WavOutDevice":
                     case "Latency":
                     case "ControlColor":
                     case "WaveColor":
+                    case "FileLogLevel":
+                    case "NotifLogLevel":
                         restart = true;
                         break;
 

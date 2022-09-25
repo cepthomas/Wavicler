@@ -20,9 +20,9 @@ namespace Wavicler
         {
             this.components = new System.ComponentModel.Container();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.progBar = new AudioLib.ProgressBar();
             this.wvData = new AudioLib.WaveViewer();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.wvNav = new AudioLib.WaveViewer();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.txtSelStart = new System.Windows.Forms.ToolStripTextBox();
@@ -37,10 +37,22 @@ namespace Wavicler
             this.txtGain = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.pbXXX = new System.Windows.Forms.PictureBox();
             this.toolStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbXXX)).BeginInit();
             this.SuspendLayout();
+            // 
+            // progBar
+            // 
+            this.progBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.progBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.progBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.progBar.Location = new System.Drawing.Point(3, 31);
+            this.progBar.Name = "progBar";
+            this.progBar.Size = new System.Drawing.Size(1051, 49);
+            this.progBar.TabIndex = 43;
+            this.progBar.Thumbnail = null;
+            this.toolTip.SetToolTip(this.progBar, "Zoom zoom");
             // 
             // wvData
             // 
@@ -50,10 +62,10 @@ namespace Wavicler
             this.wvData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.wvData.ContextMenuStrip = this.contextMenu;
             this.wvData.Gain = 1F;
-            this.wvData.Location = new System.Drawing.Point(3, 70);
+            this.wvData.Location = new System.Drawing.Point(3, 87);
             this.wvData.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.wvData.Name = "wvData";
-            this.wvData.Size = new System.Drawing.Size(1051, 241);
+            this.wvData.Size = new System.Drawing.Size(1051, 295);
             this.wvData.TabIndex = 34;
             // 
             // contextMenu
@@ -61,17 +73,6 @@ namespace Wavicler
             this.contextMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenu.Name = "contextMenu";
             this.contextMenu.Size = new System.Drawing.Size(61, 4);
-            // 
-            // wvNav
-            // 
-            this.wvNav.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.wvNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.wvNav.Gain = 1F;
-            this.wvNav.Location = new System.Drawing.Point(3, 318);
-            this.wvNav.Name = "wvNav";
-            this.wvNav.Size = new System.Drawing.Size(1051, 58);
-            this.wvNav.TabIndex = 41;
             // 
             // toolStrip
             // 
@@ -169,31 +170,18 @@ namespace Wavicler
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 28);
             // 
-            // pbXXX
-            // 
-            this.pbXXX.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbXXX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pbXXX.Location = new System.Drawing.Point(3, 31);
-            this.pbXXX.Name = "pbXXX";
-            this.pbXXX.Size = new System.Drawing.Size(1051, 32);
-            this.pbXXX.TabIndex = 43;
-            this.pbXXX.TabStop = false;
-            // 
             // ClipEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.pbXXX);
+            this.Controls.Add(this.progBar);
             this.Controls.Add(this.toolStrip);
-            this.Controls.Add(this.wvNav);
             this.Controls.Add(this.wvData);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ClipEditor";
             this.Size = new System.Drawing.Size(1057, 386);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbXXX)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -202,7 +190,6 @@ namespace Wavicler
         #endregion
         
         private WaveViewer wvData;
-        private WaveViewer wvNav;
         private System.Windows.Forms.ToolStripTextBox txtSelStart;
         private System.Windows.Forms.ToolStripTextBox txtSelLength;
         private System.Windows.Forms.ToolStripTextBox txtMarker;
@@ -219,6 +206,6 @@ namespace Wavicler
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripLabel toolStripLabel4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-        private System.Windows.Forms.PictureBox pbXXX;
+        private ProgressBar progBar;
     }
 }
