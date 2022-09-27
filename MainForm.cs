@@ -15,7 +15,6 @@ using AudioLib; // TODO restore dll ref.
 using static AudioLib.Globals;
 
 
-//TODO1 ClipExplorer
 
 namespace Wavicler
 {
@@ -257,10 +256,7 @@ namespace Wavicler
             void Rewind()
             {
                 var cled = ActiveClipEditor();
-                if(cled is not null)
-                {
-                    cled.SampleProvider.Position = 0;
-                }
+                cled?.Rewind();
             }
         }
 
@@ -474,9 +470,12 @@ namespace Wavicler
 
                         if (seltab is null)
                         {
-                            var prov = new ClipSampleProvider(reader, coerce);
-                            CreateTab(prov, tabName);
-                            //newTab = true;
+                            using (new WaitCursor())
+                            {
+                                var prov = new ClipSampleProvider(reader, coerce);
+                                CreateTab(prov, tabName);
+                                //newTab = true;
+                            }
                         }
                     }
 
@@ -643,12 +642,7 @@ namespace Wavicler
         /// <param name="tabName"></param>
         void CreateTab(ClipSampleProvider prov, string tabName)
         {
-            ClipEditor cled = new(prov)
-            {
-                Dock = DockStyle.Fill,
-                DrawColor = _settings.WaveColor,
-                GridColor = Color.LightGray,
-            };
+            ClipEditor cled = new(prov) { Dock = DockStyle.Fill };
             cled.ServiceRequestEvent += ClipEditor_ServiceRequest;
             _waveOutSwapper.SetInput(cled.SampleProvider);
             statusInfo.Text = cled.SampleProvider.GetInfoString();

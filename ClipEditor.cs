@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -14,7 +14,6 @@ using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfUis;
 using AudioLib;
-using static AudioLib.Globals;
 
 
 namespace Wavicler
@@ -26,11 +25,11 @@ namespace Wavicler
         /// <summary>The bound input sample provider.</summary>
         readonly ClipSampleProvider _prov = new(Array.Empty<float>());
 
-        /// <summary>OK color.</summary>
-        readonly Color _validColor = SystemColors.Window;
+        // /// <summary>OK color.</summary>
+        // readonly Color _validColor = SystemColors.Window;
 
-        /// <summary>Not OK color.</summary>
-        readonly Color _invalidColor = Color.LightPink;
+        // /// <summary>Not OK color.</summary>
+        // readonly Color _invalidColor = Color.LightPink;
         #endregion
 
         #region Properties
@@ -39,12 +38,6 @@ namespace Wavicler
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
-
-        /// <summary>For styling.</summary>
-        public Color DrawColor { set { wvData.DrawColor = value; } }
-
-        /// <summary>For styling.</summary>
-        public Color GridColor { set { wvData.GridColor = value; } }
 
         /// <summary>Gain adjustment.</summary>
         public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
@@ -75,46 +68,37 @@ namespace Wavicler
             // Hook up provider and ui.
             _prov = prov;
             wvData.Init(_prov);
+            wvData.WaveColor = Globals.WaveColor;
+            wvData.GridColor = Globals.GridColor;
+            wvData.MarkColor = Globals.MarkColor;
+            wvData.TextColor = Globals.TextColor;
+
             _prov.Rewind();
             _prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
 
             // Viewer events.
             wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
 
-            // User inputs.
-            txtGain.KeyPress += (object? sender, KeyPressEventArgs e) => TestValid_KeyPress(sender!, e);
-            txtGain.LostFocus += (_, __) => txtGain.BackColor = wvData.UpdateProperty(Property.Gain, txtGain.Text) ? _validColor : _invalidColor;
-
-            txtMarker.KeyPress += (object? sender, KeyPressEventArgs e) => TestValid_KeyPress(sender!, e);
-            txtMarker.LostFocus += (_, __) => txtMarker.BackColor = wvData.UpdateProperty(Property.Marker, txtMarker.Text) ? _validColor : _invalidColor;
-
-            txtSelStart.KeyPress += (object? sender, KeyPressEventArgs e) => TestValid_KeyPress(sender!, e);
-            txtSelStart.LostFocus += (_, __) => txtSelStart.BackColor = wvData.UpdateProperty(Property.SelStart, txtSelStart.Text) ? _validColor : _invalidColor;
-
-            txtSelLength.KeyPress += (object? sender, KeyPressEventArgs e) => TestValid_KeyPress(sender!, e);
-            txtSelLength.LostFocus += (_, __) => txtSelLength.BackColor = wvData.UpdateProperty(Property.SelLength, txtSelLength.Text) ? _validColor : _invalidColor;
+            // User property inputs.
+            edMarker.ValueChanged += (_, __) => wvData.Marker = edMarker.Value;
+            edSelStart.ValueChanged += (_, __) => wvData.SelStart = edSelStart.Value;
+            edSelLength.ValueChanged += (_, __) => wvData.SelLength = edSelLength.Value;
 
             // Progress bar.
-            progBar.ProgressColor = Color.Green; //TODO1 get from settings.
+            progBar.ProgressColor = Globals.ControlColor;
             progBar.Length = _prov.SamplesPerChannel;
             progBar.Current = 0;
-            var thumb = wvData.Render(progBar.Width, progBar.Height, Color.Blue, SystemColors.Control, true);
+            var thumb = wvData.RenderThumbnail(progBar.Width, progBar.Height, Globals.WaveColor, SystemColors.Control, true);
             progBar.Thumbnail = thumb;
-            progBar.CurrentChanged += (_, __) => { _prov.Position = progBar.Current; };
+            progBar.CurrentChanged += (_, __) => { _prov.SampleIndex = progBar.Current; };
 
             // Context menu.
             contextMenu.Items.Clear();
             contextMenu.Items.Add("Fit Gain", null, (_, __) => wvData.FitGain());
             contextMenu.Items.Add("Reset Gain", null, (_, __) => wvData.ResetGain());
             contextMenu.Items.Add("Remove Marker", null, (_, __) => wvData.Marker = 0);
-            contextMenu.Items.Add("Copy To New Clip", null, (_, __) =>
-            {
-                ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip });
-            });
-            contextMenu.Items.Add("Close", null, (_, __) =>
-            {
-                ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close });
-            });
+            contextMenu.Items.Add("Copy To New Clip", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); });
+            contextMenu.Items.Add("Close", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); });
         }
 
         /// <summary>
@@ -134,22 +118,17 @@ namespace Wavicler
         #endregion
 
         #region Public functions
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Rewind()
+        {
+            SampleProvider.SampleIndex = 0;
+            progBar.Current = 0;
+        }
         #endregion
 
         #region Private functions
-        /// <summary>
-        /// Allows user to enter only potentially valid characters - numbers and dp.
-        /// s</summary>
-        /// <param name="sender">Sender control.</param>
-        /// <param name="e">Event args.</param>
-        void TestValid_KeyPress(object? sender, KeyPressEventArgs e)
-        {
-            char c = e.KeyChar;
-            e.Handled = !((c >= '0' && c <= '9') || (c == '.') || (c == '\b'));
-        }
-
         /// <summary>
         /// Process viewer UI changes.
         /// </summary>
@@ -159,22 +138,19 @@ namespace Wavicler
         {
             switch (e.Change)
             {
-                case Property.Gain when sender == wvData:
-                    txtGain.Text = $"{wvData.Gain:0.00}";
+                case PropertyChange.Marker when sender == wvData:
+                    edMarker.Text = Globals.ConverterOps.Format(wvData.Marker);
                     break;
 
-                case Property.Marker when sender == wvData:
-                    txtMarker.Text = wvData.Marker.ToString();
+                case PropertyChange.SelStart when sender == wvData:
+                    edSelStart.Text = Globals.ConverterOps.Format(wvData.SelStart);
                     break;
 
-                case Property.SelStart when sender == wvData:
-                    txtSelStart.Text = wvData.SelStart.ToString();
+                case PropertyChange.SelLength when sender == wvData:
+                    edSelLength.Text = Globals.ConverterOps.Format(wvData.SelLength);
                     break;
 
-                case Property.SelLength when sender == wvData:
-                    txtSelLength.Text = wvData.SelLength.ToString();
-                    break;
-
+                case PropertyChange.Gain when sender == wvData:
                 default:
                     break;
             };
