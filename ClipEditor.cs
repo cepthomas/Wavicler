@@ -36,11 +36,11 @@ namespace Wavicler
         /// <summary>The bound input sample provider.</summary>
         public ClipSampleProvider SampleProvider { get { return _prov; } }
 
-        /// <summary>Current file.</summary>
-        public string FileName { get; private set; } = "";
+        ///// <summary>Current file.</summary>
+        //public string FileName { get; private set; } = "";
 
-        /// <summary>Gain adjustment.</summary>
-        public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
+        ///// <summary>Gain adjustment.</summary>
+        //public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
         #endregion
 
         #region Events
@@ -79,7 +79,7 @@ namespace Wavicler
             // Viewer events.
             wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
 
-            // User property inputs.
+            // User edits property values.
             edMarker.ValueChanged += (_, __) => wvData.Marker = edMarker.Value;
             edSelStart.ValueChanged += (_, __) => wvData.SelStart = edSelStart.Value;
             edSelLength.ValueChanged += (_, __) => wvData.SelLength = edSelLength.Value;
@@ -144,14 +144,16 @@ namespace Wavicler
 
                 case PropertyChange.SelStart when sender == wvData:
                     edSelStart.Text = Globals.ConverterOps.Format(wvData.SelStart);
+                    SampleProvider.SelStart = wvData.SelStart;
                     break;
 
                 case PropertyChange.SelLength when sender == wvData:
                     edSelLength.Text = Globals.ConverterOps.Format(wvData.SelLength);
+                    SampleProvider.SelLength = wvData.SelLength;
                     break;
 
                 case PropertyChange.Gain when sender == wvData:
-                default:
+                    SampleProvider.Gain = wvData.Gain;
                     break;
             };
         }
