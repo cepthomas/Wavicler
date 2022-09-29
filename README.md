@@ -48,10 +48,10 @@ Caveats:
 - Wheel alone is time shift (x shift).
 - Wheel + ctrl is time zoom (x zoom).
 - Wheel + shift is gain (y zoom).
-- Left click alone sets marker.
-- Left click + ctrl sets selection start.
-- Left click + shift sets selection end/length.
-- Right click is context menu.
+- Left dblclick alone sets marker.
+- Left dblclick + ctrl sets selection start.
+- Left dblclick + shift sets selection end/length.
+- Right click opens context menu.
 
 ## Context Menu
 - Most of the Keys functions.
