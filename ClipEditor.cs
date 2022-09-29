@@ -77,15 +77,12 @@ namespace Wavicler
             _prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
 
             // Viewer events.
-            wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
+            //wvData.ViewerChangeEvent_XXX += ProcessViewerChangeEvent;
 
-            // TODO Context menu.
-            // contextMenu.Items.Clear();
-            // contextMenu.Items.Add("Fit Gain", null, (_, __) => wvData.FitGain());
-            // contextMenu.Items.Add("Reset Gain", null, (_, __) => wvData.ResetGain());
-            // contextMenu.Items.Add("Remove Marker", null, (_, __) => wvData.Marker = 0);
-            // contextMenu.Items.Add("Copy To New Clip", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); });
-            // contextMenu.Items.Add("Close", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); });
+            // Add some stuff to viewer context menu.
+            wvData.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            wvData.ContextMenuStrip.Items.Add("Copy To New Clip", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); });
+            wvData.ContextMenuStrip.Items.Add("Close", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); });
 
             // Progress bar.
             progBar.ProgressColor = Globals.ControlColor;

@@ -1,13 +1,15 @@
-# Wavicler TODOdoc
 
-Play tool for manipulating and slicing audio waves. The general idea is to use it to
+# Wavicler
+
+Tool for manipulating and slicing audio waves. The general idea is to use it to
 chop up pieces of audio into chunks that can be used in a music production DAW. The
-selection can be by sample, time, or beats with user supplied BPM.
+selection can be by sample, time, or beats (with user supplied BPM). Note that internally
+everything is stored as sample index.
 
 Caveats:
 - Everything internal is 32 bit fp 44100Hz.
 - Uses int for sample index. This gives us a theoretical maximum clip time of about 1.3 hours.
-  In actuality it uses a setting from AudioLib to limit this (default is 5 minutes).
+  In actuality it uses a setting from AudioLib to limit this (default is 10 minutes).
   This gives plenty of time for the purpose of this application.
 
 # UI
@@ -34,33 +36,34 @@ Caveats:
   - Subsequent selections are by beat using snap.
 
 ## Keys
-- G: reset gain
-- H: reset to initial full view
-- M: go to marker
-- S: go to selection
-- F: snap fine
-- C: snap coarse
-- N: snap none
+- G: Reset gain.
+- H: Reset to initial full view.
+- M: Go to marker.
+- S: Go to selection.
+- F: Snap fine.
+- C: Snap coarse.
+- N: Snap none.
 
 ## Mouse
 - Wheel alone is time shift (x shift).
 - Wheel + ctrl is time zoom (x zoom).
 - Wheel + shift is gain (y zoom).
-- Left click is selection start.
-- Left click + ctrl is selection end/length.
+- Left click alone sets marker.
+- Left click + ctrl sets selection start.
+- Left click + shift sets selection end/length.
 - Right click is context menu.
 
 ## Context Menu
+- Most of the Keys functions.
+- Set gain to fill or reset.
 - Copy selection to new clip.
 - Close.
-- Set gain to fill or default.
 
 ## Tools
 - Stereo file: split into two wavs, combine to mono wav.
 - Resample file.
 - Edit settings.
 - About.
-
 
 ## Future
 - Combine multiple clips, incl blank.

@@ -11,7 +11,7 @@ using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
-using AudioLib; // TODO restore dll ref.
+using AudioLib; // TODO2 restore dll ref.
 using static AudioLib.Globals;
 
 
@@ -334,7 +334,7 @@ namespace Wavicler
         }
 
         /// <summary>
-        /// Set menu item enables according to system states. TODO tweak later.
+        /// Set menu item enables according to system states. TODO2 tweak later.
         /// </summary>
         void UpdateMenu()
         {
@@ -533,7 +533,7 @@ namespace Wavicler
 
             if (cled is not null)
             {
-                // TODO get all rendered data and save to audio file - to fn if specified else old.
+                // TODO1 get all rendered data and save to audio file - to fn if specified else old.
             }
 
             return ok;
@@ -586,7 +586,7 @@ namespace Wavicler
             {
                 if (page.Text == NEW_FILE_IND)
                 {
-                    // TODO ask to save.
+                    // TODO1 ask to save.
 
                 }
 
@@ -686,7 +686,7 @@ namespace Wavicler
             {
                 if (TabControl.GetTabRect(i).Contains(e.Location))
                 {
-                    // Found it, do something TODO close maybe
+                    // Found it, do something TODO1 close maybe
                     //...
                     break;
                 }
@@ -756,7 +756,7 @@ namespace Wavicler
         /// <param name="e"></param>
         void ResampleMenuItem_Click(object sender, EventArgs e)
         {
-            //TODO get two file names and execute.
+            //TODO1 get two file names and execute.
         }
 
         /// <summary>
@@ -766,7 +766,7 @@ namespace Wavicler
         /// <param name="e"></param>
         void StereoSplitMenuItem_Click(object sender, EventArgs e)
         {
-            //TODO get one file name and execute.
+            //TODO1 get one file name and execute.
         }
 
         /// <summary>
@@ -776,7 +776,7 @@ namespace Wavicler
         /// <param name="e"></param>
         void StereoToMonoMenuItem_Click(object sender, EventArgs e)
         {
-            //TODO get one file name and execute.
+            //TODO1 get one file name and execute.
         }
         #endregion
 
@@ -820,7 +820,7 @@ namespace Wavicler
                     Close(false);
                     break;
 
-                case ClipEditor.ServiceRequest.CopySelectionToNewClip: // TODO
+                case ClipEditor.ServiceRequest.CopySelectionToNewClip: // TODO1
                     break;
             }
         }
