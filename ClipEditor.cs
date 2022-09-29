@@ -79,10 +79,13 @@ namespace Wavicler
             // Viewer events.
             wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
 
-            // User edits property values.
-            edMarker.ValueChanged += (_, __) => wvData.Marker = edMarker.Value;
-            edSelStart.ValueChanged += (_, __) => wvData.SelStart = edSelStart.Value;
-            edSelLength.ValueChanged += (_, __) => wvData.SelLength = edSelLength.Value;
+            // TODO Context menu.
+            // contextMenu.Items.Clear();
+            // contextMenu.Items.Add("Fit Gain", null, (_, __) => wvData.FitGain());
+            // contextMenu.Items.Add("Reset Gain", null, (_, __) => wvData.ResetGain());
+            // contextMenu.Items.Add("Remove Marker", null, (_, __) => wvData.Marker = 0);
+            // contextMenu.Items.Add("Copy To New Clip", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); });
+            // contextMenu.Items.Add("Close", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); });
 
             // Progress bar.
             progBar.ProgressColor = Globals.ControlColor;
@@ -91,14 +94,6 @@ namespace Wavicler
             var thumb = wvData.RenderThumbnail(progBar.Width, progBar.Height, Globals.WaveColor, SystemColors.Control, true);
             progBar.Thumbnail = thumb;
             progBar.CurrentChanged += (_, __) => { _prov.SampleIndex = progBar.Current; };
-
-            // Context menu.
-            contextMenu.Items.Clear();
-            contextMenu.Items.Add("Fit Gain", null, (_, __) => wvData.FitGain());
-            contextMenu.Items.Add("Reset Gain", null, (_, __) => wvData.ResetGain());
-            contextMenu.Items.Add("Remove Marker", null, (_, __) => wvData.Marker = 0);
-            contextMenu.Items.Add("Copy To New Clip", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); });
-            contextMenu.Items.Add("Close", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); });
         }
 
         /// <summary>
@@ -128,35 +123,35 @@ namespace Wavicler
         }
         #endregion
 
-        #region Private functions
-        /// <summary>
-        /// Process viewer UI changes.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void ProcessViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
-        {
-            switch (e.Change)
-            {
-                case PropertyChange.Marker when sender == wvData:
-                    edMarker.Text = Globals.ConverterOps.Format(wvData.Marker);
-                    break;
+        //#region Private functions
+        ///// <summary>
+        ///// Process viewer UI changes.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //void ProcessViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
+        //{
+        //    switch (e.Change)
+        //    {
+        //        case PropertyChange.Marker when sender == wvData:
+        //            edMarker.Text = Globals.ConverterOps.Format(wvData.Marker);
+        //            break;
 
-                case PropertyChange.SelStart when sender == wvData:
-                    edSelStart.Text = Globals.ConverterOps.Format(wvData.SelStart);
-                    SampleProvider.SelStart = wvData.SelStart;
-                    break;
+        //        case PropertyChange.SelStart when sender == wvData:
+        //            edSelStart.Text = Globals.ConverterOps.Format(wvData.SelStart);
+        //            SampleProvider.SelStart = wvData.SelStart;
+        //            break;
 
-                case PropertyChange.SelLength when sender == wvData:
-                    edSelLength.Text = Globals.ConverterOps.Format(wvData.SelLength);
-                    SampleProvider.SelLength = wvData.SelLength;
-                    break;
+        //        case PropertyChange.SelLength when sender == wvData:
+        //            edSelLength.Text = Globals.ConverterOps.Format(wvData.SelLength);
+        //            SampleProvider.SelLength = wvData.SelLength;
+        //            break;
 
-                case PropertyChange.Gain when sender == wvData:
-                    SampleProvider.Gain = wvData.Gain;
-                    break;
-            };
-        }
-        #endregion
+        //        case PropertyChange.Gain when sender == wvData:
+        //            SampleProvider.Gain = wvData.Gain;
+        //            break;
+        //    };
+        //}
+        //#endregion
     }
 }
