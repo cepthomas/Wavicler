@@ -12,8 +12,6 @@ using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
 using AudioLib; // TODO2 restore dll ref.
-using static AudioLib.Globals;
-
 
 
 namespace Wavicler
@@ -37,7 +35,7 @@ namespace Wavicler
         readonly UserSettings _settings;
 
         /// <summary>UI indicator.</summary>
-        const string NEW_FILE_IND = "*";
+        const string DIRTY_FILE_IND = "*";
         #endregion
 
         /// <summary>What are we doing.</summary>
@@ -89,10 +87,10 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            BPM = (float)_settings.DefaultBPM;
-            txtBPM.Text = BPM.ToString();
+            Globals.BPM = (float)_settings.DefaultBPM;
+            txtBPM.Text = Globals.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) => BPM = float.Parse(txtBPM.Text); 
+            txtBPM.LostFocus += (_, __) => Globals.BPM = float.Parse(txtBPM.Text); 
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Bar);
@@ -101,9 +99,9 @@ namespace Wavicler
             {
                 switch(cmbSelMode.SelectedItem)
                 {
-                    case WaveSelectionMode.Time: ConverterOps = new TimeOps(); break;
-                    case WaveSelectionMode.Bar: ConverterOps = new BarOps(); break;
-                    case WaveSelectionMode.Sample: ConverterOps = new SampleOps(); break;
+                    case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
+                    case WaveSelectionMode.Bar: Globals.ConverterOps = new BarOps(); break;
+                    case WaveSelectionMode.Sample: Globals.ConverterOps = new SampleOps(); break;
                 }
                 ActiveClipEditor()?.Invalidate();
             };
@@ -118,18 +116,21 @@ namespace Wavicler
             CloseMenuItem.Click += (_, __) => Close(false);
             CloseAllMenuItem.Click += (_, __) => Close(true);
             ExitMenuItem.Click += (_, __) => Close(true);
-            MenuStrip.MenuActivate += (_, __) => UpdateMenu();
+            MenuStrip.MenuActivate += (_, __) => UpdateUi();
             FileMenuItem.DropDownOpening += File_DropDownOpening;
 
             // Tools.
             AboutMenuItem.Click += (_, __) => MiscUtils.ShowReadme("Wavicler");
             SettingsMenuItem.Click += (_, __) => EditSettings();
+            ResampleMenuItem.Click += (_, __) => Resample();
+            SplitStereoMenuItem.Click += (_, __) => SplitStereo();
+            ToMonoMenuItem.Click += (_, __) => ToMono();
 
             // Tab control.
             TabControl.TabPages.Clear();
             TabControl.MouseDoubleClick += TabControl_MouseDoubleClick;
 
-            UpdateMenu();
+            UpdateUi();
 
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
         }
@@ -191,7 +192,7 @@ namespace Wavicler
         /// </summary>
         void UpdateState(AppState newState)
         {
-            // Unhook.
+            // Unhook temporarily.
             btnPlay.CheckedChanged -= ChkPlay_CheckedChanged;
 
             if (newState != _currentState)
@@ -310,7 +311,7 @@ namespace Wavicler
 
         #region Menu management
         /// <summary>
-        /// Organize the file menu item drop down.
+        /// Show the recent files in the menu.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -334,29 +335,44 @@ namespace Wavicler
         }
 
         /// <summary>
-        /// Set menu item enables according to system states. TODO2 tweak later.
+        /// Set UI item enables according to system states.
         /// </summary>
-        void UpdateMenu()
+        void UpdateUi()
         {
-            bool anyOpen = false;
-            bool dirty = false;
+            bool anyOpen = false;// TabControl.TabPages.Count > 0;
+            bool anyDirty = false;
+            bool currentDirty = false;
+
 
             var page = ActivePage();
+            var cled = ActiveClipEditor();
+
             if (page is not null)
             {
+                currentDirty = page.Text.Contains(DIRTY_FILE_IND);
+            }
+
+            foreach (TabPage tab in TabControl.TabPages)
+            {
                 anyOpen = true;
-                dirty = page.Text == NEW_FILE_IND;
+                anyDirty |= tab.Text.Contains(DIRTY_FILE_IND);
             }
 
             btnRewind.Enabled = anyOpen;
             btnPlay.Enabled = anyOpen;
-            sldVolume.Enabled = true;
+
             OpenMenuItem.Enabled = true;
-            SaveMenuItem.Enabled = false;
-            SaveAsMenuItem.Enabled = dirty;
+            SaveAsMenuItem.Enabled = currentDirty;
             CloseMenuItem.Enabled = anyOpen;
             CloseAllMenuItem.Enabled = anyOpen;
             ExitMenuItem.Enabled = true;
+
+            AboutMenuItem.Enabled = true;
+            SettingsMenuItem.Enabled = true;
+
+            ResampleMenuItem.Enabled = true;
+            SplitStereoMenuItem.Enabled = true;
+            ToMonoMenuItem.Enabled = true;
         }
         #endregion
 
@@ -364,9 +380,9 @@ namespace Wavicler
         /// <summary>
         /// Common file opener.
         /// </summary>
-        /// <param name="fn">The file to open or create new if empty.</param>
+        /// <param name="fn">The file to open.</param>
         /// <returns>Success.</returns>
-        bool OpenFile(string fn = "")
+        bool OpenFile(string fn)
         {
             bool ok = true;
 
@@ -374,120 +390,108 @@ namespace Wavicler
 
             try
             {
-                if (fn == "")
+                // Do validity checks.
+                if (!File.Exists(fn))
                 {
-                    _logger.Info($"Creating new tab");
-                    ClipSampleProvider prov = new(Array.Empty<float>());
-                    CreateTab(prov, NEW_FILE_IND);
+                    throw new InvalidOperationException($"Invalid file.");
                 }
-                else
+
+                var ext = Path.GetExtension(fn).ToLower();
+                var baseFn = Path.GetFileName(fn);
+
+                if (!AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
                 {
-                    // Do validity checks.
-                    if (!File.Exists(fn))
+                    throw new InvalidOperationException($"Invalid file type.");
+                }
+
+                // Valid file name.
+                _logger.Info($"Opening file: {fn}");
+
+                // Find out about the requested file.
+                using var reader = new AudioFileReader(fn);
+
+                // Check sample rate etc.
+                reader.Validate(false);
+
+                // Create a tab page or select if it already exists.
+                var coerce = StereoCoercion.None;
+
+                if (reader.WaveFormat.Channels == 2)
+                {
+                    if (!_settings.AutoConvert)
                     {
-                        throw new InvalidOperationException($"Invalid file.");
-                    }
-
-                    var ext = Path.GetExtension(fn).ToLower();
-                    var baseFn = Path.GetFileName(fn);
-
-                    if (!AudioLibDefs.AUDIO_FILE_TYPES.Contains(ext))
-                    {
-                        throw new InvalidOperationException($"Invalid file type.");
-                    }
-
-                    // Valid file name.
-                    _logger.Info($"Opening file: {fn}");
-
-                    // Find out about the requested file.
-                    using var reader = new AudioFileReader(fn);
-
-                    // Check sample rate etc.
-                    reader.Validate(false);
-
-                    // Create a tab page or select if it already exists.
-                    var coerce = StereoCoercion.None;
-
-                    if (reader.WaveFormat.Channels == 2)
-                    {
-                        if (!_settings.AutoConvert)
+                        // Ask user what to do with a stereo file.
+                        MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
+                        selector.SetOptions(new() { "Left", "Right", "Mono" });
+                        var dlgres = selector.ShowDialog();
+                        if (dlgres == DialogResult.OK)
                         {
-                            // Ask user what to do with a stereo file.
-                            MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
-                            selector.SetOptions(new() { "Left", "Right", "Mono" });
-                            var dlgres = selector.ShowDialog();
-                            if (dlgres == DialogResult.OK)
+                            coerce = selector.SelectedOption switch
                             {
-                                coerce = selector.SelectedOption switch
-                                {
-                                    "Left" => StereoCoercion.Left,
-                                    "Right" => StereoCoercion.Right,
-                                    "Mono" => StereoCoercion.Mono,
-                                    _ => StereoCoercion.None,
-                                };
-                            }
-                            else
-                            {
-                                // Bail out.
-                                ok = false;
-                            }
+                                "Left" => StereoCoercion.Left,
+                                "Right" => StereoCoercion.Right,
+                                "Mono" => StereoCoercion.Mono,
+                                _ => StereoCoercion.None,
+                            };
                         }
                         else
                         {
-                            coerce = StereoCoercion.Mono;
-                            _logger.Info($"Autoconvert {baseFn} to mono");
+                            // Bail out.
+                            ok = false;
                         }
                     }
-                    else // mono
+                    else
                     {
-                        coerce = StereoCoercion.None;
-                        //CreateOrSelect(StereoCoercion.Mono);
+                        coerce = StereoCoercion.Mono;
+                        _logger.Info($"Autoconvert {baseFn} to mono");
                     }
+                }
+                else // mono
+                {
+                    coerce = StereoCoercion.None;
+                }
 
-                    if(ok)
+                if(ok)
+                {
+                    var tmod = coerce switch
                     {
-                        var tmod = coerce switch
-                        {
-                            StereoCoercion.Right => " RIGHT",
-                            StereoCoercion.Left => " LEFT",
-                            StereoCoercion.Mono => " MONO",
-                            _ => "",
-                        };
+                        StereoCoercion.Right => " RIGHT",
+                        StereoCoercion.Left => " LEFT",
+                        StereoCoercion.Mono => " MONO",
+                        _ => "",
+                    };
 
-                        // Is this already open?
-                        var tabName = baseFn + tmod;
-                        //var tab = GetTab(tabName);
-                        TabPage? seltab = null;
-                        foreach (TabPage tab in TabControl.TabPages)
+                    // Is this already open?
+                    var tabName = baseFn + tmod;
+                    TabPage? seltab = null;
+                    foreach (TabPage tab in TabControl.TabPages)
+                    {
+                        if (tab.Text == tabName)
                         {
-                            if (tab.Text == tabName)
-                            {
-                                seltab = tab;
-                                TabControl.SelectedTab = seltab;
-                                break;
-                            }
-                        }
-
-                        if (seltab is null)
-                        {
-                            using (new WaitCursor())
-                            {
-                                var prov = new ClipSampleProvider(reader, coerce);
-                                CreateTab(prov, tabName);
-                                //newTab = true;
-                            }
+                            seltab = tab;
+                            TabControl.SelectedTab = seltab;
+                            break;
                         }
                     }
 
-                    if (ok)
+                    if (seltab is null) // new tab
                     {
-                        _settings.RecentFiles.UpdateMru(fn);
-
-                        if (_settings.Autoplay)
+                        using (new WaitCursor())
                         {
-                            UpdateState(AppState.Rewind);
-                            UpdateState(AppState.Play);
+                            var prov = new ClipSampleProvider(fn, coerce);
+                            CreateTab(prov, tabName, fn);
                         }
+                    }
+                }
+
+                if (ok)
+                {
+                    _settings.RecentFiles.UpdateMru(fn);
+
+                    if (_settings.Autoplay)
+                    {
+                        UpdateState(AppState.Rewind);
+                        UpdateState(AppState.Play);
                     }
                 }
             }
@@ -497,27 +501,20 @@ namespace Wavicler
                 ok = false;
             }
 
-            btnPlay.Enabled = ok;
-            UpdateMenu();
+            UpdateUi();
 
             return ok;
         }
 
         /// <summary>
-        /// Allows the user to select an audio clip or midi from file system.
+        /// Allows the user to select from file system.
         /// </summary>
         void Open_Click()
         {
-            var fileTypes = $"Audio Files|{AudioLibDefs.AUDIO_FILE_TYPES}";
-            using OpenFileDialog openDlg = new()
+            var fn = GetUserFilename();
+            if (fn != "")
             {
-                Filter = fileTypes,
-                Title = "Select a file"
-            };
-
-            if (openDlg.ShowDialog() == DialogResult.OK)
-            {
-                OpenFile(openDlg.FileName);
+                OpenFile(fn);
             }
         }
 
@@ -533,8 +530,10 @@ namespace Wavicler
 
             if (cled is not null)
             {
-                // TODO1 get all rendered data and save to audio file - to fn if specified else old.
+                // TODO1 get all selected/rendered data and save to audio file - to fn if specified else old.
             }
+
+            UpdateUi();
 
             return ok;
         }
@@ -549,7 +548,7 @@ namespace Wavicler
             {
                 using SaveFileDialog saveDlg = new()
                 {
-                    Filter = AudioLibDefs.AUDIO_FILE_TYPES,
+                    Filter = $"Audio Files|{AudioLibDefs.AUDIO_FILE_TYPES}",
                     Title = "Save as file"
                 };
 
@@ -558,6 +557,8 @@ namespace Wavicler
                     SaveFile(cled, saveDlg.FileName);
                 }
             }
+
+            UpdateUi();
         }
 
         /// <summary>
@@ -573,20 +574,23 @@ namespace Wavicler
             {
                 while (TabControl.TabCount > 0)
                 {
-                    CloseOne(TabControl.TabPages[0]);
+                    CloseTab(TabControl.TabPages[0]);
                 }
             }
             else if (TabControl.TabCount > 0)
             {
-                CloseOne(TabControl.SelectedTab);
+                CloseTab(TabControl.SelectedTab);
             }
 
             // Local function.
-            void CloseOne(TabPage page)
+            void CloseTab(TabPage page)
             {
-                if (page.Text == NEW_FILE_IND)
+                if (page.Text.Contains(DIRTY_FILE_IND))
                 {
                     // TODO1 ask to save.
+                    //yes/no/cancel
+
+//       var res = MessageBox.Show($"{page.Text.Replace("*", "")} has unsaved chang"text", "caption", MessageBoxButtons.YesNoCancel);
 
                 }
 
@@ -597,7 +601,7 @@ namespace Wavicler
                 page.Dispose();
             }
 
-            UpdateMenu();
+            UpdateUi();
 
             return ok;
         }
@@ -639,10 +643,11 @@ namespace Wavicler
         /// Function to open a new tab.
         /// </summary>
         /// <param name="prov"></param>
+        /// <param name="fn"></param>
         /// <param name="tabName"></param>
-        void CreateTab(ClipSampleProvider prov, string tabName)
+        void CreateTab(ClipSampleProvider prov, string fn, string tabName)
         {
-            ClipEditor cled = new(prov) { Dock = DockStyle.Fill };
+            ClipEditor cled = new(prov, fn) { Dock = DockStyle.Fill };
             cled.ServiceRequestEvent += ClipEditor_ServiceRequest;
             _waveOutSwapper.SetInput(cled.SampleProvider);
             statusInfo.Text = cled.SampleProvider.GetInfoString();
@@ -686,8 +691,8 @@ namespace Wavicler
             {
                 if (TabControl.GetTabRect(i).Contains(e.Location))
                 {
-                    // Found it, do something TODO1 close maybe
-                    //...
+                    // Found it.
+                    Close(false);
                     break;
                 }
             }
@@ -752,31 +757,71 @@ namespace Wavicler
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void ResampleMenuItem_Click(object sender, EventArgs e)
+        void Resample()
         {
-            //TODO1 get two file names and execute.
+            var fn = GetUserFilename();
+            if (fn != "")
+            {
+                var ok = NAudioEx.Convert(Conversion.Resample, fn);
+                if (!ok)
+                {
+                    _logger.Warn($"{fn} is already 44.1k");
+                }
+            }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void StereoSplitMenuItem_Click(object sender, EventArgs e)
+        void SplitStereo()
         {
-            //TODO1 get one file name and execute.
+            var fn = GetUserFilename();
+            if (fn != "")
+            {
+                var ok = NAudioEx.Convert(Conversion.SplitStereo, fn);
+                if (!ok)
+                {
+                    _logger.Warn($"{fn} is a mono file");
+                }
+            }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void StereoToMonoMenuItem_Click(object sender, EventArgs e)
+        void ToMono()
         {
-            //TODO1 get one file name and execute.
+            var fn = GetUserFilename();
+            if (fn != "")
+            {
+                var ok = NAudioEx.Convert(Conversion.ToMonoWav, fn);
+                if (!ok)
+                {
+                    _logger.Warn($"{fn} is already 44.1k");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Utility to get filename from the user.
+        /// </summary>
+        /// <returns>Filename or empty if cancelled.</returns>
+        string GetUserFilename()
+        {
+            string fn = "";
+
+            using OpenFileDialog openDlg = new()
+            {
+                Filter = $"Audio Files|{AudioLibDefs.AUDIO_FILE_TYPES}",
+                Title = "Select an audio file"
+            };
+
+            if (openDlg.ShowDialog() == DialogResult.OK)
+            {
+                fn = openDlg.FileName;
+            }
+
+            return fn;           
         }
         #endregion
 
@@ -787,7 +832,9 @@ namespace Wavicler
         /// <returns></returns>
         TabPage? ActivePage()
         {
-            TabPage? page = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab : null;
+            TabPage? page = TabControl.TabPages.Count > 0 ?
+                TabControl.SelectedTab :
+                null;
             return page;
         }
 
@@ -806,7 +853,7 @@ namespace Wavicler
         #endregion
 
         /// <summary>
-        /// 
+        /// Clip editor wants main to do something for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

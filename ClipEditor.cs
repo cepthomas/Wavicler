@@ -22,25 +22,19 @@ namespace Wavicler
     public partial class ClipEditor : UserControl
     {
         #region Fields
-        /// <summary>The bound input sample provider.</summary>
+
+        #endregion
+        
+        #region Backing fields
         readonly ClipSampleProvider _prov = new(Array.Empty<float>());
-
-        // /// <summary>OK color.</summary>
-        // readonly Color _validColor = SystemColors.Window;
-
-        // /// <summary>Not OK color.</summary>
-        // readonly Color _invalidColor = Color.LightPink;
         #endregion
 
         #region Properties
         /// <summary>The bound input sample provider.</summary>
         public ClipSampleProvider SampleProvider { get { return _prov; } }
 
-        ///// <summary>Current file.</summary>
-        //public string FileName { get; private set; } = "";
-
-        ///// <summary>Gain adjustment.</summary>
-        //public double Gain { get { return wvData.Gain; } set { wvData.Gain = (float)value; } }
+        /// <summary>Current file.</summary>
+        public string FileName { get; private set; } = "";
         #endregion
 
         #region Events
@@ -59,11 +53,14 @@ namespace Wavicler
         /// Normal constructor.
         /// </summary>
         /// <param name="prov">The bound input sample provider.</param>
-        public ClipEditor(ClipSampleProvider prov)
+        /// <param name="fn">Associated filename.</param>
+        public ClipEditor(ClipSampleProvider prov, string fn)
         {
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
 
             InitializeComponent();
+
+            FileName = fn;
 
             // Hook up provider and ui.
             _prov = prov;
@@ -77,7 +74,7 @@ namespace Wavicler
             _prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
 
             // Viewer events.
-            //wvData.ViewerChangeEvent_XXX += ProcessViewerChangeEvent;
+            wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
 
             // Add some stuff to viewer context menu.
             wvData.ContextMenuStrip.Items.Add(new ToolStripSeparator());
@@ -120,35 +117,35 @@ namespace Wavicler
         }
         #endregion
 
-        //#region Private functions
-        ///// <summary>
-        ///// Process viewer UI changes.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //void ProcessViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
-        //{
-        //    switch (e.Change)
-        //    {
-        //        case PropertyChange.Marker when sender == wvData:
-        //            edMarker.Text = Globals.ConverterOps.Format(wvData.Marker);
-        //            break;
+        #region Private functions
+        /// <summary>
+        /// Process viewer UI changes. Update the bound sample provider.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void ProcessViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
+        {
+            switch (e.Change)
+            {
+                case ParamChange.Marker when sender == wvData:
+                    //edMarker.Text = Globals.ConverterOps.Format(wvData.Marker);
+                    break;
 
-        //        case PropertyChange.SelStart when sender == wvData:
-        //            edSelStart.Text = Globals.ConverterOps.Format(wvData.SelStart);
-        //            SampleProvider.SelStart = wvData.SelStart;
-        //            break;
+                case ParamChange.SelStart when sender == wvData:
+                    //edSelStart.Text = Globals.ConverterOps.Format(wvData.SelStart);
+                    SampleProvider.SelStart = wvData.SelStart;
+                    break;
 
-        //        case PropertyChange.SelLength when sender == wvData:
-        //            edSelLength.Text = Globals.ConverterOps.Format(wvData.SelLength);
-        //            SampleProvider.SelLength = wvData.SelLength;
-        //            break;
+                case ParamChange.SelLength when sender == wvData:
+                    //edSelLength.Text = Globals.ConverterOps.Format(wvData.SelLength);
+                    SampleProvider.SelLength = wvData.SelLength;
+                    break;
 
-        //        case PropertyChange.Gain when sender == wvData:
-        //            SampleProvider.Gain = wvData.Gain;
-        //            break;
-        //    };
-        //}
-        //#endregion
+                case ParamChange.Gain when sender == wvData:
+                    SampleProvider.Gain = wvData.Gain;
+                    break;
+            };
+        }
+        #endregion
     }
 }
