@@ -3,8 +3,8 @@
 
 Tool for manipulating and slicing audio waves. The general idea is to use it to
 chop up pieces of audio into chunks that can be used in a music production DAW. The
-selection can be by sample, time, or beats (with user supplied BPM). Note that internally
-everything is stored as sample index.
+selection can be by sample, time, or beats (based on user supplied BPM). Note that internally
+everything is referenced by sample index.
 
 Caveats:
 - Everything internal is 32 bit fp 44100Hz.
@@ -60,14 +60,17 @@ Caveats:
 - Close.
 
 ## Tools
-- Stereo file: split into two wavs, combine to mono wav.
-- Resample file.
+- Stereo file split into two wavs.
+- Stereo file combine to mono wav.
+- Resample file to 44100 32bit wav.
 - Edit settings.
 - About.
 
-## Future
+## Future?
 - Combine multiple clips, incl blank.
-- Edit - cut/copy/paste/insert.
+- Edit: cut/copy/paste/insert.
 - Gain envelope.
 - Stretch/fit etc.
 - Detect tempo.
+- Mouse/kbd/context commands user configurable.
+- Snap settings user configurable.

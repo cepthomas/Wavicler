@@ -22,15 +22,15 @@ namespace Wavicler
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.progBar = new AudioLib.ProgressBar();
             this.wvData = new AudioLib.WaveViewer();
-//            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStrip = new System.Windows.Forms.ToolStrip();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.timer = new System.Windows.Forms.Timer(this.components);
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,19 +54,13 @@ namespace Wavicler
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.wvData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-//            this.wvData.ContextMenuStrip = this.contextMenu;
             this.wvData.Gain = 1F;
             this.wvData.Location = new System.Drawing.Point(3, 87);
             this.wvData.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.wvData.Name = "wvData";
             this.wvData.Size = new System.Drawing.Size(1051, 295);
             this.wvData.TabIndex = 34;
-            // // 
-            // // contextMenu
-            // // 
-            // this.contextMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
-            // this.contextMenu.Name = "contextMenu";
-            // this.contextMenu.Size = new System.Drawing.Size(61, 4);
+            this.wvData.TextFont = new System.Drawing.Font("Calibri", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             // 
             // toolStrip
             // 
@@ -75,9 +69,14 @@ namespace Wavicler
             this.toolStripSeparator4});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(1057, 31);
+            this.toolStrip.Size = new System.Drawing.Size(1057, 25);
             this.toolStrip.TabIndex = 42;
             this.toolStrip.Text = "toolStrip1";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
             // 
             // toolStripLabel1
             // 
@@ -106,11 +105,6 @@ namespace Wavicler
             this.toolStripLabel2.Name = "toolStripLabel2";
             this.toolStripLabel2.Size = new System.Drawing.Size(58, 28);
             this.toolStripLabel2.Text = "Marker:";
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 31);
             // 
             // toolStripSeparator1
             // 
@@ -148,5 +142,6 @@ namespace Wavicler
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private ProgressBar progBar;
+        private System.Windows.Forms.Timer timer;
     }
 }

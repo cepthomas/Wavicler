@@ -71,15 +71,25 @@ namespace Wavicler
             wvData.TextColor = Globals.TextColor;
 
             _prov.Rewind();
-            _prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
+            //_prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
+            timer.Tick += (_, __) => { progBar.Current = _prov.SampleIndex; };
+            timer.Enabled = true;
 
             // Viewer events.
             wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
 
             // Add some stuff to viewer context menu.
-            wvData.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            wvData.ContextMenuStrip.Items.Add("Copy To New Clip", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); });
-            wvData.ContextMenuStrip.Items.Add("Close", null, (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); });
+            wvData.ExtraMenuItems.Add(new ToolStripSeparator());
+            wvData.ExtraMenuItems.Add(new ToolStripMenuItem(
+                "Copy To New Clip",
+                null,
+                (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); }
+            ));
+            wvData.ExtraMenuItems.Add(new ToolStripMenuItem(
+                "Close",
+                null,
+                (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); }
+            ));
 
             // Progress bar.
             progBar.ProgressColor = Globals.ControlColor;
@@ -112,8 +122,8 @@ namespace Wavicler
         /// </summary>
         public void Rewind()
         {
-            SampleProvider.SampleIndex = 0;
-            progBar.Current = 0;
+            SampleProvider.SampleIndex = SampleProvider.SelStart;
+            progBar.Current = SampleProvider.SelStart;
         }
         #endregion
 
@@ -127,22 +137,19 @@ namespace Wavicler
         {
             switch (e.Change)
             {
-                case ParamChange.Marker when sender == wvData:
-                    //edMarker.Text = Globals.ConverterOps.Format(wvData.Marker);
-                    break;
-
                 case ParamChange.SelStart when sender == wvData:
-                    //edSelStart.Text = Globals.ConverterOps.Format(wvData.SelStart);
                     SampleProvider.SelStart = wvData.SelStart;
                     break;
 
                 case ParamChange.SelLength when sender == wvData:
-                    //edSelLength.Text = Globals.ConverterOps.Format(wvData.SelLength);
                     SampleProvider.SelLength = wvData.SelLength;
                     break;
 
                 case ParamChange.Gain when sender == wvData:
                     SampleProvider.Gain = wvData.Gain;
+                    break;
+
+                case ParamChange.Marker when sender == wvData:
                     break;
             };
         }

@@ -59,6 +59,7 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tvLog = new NBagOfUis.TextViewer();
+            this.timer = new System.Windows.Forms.Timer(this.components);
             this.MenuStrip.SuspendLayout();
             this.ToolStrip.SuspendLayout();
             this.TabControl.SuspendLayout();
@@ -167,36 +168,36 @@
             // ResampleMenuItem
             // 
             this.ResampleMenuItem.Name = "ResampleMenuItem";
-            this.ResampleMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.ResampleMenuItem.Size = new System.Drawing.Size(231, 26);
             this.ResampleMenuItem.Text = "Resample File";
             // 
             // SplitStereoMenuItem
             // 
             this.SplitStereoMenuItem.Name = "SplitStereoMenuItem";
-            this.SplitStereoMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.SplitStereoMenuItem.Size = new System.Drawing.Size(231, 26);
             this.SplitStereoMenuItem.Text = "Split Stero File";
             // 
             // ToMonoMenuItem
             // 
             this.ToMonoMenuItem.Name = "ToMonoMenuItem";
-            this.ToMonoMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.ToMonoMenuItem.Size = new System.Drawing.Size(231, 26);
             this.ToMonoMenuItem.Text = "Convert File to Mono";
             // 
             // toolStripSeparator8
             // 
             this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(193, 6);
+            this.toolStripSeparator8.Size = new System.Drawing.Size(228, 6);
             // 
             // SettingsMenuItem
             // 
             this.SettingsMenuItem.Name = "SettingsMenuItem";
-            this.SettingsMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.SettingsMenuItem.Size = new System.Drawing.Size(231, 26);
             this.SettingsMenuItem.Text = "Settings";
             // 
             // AboutMenuItem
             // 
             this.AboutMenuItem.Name = "AboutMenuItem";
-            this.AboutMenuItem.Size = new System.Drawing.Size(196, 26);
+            this.AboutMenuItem.Size = new System.Drawing.Size(231, 26);
             this.AboutMenuItem.Text = "About";
             // 
             // ToolStrip
@@ -496,5 +497,6 @@
         private System.Windows.Forms.ToolStripButton btnAutoplay;
         private System.Windows.Forms.ToolStripButton btnLoop;
         private System.Windows.Forms.ToolStripButton btnRewind;
+        private System.Windows.Forms.Timer timer;
     }
 }

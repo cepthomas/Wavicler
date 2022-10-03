@@ -11,7 +11,7 @@ using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
-using AudioLib; // TODO2 restore dll ref.
+using AudioLib; // TODO >>>>>> restore dll ref.
 
 
 namespace Wavicler
@@ -87,10 +87,10 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            Globals.BPM = (float)_settings.DefaultBPM;
+            Globals.BPM = _settings.DefaultBPM;
             txtBPM.Text = Globals.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) => Globals.BPM = float.Parse(txtBPM.Text); 
+            txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text); 
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Bar);
@@ -112,7 +112,7 @@ namespace Wavicler
 
             // File handling.
             OpenMenuItem.Click += (_, __) => Open_Click();
-            SaveAsMenuItem.Click += (_, __) => SaveFileAs(ActiveClipEditor());
+            SaveAsMenuItem.Click += (_, __) => SaveClipAs(ActiveClipEditor());
             CloseMenuItem.Click += (_, __) => Close(false);
             CloseAllMenuItem.Click += (_, __) => Close(true);
             ExitMenuItem.Click += (_, __) => Close(true);
@@ -519,18 +519,25 @@ namespace Wavicler
         }
 
         /// <summary>
-        /// Common file saver.
+        /// Save the page/clip to file.
         /// </summary>
         /// <param name="cled">Data source.</param>
         /// <param name="fn">The file to save to.</param>
         /// <returns>Status.</returns>
-        bool SaveFile(ClipEditor? cled, string fn = "")
+        bool SaveClip(ClipEditor? cled, string fn)
         {
             bool ok = false;
 
             if (cled is not null)
             {
-                // TODO1 get all selected/rendered data and save to audio file - to fn if specified else old.
+                try
+                {
+                    WaveFileWriter.CreateWaveFile(fn, cled.SampleProvider.ToWaveProvider());
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"Couldn't save {fn}: {e.Message}");
+                }
             }
 
             UpdateUi();
@@ -539,10 +546,10 @@ namespace Wavicler
         }
 
         /// <summary>
-        /// Save the file in the current page.
+        /// Save the page/clip to file.
         /// </summary>
         /// <param name="cled">Data source.</param>
-        void SaveFileAs(ClipEditor? cled)
+        void SaveClipAs(ClipEditor? cled)
         {
             if (cled is not null)
             {
@@ -554,7 +561,7 @@ namespace Wavicler
 
                 if (saveDlg.ShowDialog() == DialogResult.OK)
                 {
-                    SaveFile(cled, saveDlg.FileName);
+                    SaveClip(cled, saveDlg.FileName);
                 }
             }
 
@@ -565,11 +572,8 @@ namespace Wavicler
         /// General closer/saver.
         /// </summary>
         /// <param name="all">Close all if true otherwise just the current selected.</param>
-        /// <returns></returns>
-        bool Close(bool all)
+        void Close(bool all)
         {
-            bool ok = true;
-
             if (all)
             {
                 while (TabControl.TabCount > 0)
@@ -585,25 +589,39 @@ namespace Wavicler
             // Local function.
             void CloseTab(TabPage page)
             {
+                bool closeIt = true;
+
                 if (page.Text.Contains(DIRTY_FILE_IND))
                 {
-                    // TODO1 ask to save.
-                    //yes/no/cancel
+                    // Ask to save.
+                    var res = MessageBox.Show($"Clip {page.Text.Replace("*", "")} has unsaved changes. Do you want to save it?",
+                        "Close Clip", MessageBoxButtons.YesNoCancel);
 
-//       var res = MessageBox.Show($"{page.Text.Replace("*", "")} has unsaved chang"text", "caption", MessageBoxButtons.YesNoCancel);
+                    switch(res)
+                    {
+                        case DialogResult.Yes:
+                            SaveClipAs(ActiveClipEditor());
+                            break;
 
+                        case DialogResult.No:
+                            // Don't save file.
+                            break;
+
+                        case DialogResult.Cancel:
+                            closeIt = false;
+                            break;
+                    }
                 }
 
-                var cled = page.Controls[0] as ClipEditor;
-                cled?.Dispose();
-
-                TabControl.TabPages.Remove(page);
-                page.Dispose();
+                if (closeIt)
+                {
+                    ActiveClipEditor()?.Dispose();
+                    TabControl.TabPages.Remove(page);
+                    page.Dispose();
+                }
             }
 
             UpdateUi();
-
-            return ok;
         }
         #endregion
 
@@ -867,7 +885,7 @@ namespace Wavicler
                     Close(false);
                     break;
 
-                case ClipEditor.ServiceRequest.CopySelectionToNewClip: // TODO1
+                case ClipEditor.ServiceRequest.CopySelectionToNewClip: // <<<<<<<<< TODO
                     break;
             }
         }
