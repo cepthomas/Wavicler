@@ -62,7 +62,7 @@ namespace Wavicler
 
             FileName = fn;
 
-            // Hook up provider and ui.
+            // Hook up provider and UI.
             _prov = prov;
             wvData.Init(_prov);
             wvData.WaveColor = Globals.WaveColor;
@@ -76,7 +76,7 @@ namespace Wavicler
             timer.Enabled = true;
 
             // Viewer events.
-            wvData.ViewerChangeEvent += ProcessViewerChangeEvent;
+            wvData.ViewerChangeEvent += ProcessViewerChange;
 
             // Add some stuff to viewer context menu.
             wvData.ExtraMenuItems.Add(new ToolStripSeparator());
@@ -133,12 +133,13 @@ namespace Wavicler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void ProcessViewerChangeEvent(object? sender, WaveViewer.ViewerChangeEventArgs e)
+        void ProcessViewerChange(object? sender, WaveViewer.ViewerChangeEventArgs e)
         {
             switch (e.Change)
             {
                 case ParamChange.SelStart when sender == wvData:
                     SampleProvider.SelStart = wvData.SelStart;
+                    SampleProvider.Rewind();
                     break;
 
                 case ParamChange.SelLength when sender == wvData:

@@ -37,10 +37,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AudioLib\AudioLib.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <Reference Include="AudioLib">
+        <HintPath>lib\AudioLib.dll</HintPath>
+      </Reference>
       <Reference Include="NBagOfTricks">
         <HintPath>lib\NBagOfTricks.dll</HintPath>
       </Reference>

@@ -11,7 +11,7 @@ using NAudio.Wave.SampleProviders;
 using NBagOfTricks;
 using NBagOfTricks.Slog;
 using NBagOfUis;
-using AudioLib; // TODO >>>>>> restore dll ref.
+using AudioLib;
 
 
 namespace Wavicler
@@ -38,8 +38,10 @@ namespace Wavicler
         const string DIRTY_FILE_IND = "*";
         #endregion
 
+        #region Types
         /// <summary>What are we doing.</summary>
         public enum AppState { Stop, Play, Rewind, Complete, Dead }
+        #endregion
 
         #region Lifecycle
         public MainForm()
@@ -715,6 +717,28 @@ namespace Wavicler
                 }
             }
         }
+
+        /// <summary>
+        /// Clip editor wants main to do something for it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void ClipEditor_ServiceRequest(object? sender, ClipEditor.ServiceRequestEventArgs e)
+        {
+            var cled = sender as ClipEditor;
+
+            switch (e.Request)
+            {
+                case ClipEditor.ServiceRequest.Close:
+                    Close(false);
+                    break;
+
+                case ClipEditor.ServiceRequest.CopySelectionToNewClip:
+                    ClipSampleProvider clnew = new(cled!.SampleProvider, StereoCoercion.None);
+                    CreateTab(clnew, DIRTY_FILE_IND, DIRTY_FILE_IND);
+                    break;
+            }
+        }
         #endregion
 
         #region Settings
@@ -869,25 +893,5 @@ namespace Wavicler
             return cled;
         }
         #endregion
-
-        /// <summary>
-        /// Clip editor wants main to do something for it.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void ClipEditor_ServiceRequest(object? sender, ClipEditor.ServiceRequestEventArgs e)
-        {
-            var cled = sender as ClipEditor;
-
-            switch (e.Request)
-            {
-                case ClipEditor.ServiceRequest.Close:
-                    Close(false);
-                    break;
-
-                case ClipEditor.ServiceRequest.CopySelectionToNewClip: // <<<<<<<<< TODO
-                    break;
-            }
-        }
     }
 }
