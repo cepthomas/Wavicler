@@ -854,8 +854,9 @@ namespace Wavicler
 
             using OpenFileDialog openDlg = new()
             {
-                Filter = $"Audio Files|{AudioLibDefs.AUDIO_FILE_TYPES}",
-                Title = "Select an audio file"
+                // Output is only wav.
+                Filter = $"Audio Files|*.wav",
+                Title = "Select a wav file"
             };
 
             if (openDlg.ShowDialog() == DialogResult.OK)
