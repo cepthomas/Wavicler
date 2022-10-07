@@ -361,7 +361,6 @@
             this.ftree.Location = new System.Drawing.Point(8, 80);
             this.ftree.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
             this.ftree.Name = "ftree";
-            this.ftree.SingleClickSelect = false;
             this.ftree.Size = new System.Drawing.Size(435, 379);
             this.ftree.TabIndex = 89;
             this.toolTip.SetToolTip(this.ftree, "File selection");

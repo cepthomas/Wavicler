@@ -48,7 +48,7 @@ namespace Wavicler
         {
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
-            _settings = (UserSettings)Settings.Load(appDir, typeof(UserSettings));
+            _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings));
             // Tell the libs about their settings.
             AudioSettings.LibSettings = _settings.AudioSettings;
 
@@ -634,8 +634,8 @@ namespace Wavicler
         void InitNavigator()
         {
             var s = AudioLibDefs.AUDIO_FILE_TYPES;
-            ftree.FilterExts = s.SplitByTokens("|;*");
-            ftree.RootDirs = _settings.RootDirs;
+            ftree.Settings.FilterExts = s.SplitByTokens("|;*");
+            ftree.Settings.RootDirs = _settings.RootDirs;
 
             try
             {
@@ -747,7 +747,7 @@ namespace Wavicler
         /// </summary>
         void EditSettings()
         {
-            var changes = _settings.Edit("User Settings", 500);
+            var changes = SettingsEditor.Edit(_settings, "User Settings", 500);
 
             // Detect changes of interest.
             bool navChange = false;

@@ -13,7 +13,7 @@ using AudioLib;
 namespace Wavicler
 {
     [Serializable]
-    public sealed class UserSettings : Settings
+    public sealed class UserSettings : SettingsCore
     {
         #region Persisted Editable Properties
         [DisplayName("Root Directories")]
