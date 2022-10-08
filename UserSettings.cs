@@ -64,10 +64,10 @@ namespace Wavicler
 
         [Browsable(false)]
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public WaveSelectionMode DefaultSelectionMode { get; set; } = WaveSelectionMode.Time;
+        public WaveSelectionMode SelectionMode { get; set; } = WaveSelectionMode.Time;
 
         [Browsable(false)]
-        public double DefaultBPM { get; set; } = 100.0;
+        public double BPM { get; set; } = 100.0;
 
         [Browsable(false)]
         public FilTreeSettings FilTreeSettings { get; set; } = new();

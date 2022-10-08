@@ -48,7 +48,7 @@ namespace Wavicler
         {
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
-            _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings)); //TODO1  also FilTree settings like NBagOfUis\Test\TestHost.cs
+            _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings));
             // Tell the libs about their settings.
             AudioSettings.LibSettings = _settings.AudioSettings;
 
@@ -89,7 +89,7 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            Globals.BPM = _settings.DefaultBPM;
+            Globals.BPM = _settings.BPM;
             txtBPM.Text = Globals.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
             txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text);
@@ -102,7 +102,8 @@ namespace Wavicler
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
             cmbSelMode.SelectedIndexChanged += (_, __) =>
             {
-                switch(cmbSelMode.SelectedItem)
+                _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+                switch (_settings.SelectionMode)
                 {
                     case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
                     case WaveSelectionMode.Bar: Globals.ConverterOps = new BarOps(); break;
@@ -110,7 +111,7 @@ namespace Wavicler
                 }
                 ActiveClipEditor()?.Invalidate();
             };
-            cmbSelMode.SelectedItem = _settings.DefaultSelectionMode;
+            cmbSelMode.SelectedItem = _settings.SelectionMode;
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
             btnPlay.Click += (_, __) => UpdateState(btnPlay.Checked ? AppState.Play : AppState.Stop);
@@ -793,6 +794,8 @@ namespace Wavicler
         void SaveSettings()
         {
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
+            _settings.BPM = Globals.BPM;
+            //_settings.SelectionMode = 
             _settings.Save();
         }
         #endregion
