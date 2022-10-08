@@ -16,12 +16,6 @@ namespace Wavicler
     public sealed class UserSettings : SettingsCore
     {
         #region Persisted Editable Properties
-        [DisplayName("Root Directories")]
-        [Description("Where to look in order as they appear.")]
-        [Browsable(true)]
-        [Editor(typeof(StringListEditor), typeof(UITypeEditor))] // Ideally a multi folder picker.
-        public List<string> RootDirs { get; set; } = new();
-
         [DisplayName("Control Color")]
         [Description("Pick what you like.")]
         [Browsable(true)]
@@ -74,6 +68,9 @@ namespace Wavicler
 
         [Browsable(false)]
         public double DefaultBPM { get; set; } = 100.0;
+
+        [Browsable(false)]
+        public FilTreeSettings FilTreeSettings { get; set; } = new();
         #endregion
     }
 }

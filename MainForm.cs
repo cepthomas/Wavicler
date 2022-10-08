@@ -48,7 +48,7 @@ namespace Wavicler
         {
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
-            _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings));
+            _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings)); //TODO1  also FilTree settings like NBagOfUis\Test\TestHost.cs
             // Tell the libs about their settings.
             AudioSettings.LibSettings = _settings.AudioSettings;
 
@@ -92,7 +92,10 @@ namespace Wavicler
             Globals.BPM = _settings.DefaultBPM;
             txtBPM.Text = Globals.BPM.ToString();
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text); 
+            txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text);
+
+            ftree.Settings = _settings.FilTreeSettings;
+            ftree.Init();
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Bar);
@@ -635,7 +638,6 @@ namespace Wavicler
         {
             var s = AudioLibDefs.AUDIO_FILE_TYPES;
             ftree.Settings.FilterExts = s.SplitByTokens("|;*");
-            ftree.Settings.RootDirs = _settings.RootDirs;
 
             try
             {
