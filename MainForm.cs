@@ -95,6 +95,7 @@ namespace Wavicler
             txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text);
 
             ftree.Settings = _settings.FilTreeSettings;
+            ftree.RecentFiles = _settings.RecentFiles;
             ftree.Init();
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
@@ -349,7 +350,6 @@ namespace Wavicler
             bool anyDirty = false;
             bool currentDirty = false;
 
-
             var page = ActivePage();
             var cled = ActiveClipEditor();
 
@@ -600,7 +600,7 @@ namespace Wavicler
                 if (page.Text.Contains(DIRTY_FILE_IND))
                 {
                     // Ask to save.
-                    var res = MessageBox.Show($"Clip {page.Text.Replace("*", "")} has unsaved changes. Do you want to save it?",
+                    var res = MessageBox.Show($"Clip {page.Text.Replace(DIRTY_FILE_IND, "")} has unsaved changes. Do you want to save it?",
                         "Close Clip", MessageBoxButtons.YesNoCancel);
 
                     switch(res)
@@ -795,7 +795,6 @@ namespace Wavicler
         {
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
             _settings.BPM = Globals.BPM;
-            //_settings.SelectionMode = 
             _settings.Save();
         }
         #endregion
