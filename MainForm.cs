@@ -8,13 +8,13 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using NBagOfTricks;
-using NBagOfTricks.Slog;
-using NBagOfUis;
-using AudioLib;
+using Ephemera.NBagOfTricks;
+using Ephemera.NBagOfTricks.Slog;
+using Ephemera.NBagOfUis;
+using Ephemera.AudioLib;
 
 
-namespace Wavicler
+namespace Ephemera.Wavicler
 {
     public partial class MainForm : Form
     {
@@ -299,7 +299,6 @@ namespace Wavicler
         /// <summary>
         /// Do some global key handling. Space bar is used for stop/start playing.
         /// </summary>
-        /// <param name="sender"></param>
         /// <param name="e"></param>
         protected override void OnKeyDown(KeyEventArgs e)
         {

@@ -11,12 +11,12 @@ using System.ComponentModel;
 using System.Xml.Linq;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using NBagOfTricks;
-using NBagOfUis;
-using AudioLib;
+using Ephemera.NBagOfTricks;
+using Ephemera.NBagOfUis;
+using Ephemera.AudioLib;
 
 
-namespace Wavicler
+namespace Ephemera.Wavicler
 {
     [ToolboxItem(false), Browsable(false)] // not useable in designer
     public partial class ClipEditor : UserControl

@@ -1,7 +1,7 @@
-﻿using NBagOfUis;
-using AudioLib;
+﻿using Ephemera.NBagOfUis;
+using Ephemera.AudioLib;
 
-namespace Wavicler
+namespace Ephemera.Wavicler
 {
     partial class ClipEditor
     {

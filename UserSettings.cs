@@ -4,13 +4,13 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Text.Json.Serialization;
 using System.Drawing.Design;
-using NBagOfTricks;
-using NBagOfUis;
-using NBagOfTricks.Slog;
-using AudioLib;
+using Ephemera.NBagOfTricks;
+using Ephemera.NBagOfUis;
+using Ephemera.NBagOfTricks.Slog;
+using Ephemera.AudioLib;
 
 
-namespace Wavicler
+namespace Ephemera.Wavicler
 {
     [Serializable]
     public sealed class UserSettings : SettingsCore
