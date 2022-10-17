@@ -94,7 +94,13 @@ namespace Ephemera.Wavicler
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
             txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text);
 
-            ftree.Settings = _settings.FilTreeSettings;
+            // FilTree settings.
+            ftree.RootDirs = _settings.RootDirs;
+            var s = AudioLibDefs.AUDIO_FILE_TYPES;
+            ftree.FilterExts = s.SplitByTokens("|;*");
+            ftree.IgnoreDirs = _settings.IgnoreDirs;
+            ftree.SplitterPosition = _settings.SplitterPosition;
+            ftree.SingleClickSelect = _settings.SingleClickSelect;
             ftree.RecentFiles = _settings.RecentFiles;
             ftree.Init();
 
@@ -491,7 +497,7 @@ namespace Ephemera.Wavicler
 
                 if (ok)
                 {
-                    _settings.RecentFiles.UpdateMru(fn);
+                    _settings.UpdateMru(fn);
 
                     if (_settings.Autoplay)
                     {
@@ -636,9 +642,6 @@ namespace Ephemera.Wavicler
         /// </summary>
         void InitNavigator()
         {
-            var s = AudioLibDefs.AUDIO_FILE_TYPES;
-            ftree.Settings.FilterExts = s.SplitByTokens("|;*");
-
             try
             {
                 ftree.Init();
