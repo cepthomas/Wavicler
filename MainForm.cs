@@ -102,7 +102,7 @@ namespace Ephemera.Wavicler
             ftree.SplitterPosition = _settings.SplitterPosition;
             ftree.SingleClickSelect = _settings.SingleClickSelect;
             ftree.RecentFiles = _settings.RecentFiles;
-            ftree.Init();
+            ftree.InitTree();
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Bar);
@@ -644,7 +644,7 @@ namespace Ephemera.Wavicler
         {
             try
             {
-                ftree.Init();
+                ftree.InitTree();
             }
             catch (DirectoryNotFoundException)
             {
