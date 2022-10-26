@@ -17,6 +17,7 @@
         <Nullable>enable</Nullable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+        <ApplicationIcon>Resources\tiger.ico</ApplicationIcon>
         <!-- en none -->
     </PropertyGroup>
 
@@ -24,6 +25,10 @@
       <Compile Remove="lib\**" />
       <EmbeddedResource Remove="lib\**" />
       <None Remove="lib\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Resources\tiger.ico" />
     </ItemGroup>
 
     <ItemGroup>
@@ -56,10 +61,6 @@
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       </EmbeddedResource>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Resources\" />
     </ItemGroup>
 
 </Project>

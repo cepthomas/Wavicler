@@ -94,15 +94,12 @@ namespace Ephemera.Wavicler
             txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
             txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text);
 
-            // FilTree settings.
+            // FilTree settings. Collections are ref-bound and don't need updating.
             ftree.RootDirs = _settings.RootDirs;
-            var s = AudioLibDefs.AUDIO_FILE_TYPES;
-            ftree.FilterExts = s.SplitByTokens("|;*");
+            ftree.FilterExts = AudioLibDefs.AUDIO_FILE_TYPES.SplitByTokens("|;*");
             ftree.IgnoreDirs = _settings.IgnoreDirs;
-            ftree.SplitterPosition = _settings.SplitterPosition;
-            ftree.SingleClickSelect = _settings.SingleClickSelect;
             ftree.RecentFiles = _settings.RecentFiles;
-            ftree.InitTree();
+            InitTree();
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Bar);
@@ -145,6 +142,7 @@ namespace Ephemera.Wavicler
 
             UpdateUi();
 
+            statusInfo.Text = "";
             Text = $"Wavicler {MiscUtils.GetVersionString()}";
         }
 
@@ -155,7 +153,7 @@ namespace Ephemera.Wavicler
         protected override void OnLoad(EventArgs e)
         {
             // Initialize tree from user settings.
-            InitNavigator();
+            InitTree();
 
             if (!_player.Valid)
             {
@@ -640,10 +638,13 @@ namespace Ephemera.Wavicler
         /// <summary>
         /// Initialize tree from user settings.
         /// </summary>
-        void InitNavigator()
+        void InitTree()
         {
             try
             {
+                // FilTree simple settings need updating.
+                ftree.SplitterPosition = _settings.SplitterPosition;
+                ftree.SingleClickSelect = _settings.SingleClickSelect;
                 ftree.InitTree();
             }
             catch (DirectoryNotFoundException)
@@ -755,7 +756,7 @@ namespace Ephemera.Wavicler
             var changes = SettingsEditor.Edit(_settings, "User Settings", 500);
 
             // Detect changes of interest.
-            bool navChange = false;
+            bool treeChange = false;
             bool restart = false;
 
             foreach (var (name, cat) in changes)
@@ -770,9 +771,9 @@ namespace Ephemera.Wavicler
                     case "NotifLogLevel":
                         restart = true;
                         break;
-
-                    case "RootDirs":
-                        navChange = true;
+                    case "SplitterPosition":
+                    case "SingleClickSelect":
+                        treeChange = true;
                         break;
                 }
             }
@@ -782,9 +783,9 @@ namespace Ephemera.Wavicler
                 MessageBox.Show("Restart required for device changes to take effect");
             }
 
-            if (navChange)
+            if (treeChange)
             {
-                InitNavigator();
+                InitTree();
             }
 
             SaveSettings();
