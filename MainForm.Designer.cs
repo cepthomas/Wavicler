@@ -364,7 +364,7 @@
             this.ftree.Size = new System.Drawing.Size(435, 379);
             this.ftree.TabIndex = 89;
             this.toolTip.SetToolTip(this.ftree, "File selection");
-            this.ftree.FileSelectedEvent += new System.EventHandler<string>(this.Navigator_FileSelectedEvent);
+            this.ftree.FileSelected += new System.EventHandler<string>(this.Navigator_FileSelected);
             // 
             // TabControl
             // 

@@ -57,7 +57,7 @@ namespace Ephemera.Wavicler
             // Init logging.
             LogManager.MinLevelFile = _settings.FileLogLevel;
             LogManager.MinLevelNotif = _settings.NotifLogLevel;
-            LogManager.LogEvent += (object? sender, LogEventArgs e) => { this.InvokeIfRequired(_ => { tvLog.AppendLine($"{e.Message}"); }); };
+            LogManager.LogMessage += (object? sender, LogMessageEventArgs e) => { this.InvokeIfRequired(_ => { tvLog.AppendLine($"{e.Message}"); }); };
             LogManager.Run(Path.Join(appDir, "log.txt"), 100000);
 
             // Log display.
@@ -430,24 +430,33 @@ namespace Ephemera.Wavicler
                     if (!_settings.AutoConvert)
                     {
                         // Ask user what to do with a stereo file.
-                        MultipleChoiceSelector selector = new() { Text = "Convert stereo" };
+                        ChoiceSelector selector = new();
                         selector.SetOptions(new() { "Left", "Right", "Mono" });
-                        var dlgres = selector.ShowDialog();
-                        if (dlgres == DialogResult.OK)
+
+                        using Form f = new()
                         {
-                            coerce = selector.SelectedOption switch
-                            {
-                                "Left" => StereoCoercion.Left,
-                                "Right" => StereoCoercion.Right,
-                                "Mono" => StereoCoercion.Mono,
-                                _ => StereoCoercion.None,
-                            };
-                        }
-                        else
+                            Text = "Convert stereo",
+                            ClientSize = selector.Size,
+                            AutoScaleMode = AutoScaleMode.None,
+                            Location = Cursor.Position,
+                            StartPosition = FormStartPosition.Manual,
+                            FormBorderStyle = FormBorderStyle.FixedToolWindow,
+                            ShowIcon = false,
+                            ShowInTaskbar = false
+                        };
+                        f.Controls.Add(selector);
+
+                        f.ShowDialog();
+
+                        coerce = selector.SelectedOption switch
                         {
-                            // Bail out.
-                            ok = false;
-                        }
+                            "Left" => StereoCoercion.Left,
+                            "Right" => StereoCoercion.Right,
+                            "Mono" => StereoCoercion.Mono,
+                            _ => StereoCoercion.None,
+                        };
+
+                        ok = coerce != StereoCoercion.None;
                     }
                     else
                     {
@@ -658,7 +667,7 @@ namespace Ephemera.Wavicler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="fn"></param>
-        void Navigator_FileSelectedEvent(object? sender, string fn)
+        void Navigator_FileSelected(object? sender, string fn)
         {
             OpenFile(fn);
         }
@@ -674,7 +683,7 @@ namespace Ephemera.Wavicler
         void CreateTab(ClipSampleProvider prov, string fn, string tabName)
         {
             ClipEditor cled = new(prov, fn) { Dock = DockStyle.Fill };
-            cled.ServiceRequestEvent += ClipEditor_ServiceRequest;
+            cled.ServiceRequest += ClipEditor_ServiceRequest;
             _waveOutSwapper.SetInput(cled.SampleProvider);
             statusInfo.Text = cled.SampleProvider.GetInfoString();
 
@@ -735,11 +744,11 @@ namespace Ephemera.Wavicler
 
             switch (e.Request)
             {
-                case ClipEditor.ServiceRequest.Close:
+                case ClipEditor.ServiceRequestType.Close:
                     Close(false);
                     break;
 
-                case ClipEditor.ServiceRequest.CopySelectionToNewClip:
+                case ClipEditor.ServiceRequestType.CopySelectionToNewClip:
                     ClipSampleProvider clnew = new(cled!.SampleProvider, StereoCoercion.None);
                     CreateTab(clnew, DIRTY_FILE_IND, DIRTY_FILE_IND);
                     break;

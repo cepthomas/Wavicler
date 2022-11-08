@@ -39,12 +39,12 @@ namespace Ephemera.Wavicler
 
         #region Events
         /// <summary>Ask the owner to do something.</summary>
-        public event EventHandler<ServiceRequestEventArgs>? ServiceRequestEvent;
-        public enum ServiceRequest { CopySelectionToNewClip, Close }
+        public event EventHandler<ServiceRequestEventArgs>? ServiceRequest;
+        public enum ServiceRequestType { CopySelectionToNewClip, Close }
 
         public class ServiceRequestEventArgs : EventArgs
         {
-            public ServiceRequest Request { get; set; }
+            public ServiceRequestType Request { get; set; }
         }
         #endregion
 
@@ -76,19 +76,19 @@ namespace Ephemera.Wavicler
             timer.Enabled = true;
 
             // Viewer events.
-            wvData.ViewerChangeEvent += ProcessViewerChange;
+            wvData.ViewerChange += ProcessViewerChange;
 
             // Add some stuff to viewer context menu.
             wvData.ExtraMenuItems.Add(new ToolStripSeparator());
             wvData.ExtraMenuItems.Add(new ToolStripMenuItem(
                 "Copy To New Clip",
                 null,
-                (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.CopySelectionToNewClip }); }
+                (_, __) => { ServiceRequest?.Invoke(this, new() { Request = ServiceRequestType.CopySelectionToNewClip }); }
             ));
             wvData.ExtraMenuItems.Add(new ToolStripMenuItem(
                 "Close",
                 null,
-                (_, __) => { ServiceRequestEvent?.Invoke(this, new() { Request = ServiceRequest.Close }); }
+                (_, __) => { ServiceRequest?.Invoke(this, new() { Request = ServiceRequestType.Close }); }
             ));
 
             // Progress bar.
