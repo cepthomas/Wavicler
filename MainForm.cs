@@ -436,7 +436,6 @@ namespace Ephemera.Wavicler
                         using Form f = new()
                         {
                             Text = "Convert stereo",
-                            ClientSize = selector.Size,
                             AutoScaleMode = AutoScaleMode.None,
                             Location = Cursor.Position,
                             StartPosition = FormStartPosition.Manual,
@@ -444,6 +443,7 @@ namespace Ephemera.Wavicler
                             ShowIcon = false,
                             ShowInTaskbar = false
                         };
+                        f.ClientSize = selector.Size; // do after construction
                         f.Controls.Add(selector);
 
                         f.ShowDialog();
@@ -529,7 +529,7 @@ namespace Ephemera.Wavicler
         /// </summary>
         void Open_Click()
         {
-            var fn = GetUserFilename();
+            var fn = GetUserFilename(false);
             if (fn != "")
             {
                 OpenFile(fn);
@@ -817,7 +817,7 @@ namespace Ephemera.Wavicler
         /// </summary>
         void Resample()
         {
-            var fn = GetUserFilename();
+            var fn = GetUserFilename(true);
             if (fn != "")
             {
                 var ok = NAudioEx.Convert(Conversion.Resample, fn);
@@ -833,7 +833,7 @@ namespace Ephemera.Wavicler
         /// </summary>
         void SplitStereo()
         {
-            var fn = GetUserFilename();
+            var fn = GetUserFilename(false);
             if (fn != "")
             {
                 var ok = NAudioEx.Convert(Conversion.SplitStereo, fn);
@@ -849,7 +849,7 @@ namespace Ephemera.Wavicler
         /// </summary>
         void ToMono()
         {
-            var fn = GetUserFilename();
+            var fn = GetUserFilename(false);
             if (fn != "")
             {
                 var ok = NAudioEx.Convert(Conversion.ToMonoWav, fn);
@@ -863,17 +863,25 @@ namespace Ephemera.Wavicler
         /// <summary>
         /// Utility to get filename from the user.
         /// </summary>
+        /// <param name="wavOnly">Output is only wav.</param>
         /// <returns>Filename or empty if cancelled.</returns>
-        string GetUserFilename()
+        string GetUserFilename(bool wavOnly)
         {
             string fn = "";
 
-            using OpenFileDialog openDlg = new()
+            using OpenFileDialog openDlg = new();
+
+            if (wavOnly)
+            {
+                openDlg.Filter = $"Wave Files|*.wav";
+                openDlg.Title = "Select a wave file";
+            }
+            else
             {
                 // Output is only wav.
-                Filter = $"Audio Files|*.wav",
-                Title = "Select a wav file"
-            };
+                openDlg.Filter = $"Audio Files|{AudioLibDefs.AUDIO_FILE_TYPES}";
+                openDlg.Title = "Select an audio file";
+            }
 
             if (openDlg.ShowDialog() == DialogResult.OK)
             {

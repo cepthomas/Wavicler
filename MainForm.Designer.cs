@@ -40,7 +40,7 @@
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.btnLoop = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.sldVolume = new NBagOfUis.ToolStripSlider();
+            this.sldVolume = new Ephemera.NBagOfUis.ToolStripSlider();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.btnPlay = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
@@ -53,12 +53,12 @@
             this.cmbSelMode = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.ftree = new NBagOfUis.FilTree();
+            this.ftree = new Ephemera.NBagOfUis.FilTree();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tvLog = new NBagOfUis.TextViewer();
+            this.tvLog = new Ephemera.NBagOfUis.TextViewer();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.MenuStrip.SuspendLayout();
             this.ToolStrip.SuspendLayout();
@@ -175,7 +175,7 @@
             // 
             this.SplitStereoMenuItem.Name = "SplitStereoMenuItem";
             this.SplitStereoMenuItem.Size = new System.Drawing.Size(231, 26);
-            this.SplitStereoMenuItem.Text = "Split Stero File";
+            this.SplitStereoMenuItem.Text = "Split Stereo File";
             // 
             // ToMonoMenuItem
             // 
