@@ -448,7 +448,7 @@ namespace Ephemera.Wavicler
 
                         f.ShowDialog();
 
-                        coerce = selector.SelectedOption switch
+                        coerce = selector.SelectedChoice switch
                         {
                             "Left" => StereoCoercion.Left,
                             "Right" => StereoCoercion.Right,
