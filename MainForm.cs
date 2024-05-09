@@ -77,7 +77,7 @@ namespace Wavicler
             _player.PlaybackStopped += Player_PlaybackStopped;
 
             // Other UI items.
-            ToolStrip.Renderer = new NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
+            ToolStrip.Renderer = new Ephemera.NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
 
             btnAutoplay.Checked = _settings.Autoplay;
             btnAutoplay.Click += (_, __) => _settings.Autoplay = btnAutoplay.Checked;

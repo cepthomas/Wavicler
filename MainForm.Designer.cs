@@ -457,9 +457,9 @@
         private System.Windows.Forms.ToolStripStatusLabel statusInfo;
         private System.Windows.Forms.StatusStrip statusStrip;
 
-        private NBagOfUis.FilTree ftree;
-        private NBagOfUis.TextViewer tvLog;
-        private NBagOfUis.ToolStripSlider sldVolume;
+        private Ephemera.NBagOfUis.FilTree ftree;
+        private Ephemera.NBagOfUis.TextViewer tvLog;
+        private Ephemera.NBagOfUis.ToolStripSlider sldVolume;
 
         private System.Windows.Forms.ToolStripMenuItem FileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ToolsMenuItem;

@@ -20,8 +20,8 @@ namespace Wavicler
         {
             this.components = new System.ComponentModel.Container();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.progBar = new AudioLib.ProgressBar();
-            this.wvData = new AudioLib.WaveViewer();
+            this.progBar = new Ephemera.AudioLib.ProgressBar();
+            this.wvData = new Ephemera.AudioLib.WaveViewer();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
