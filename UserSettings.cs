@@ -10,7 +10,7 @@ using Ephemera.NBagOfTricks.Slog;
 using Ephemera.AudioLib;
 
 
-namespace Ephemera.Wavicler
+namespace Wavicler
 {
     [Serializable]
     public sealed class UserSettings : SettingsCore

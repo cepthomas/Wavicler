@@ -16,7 +16,7 @@ using Ephemera.NBagOfUis;
 using Ephemera.AudioLib;
 
 
-namespace Ephemera.Wavicler
+namespace Wavicler
 {
     [ToolboxItem(false), Browsable(false)] // not useable in designer
     public partial class ClipEditor : UserControl

@@ -14,7 +14,7 @@ using Ephemera.NBagOfUis;
 using Ephemera.AudioLib;
 
 
-namespace Ephemera.Wavicler
+namespace Wavicler
 {
     public partial class MainForm : Form
     {

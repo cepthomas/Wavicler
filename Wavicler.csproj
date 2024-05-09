@@ -8,8 +8,8 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Description>Audio Bag Of Tricks</Description>
         <Copyright>MIT License</Copyright>
-        <RootNamespace>Ephemera.Wavicler</RootNamespace>
-        <AssemblyName>Ephemera.Wavicler</AssemblyName>
+        <RootNamespace>Wavicler</RootNamespace>
+        <AssemblyName>Wavicler</AssemblyName>
         <OutputPath>bin\</OutputPath>
         <!-- <DefineConstants>DEBUG;TRACE</DefineConstants> -->
         <WarningLevel>4</WarningLevel>

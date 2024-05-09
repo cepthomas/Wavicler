@@ -5,7 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 
 
-namespace Ephemera.Wavicler
+namespace Wavicler
 {
     static class Program
     {
