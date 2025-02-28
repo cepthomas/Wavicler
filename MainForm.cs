@@ -291,7 +291,7 @@ namespace Wavicler
         {
             if (e.Exception is not null)
             {
-                _logger.Exception(e.Exception, "Other NAudio error");
+                _logger.Error($"Other NAudio error: {e.Exception.Message}");
                 UpdateState(AppState.Dead);
             }
             else
