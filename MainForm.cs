@@ -62,8 +62,8 @@ namespace Wavicler
 
             // Log display.
             tvLog.Font = Font;
-            tvLog.MatchColors.Add("ERR", Color.LightPink);
-            tvLog.MatchColors.Add("WRN", Color.Plum);
+            tvLog.MatchText.Add("ERR", Color.LightPink);
+            tvLog.MatchText.Add("WRN", Color.Plum);
 
             // Init main form from settings.
             WindowState = FormWindowState.Normal;
