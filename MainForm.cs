@@ -9,7 +9,6 @@ using System.Diagnostics;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using Ephemera.NBagOfTricks;
-using Ephemera.NBagOfTricks.Slog;
 using Ephemera.NBagOfUis;
 using Ephemera.AudioLib;
 
@@ -57,7 +56,7 @@ namespace Wavicler
             // Init logging.
             LogManager.MinLevelFile = _settings.FileLogLevel;
             LogManager.MinLevelNotif = _settings.NotifLogLevel;
-            LogManager.LogMessage += (object? sender, LogMessageEventArgs e) => { this.InvokeIfRequired(_ => { tvLog.AppendLine($"{e.Message}"); }); };
+            LogManager.LogMessage += (sender, e) => { this.InvokeIfRequired(_ => { tvLog.AppendLine($"{e.Message}"); }); };
             LogManager.Run(Path.Join(appDir, "log.txt"), 100000);
 
             // Log display.
@@ -77,7 +76,7 @@ namespace Wavicler
             _player.PlaybackStopped += Player_PlaybackStopped;
 
             // Other UI items.
-            ToolStrip.Renderer = new Ephemera.NBagOfUis.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
+            ToolStrip.Renderer = new GraphicsUtils.CheckBoxRenderer() { SelectedColor = _settings.ControlColor };
 
             btnAutoplay.Checked = _settings.Autoplay;
             btnAutoplay.Click += (_, __) => _settings.Autoplay = btnAutoplay.Checked;
@@ -91,7 +90,7 @@ namespace Wavicler
 
             Globals.BPM = _settings.BPM;
             txtBPM.Text = Globals.BPM.ToString();
-            txtBPM.KeyPress += (object? sender, KeyPressEventArgs e) => KeyUtils.TestForNumber_KeyPress(sender!, e);
+            txtBPM.KeyPress += (sender, e) => TestForNumber_KeyPress(sender!, e);
             txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text);
 
             // FilTree settings. Collections are ref-bound and don't need updating.
@@ -106,14 +105,17 @@ namespace Wavicler
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
             cmbSelMode.SelectedIndexChanged += (_, __) =>
             {
-                _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
-                switch (_settings.SelectionMode)
+                if (cmbSelMode.SelectedItem is not null)
                 {
-                    case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
-                    case WaveSelectionMode.Bar: Globals.ConverterOps = new BarOps(); break;
-                    case WaveSelectionMode.Sample: Globals.ConverterOps = new SampleOps(); break;
+                    _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+                    switch (_settings.SelectionMode)
+                    {
+                        case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
+                        case WaveSelectionMode.Bar: Globals.ConverterOps = new BarOps(); break;
+                        case WaveSelectionMode.Sample: Globals.ConverterOps = new SampleOps(); break;
+                    }
+                    ActiveClipEditor()?.Invalidate();
                 }
-                ActiveClipEditor()?.Invalidate();
             };
             cmbSelMode.SelectedItem = _settings.SelectionMode;
 
@@ -334,7 +336,7 @@ namespace Wavicler
             _settings.RecentFiles.ForEach(f =>
             {
                 ToolStripMenuItem menuItem = new(f);
-                menuItem.Click += (object? sender, EventArgs e) =>
+                menuItem.Click += (sender, e) =>
                 {
                     string fn = sender!.ToString()!;
                     OpenFile(fn);
@@ -354,7 +356,7 @@ namespace Wavicler
             bool currentDirty = false;
 
             var page = ActivePage();
-            var cled = ActiveClipEditor();
+            //var cled = ActiveClipEditor();
 
             if (page is not null)
             {
@@ -431,7 +433,7 @@ namespace Wavicler
                     {
                         // Ask user what to do with a stereo file.
                         ChoiceSelector selector = new();
-                        selector.SetOptions(new() { "Left", "Right", "Mono" });
+                        selector.SetOptions(["Left", "Right", "Mono"]);
 
                         using Form f = new()
                         {
@@ -601,7 +603,7 @@ namespace Wavicler
             }
             else if (TabControl.TabCount > 0)
             {
-                CloseTab(TabControl.SelectedTab);
+                CloseTab(TabControl.SelectedTab!);
             }
 
             // Local function.
@@ -731,6 +733,17 @@ namespace Wavicler
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Determine whether the keystroke is a number.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void TestForNumber_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char c = e.KeyChar;
+            e.Handled = !((c >= '0' && c <= '9') || (c == '.') || (c == '\b') || (c == '-'));
         }
 
         /// <summary>
@@ -912,7 +925,7 @@ namespace Wavicler
         ClipEditor? ActiveClipEditor()
         {
             ClipEditor? cled = 
-                TabControl.TabPages.Count > 0 && TabControl.SelectedTab.Controls.Count > 0 ?
+                TabControl.TabPages.Count > 0 && TabControl.SelectedTab!.Controls.Count > 0 ?
                 TabControl.SelectedTab.Controls[0] as ClipEditor :
                 null;
             return cled;
