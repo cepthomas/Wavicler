@@ -132,7 +132,7 @@ namespace Wavicler
             FileMenuItem.DropDownOpening += File_DropDownOpening;
 
             // Tools.
-            AboutMenuItem.Click += (_, __) => MiscUtils.ShowReadme("Wavicler");
+            AboutMenuItem.Click += (_, __) => Tools.ShowReadme("Wavicler");
             SettingsMenuItem.Click += (_, __) => EditSettings();
             ResampleMenuItem.Click += (_, __) => Resample();
             SplitStereoMenuItem.Click += (_, __) => SplitStereo();
