@@ -531,7 +531,7 @@ namespace Wavicler
         /// </summary>
         void Open_Click()
         {
-            var fn = GetUserFilename(false);
+            var fn = GetUserFileName(false);
             if (fn != "")
             {
                 OpenFile(fn);
@@ -830,7 +830,7 @@ namespace Wavicler
         /// </summary>
         void Resample()
         {
-            var fn = GetUserFilename(true);
+            var fn = GetUserFileName(true);
             if (fn != "")
             {
                 var ok = NAudioEx.Convert(Conversion.Resample, fn);
@@ -846,7 +846,7 @@ namespace Wavicler
         /// </summary>
         void SplitStereo()
         {
-            var fn = GetUserFilename(false);
+            var fn = GetUserFileName(false);
             if (fn != "")
             {
                 var ok = NAudioEx.Convert(Conversion.SplitStereo, fn);
@@ -862,7 +862,7 @@ namespace Wavicler
         /// </summary>
         void ToMono()
         {
-            var fn = GetUserFilename(false);
+            var fn = GetUserFileName(false);
             if (fn != "")
             {
                 var ok = NAudioEx.Convert(Conversion.ToMonoWav, fn);
@@ -877,8 +877,8 @@ namespace Wavicler
         /// Utility to get filename from the user.
         /// </summary>
         /// <param name="wavOnly">Output is only wav.</param>
-        /// <returns>Filename or empty if cancelled.</returns>
-        string GetUserFilename(bool wavOnly)
+        /// <returns>FileName or empty if cancelled.</returns>
+        string GetUserFileName(bool wavOnly)
         {
             string fn = "";
 
