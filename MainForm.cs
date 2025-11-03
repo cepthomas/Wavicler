@@ -351,7 +351,7 @@ namespace Wavicler
         /// </summary>
         void UpdateUi()
         {
-            bool anyOpen = false;// TabControl.TabPages.Count > 0;
+            bool anyOpen = false;
             bool anyDirty = false;
             bool currentDirty = false;
 
