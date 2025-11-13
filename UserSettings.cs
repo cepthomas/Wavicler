@@ -76,7 +76,7 @@ namespace Wavicler
         public bool Loop { get; set; } = false;
 
         [Browsable(false)]
-        public double Volume { get; set; } = AudioLibDefs.VOLUME_MAX / 2;
+        public double Volume { get; set; } = AudioLibDefs.MAX_VOLUME / 2;
 
         [Browsable(false)]
         [JsonConverter(typeof(JsonStringEnumConverter))]
