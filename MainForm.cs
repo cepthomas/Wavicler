@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Reflection;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using Ephemera.NBagOfTricks;
@@ -52,6 +53,7 @@ namespace Wavicler
             AudioSettings.LibSettings = _settings.AudioSettings;
 
             InitializeComponent();
+            Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
 
             // Init logging.
             LogManager.MinLevelFile = _settings.FileLogLevel;
