@@ -92,7 +92,7 @@ namespace Wavicler
             ));
 
             // Progress bar.
-            progBar.ProgressColor = Globals.ControlColor;
+            progBar.ProgressColor = Globals.DrawColor;
             progBar.Length = _prov.SamplesPerChannel;
             progBar.Current = 0;
             var thumb = wvData.RenderThumbnail(progBar.Width, progBar.Height, Globals.WaveColor, SystemColors.Control, true);

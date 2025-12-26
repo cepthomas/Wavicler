@@ -19,7 +19,7 @@ namespace Wavicler
         [Description("The color used for active control surfaces.")]
         [Browsable(true)]
         [JsonConverter(typeof(JsonColorConverter))]
-        public Color ControlColor { get; set; } = Color.MediumOrchid;
+        public Color DrawColor { get; set; } = Color.MediumOrchid;
 
         [DisplayName("Wave Color")]
         [Description("Pick what you like.")]

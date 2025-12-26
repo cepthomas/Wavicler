@@ -78,7 +78,7 @@ namespace Wavicler
             _player.PlaybackStopped += Player_PlaybackStopped;
 
             // Other UI items.
-            ToolStrip.Renderer = new ToolStripCheckBoxRenderer() { SelectedColor = _settings.ControlColor };
+            ToolStrip.Renderer = new ToolStripCheckBoxRenderer() { SelectedColor = _settings.DrawColor };
 
             btnAutoplay.Checked = _settings.Autoplay;
             btnAutoplay.Click += (_, __) => _settings.Autoplay = btnAutoplay.Checked;
@@ -86,7 +86,7 @@ namespace Wavicler
             btnLoop.Checked = _settings.Loop;
             btnLoop.Click += (_, __) => _settings.Loop = btnLoop.Checked;
 
-            sldVolume.DrawColor = _settings.ControlColor;
+            sldVolume.DrawColor = _settings.DrawColor;
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
@@ -789,7 +789,7 @@ namespace Wavicler
                 {
                     case "WavOutDevice":
                     case "Latency":
-                    case "ControlColor":
+                    case "DrawColor":
                     case "WaveColor":
                     case "FileLogLevel":
                     case "NotifLogLevel":
