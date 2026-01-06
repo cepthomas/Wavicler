@@ -61,11 +61,17 @@ namespace Wavicler
         [Browsable(true)]
         public bool SingleClickSelect { get; set; } = false;
 
-        [DisplayName("Audio Settings")]
-        [Description("Edit audio settings.")]
+        [DisplayName("Wave Output Device")]
+        [Description("How to play the audio files.")]
         [Browsable(true)]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public AudioSettings AudioSettings { get; set; } = new();
+        [TypeConverter(typeof(AudioSettingsConverter))]
+        public string WavOutDevice { get; set; } = "Microsoft Sound Mapper";
+
+        [DisplayName("Latency")]
+        [Description("What's the hurry?")]
+        [Browsable(true)]
+        [TypeConverter(typeof(AudioSettingsConverter))]
+        public string Latency { get; set; } = "200";
         #endregion
 
         #region Persisted Non-editable Persisted Properties

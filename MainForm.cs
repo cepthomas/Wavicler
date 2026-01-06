@@ -49,8 +49,6 @@ namespace Wavicler
             // Must do this first before initializing.
             string appDir = MiscUtils.GetAppDataDir("Wavicler", "Ephemera");
             _settings = (UserSettings)SettingsCore.Load(appDir, typeof(UserSettings));
-            // Tell the libs about their settings.
-            AudioSettings.LibSettings = _settings.AudioSettings;
 
             InitializeComponent();
             Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
@@ -74,7 +72,7 @@ namespace Wavicler
             KeyPreview = true; // for routing kbd strokes through OnKeyDown first.
 
             // Create output.
-            _player = new(_settings.AudioSettings.WavOutDevice, int.Parse(_settings.AudioSettings.Latency), _waveOutSwapper);
+            _player = new(_settings.WavOutDevice, int.Parse(_settings.Latency), _waveOutSwapper);
             _player.PlaybackStopped += Player_PlaybackStopped;
 
             // Other UI items.
@@ -161,7 +159,7 @@ namespace Wavicler
 
             if (!_player.Valid)
             {
-                var s = $"Something wrong with your audio output device:{_settings.AudioSettings.WavOutDevice}";
+                var s = $"Something wrong with your audio output device:{_settings.WavOutDevice}";
                 _logger.Error(s);
                 UpdateState(AppState.Dead);
             }
@@ -448,8 +446,8 @@ namespace Wavicler
                             ShowInTaskbar = false
                         };
                         f.ClientSize = selector.Size; // do after construction
+                        selector.ChoiceChanged += (_, __) => f.Close();
                         f.Controls.Add(selector);
-
                         f.ShowDialog();
 
                         coerce = selector.SelectedChoice switch
