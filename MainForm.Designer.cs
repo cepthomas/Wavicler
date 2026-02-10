@@ -58,7 +58,7 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tvLog = new Ephemera.NBagOfUis.TextViewer();
+            this.tvInfo = new Ephemera.NBagOfUis.TextViewer();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.MenuStrip.SuspendLayout();
             this.ToolStrip.SuspendLayout();
@@ -408,17 +408,17 @@
             // 
             // tvLog
             // 
-            this.tvLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.tvInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tvLog.Location = new System.Drawing.Point(8, 467);
-            this.tvLog.MaxText = 5000;
-            this.tvLog.Name = "tvLog";
-            this.tvLog.Prompt = "> ";
-            this.tvLog.Size = new System.Drawing.Size(1230, 80);
-            this.tvLog.TabIndex = 92;
-            this.tvLog.TabStop = false;
-            this.tvLog.WordWrap = true;
+            this.tvInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.tvInfo.Location = new System.Drawing.Point(8, 467);
+            this.tvInfo.MaxText = 5000;
+            this.tvInfo.Name = "tvLog";
+            this.tvInfo.Prompt = "> ";
+            this.tvInfo.Size = new System.Drawing.Size(1230, 80);
+            this.tvInfo.TabIndex = 92;
+            this.tvInfo.TabStop = false;
+            this.tvInfo.WordWrap = true;
             // 
             // MainForm
             // 
@@ -429,7 +429,7 @@
             this.Controls.Add(this.TabControl);
             this.Controls.Add(this.ToolStrip);
             this.Controls.Add(this.MenuStrip);
-            this.Controls.Add(this.tvLog);
+            this.Controls.Add(this.tvInfo);
             this.Controls.Add(this.ftree);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
@@ -458,7 +458,7 @@
         private System.Windows.Forms.StatusStrip statusStrip;
 
         private Ephemera.NBagOfUis.FilTree ftree;
-        private Ephemera.NBagOfUis.TextViewer tvLog;
+        private Ephemera.NBagOfUis.TextViewer tvInfo;
         private Ephemera.NBagOfUis.ToolStripSlider sldVolume;
 
         private System.Windows.Forms.ToolStripMenuItem FileMenuItem;

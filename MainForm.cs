@@ -56,13 +56,17 @@ namespace Wavicler
             // Init logging.
             LogManager.MinLevelFile = _settings.FileLogLevel;
             LogManager.MinLevelNotif = _settings.NotifLogLevel;
-            LogManager.LogMessage += (sender, e) => { this.InvokeIfRequired(_ => { tvLog.AppendLine($"{e.Message}"); }); };
+            LogManager.LogMessage += (sender, e) => { this.InvokeIfRequired(_ => { tvInfo.Append($"{e.Message}"); }); };
             LogManager.Run(Path.Join(appDir, "log.txt"), 100000);
 
             // Log display.
-            tvLog.Font = Font;
-            tvLog.MatchText.Add("ERR", Color.LightPink);
-            tvLog.MatchText.Add("WRN", Color.Plum);
+            tvInfo.Font = Font;
+            List<TextViewer.Matcher> matchers =
+            [
+                new("ERR", Color.Red),
+                new("WRN", Color.Green),
+            ];
+            tvInfo.Matchers = matchers;
 
             // Init main form from settings.
             WindowState = FormWindowState.Normal;
