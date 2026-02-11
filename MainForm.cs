@@ -61,12 +61,11 @@ namespace Wavicler
 
             // Log display.
             tvInfo.Font = Font;
-            List<TextViewer.Matcher> matchers =
+            tvInfo.Matchers =
             [
                 new("ERR", Color.Red),
                 new("WRN", Color.Green),
             ];
-            tvInfo.Matchers = matchers;
 
             // Init main form from settings.
             WindowState = FormWindowState.Normal;
