@@ -21,7 +21,7 @@
         <Nullable>enable</Nullable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
-        <ApplicationIcon>Resources\tiger.ico</ApplicationIcon>
+        <ApplicationIcon>tiger.ico</ApplicationIcon>
         <!-- en none -->
 
     </PropertyGroup>

@@ -431,7 +431,6 @@
             this.Controls.Add(this.MenuStrip);
             this.Controls.Add(this.tvInfo);
             this.Controls.Add(this.ftree);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
             this.Name = "MainForm";
             this.Text = "MainForm";
