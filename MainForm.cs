@@ -13,6 +13,8 @@ using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 using Ephemera.AudioLib;
 
+// TODO timeline and editor don't line up.
+
 
 namespace Wavicler
 {
@@ -100,7 +102,7 @@ namespace Wavicler
             ftree.RootDirs = _settings.RootDirs;
             ftree.FilterExts = AudioLibDefs.AUDIO_FILE_TYPES.SplitByTokens("|;*");
             ftree.IgnoreDirs = _settings.IgnoreDirs;
-            ftree.RecentFiles = _settings.RecentFiles;
+            //TODO this doesn't update in the ftree UI ftree.RecentFiles = _settings.RecentFiles;
             InitTree();
 
             cmbSelMode.Items.Add(WaveSelectionMode.Time);

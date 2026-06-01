@@ -18,7 +18,7 @@ Caveats:
 - Standard file menu.
 - Open an audio file. This is a now a `clip` in a clip editor tab page.
 - Double click the tab to close the clip.
-- If it's a stereo file the user is asked to open as left, right, mono, or both.
+- If it's a stereo file the user is asked to open as left, right, or mono.
 - Selection play, rewind, loop on/off, auto-start on/off.
 
 ## Selection
