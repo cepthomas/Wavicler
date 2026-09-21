@@ -22,7 +22,7 @@ namespace Wavicler
     {
         #region Fields
         /// <summary>My logger.</summary>
-        readonly Logger _logger = LogManager.CreateLogger("MainForm");
+        readonly Logger _logger = LogManager.CreateLogger("Main");
 
         /// <summary>The actual player.</summary>
         readonly AudioPlayer _player;
