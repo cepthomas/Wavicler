@@ -47,7 +47,7 @@ Caveats:
 ## Mouse
 - Wheel alone is time shift (x shift).
 - Wheel + ctrl is time zoom (x zoom).
-- Wheel + shift is gain (y zoom).
+- Wheel + shift is volume (y zoom).
 - Left dblclick alone sets marker.
 - Left dblclick + ctrl sets selection start.
 - Left dblclick + shift sets selection end/length.
@@ -55,7 +55,7 @@ Caveats:
 
 ## Context Menu
 - Most of the Keys functions.
-- Set gain to fill or reset.
+- Set volume to fill or reset.
 - Copy selection to new clip.
 - Close.
 
