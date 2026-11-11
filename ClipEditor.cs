@@ -72,7 +72,7 @@ namespace Wavicler
 
             _prov.Rewind();
             //_prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
-            timer.Tick += (_, __) => { progBar.Current = _prov.SampleIndex; };
+            timer.Tick += (_, __) => { timeBar.Current = _prov.SampleIndex; };
             timer.Enabled = true;
 
             // Viewer events.
@@ -92,12 +92,12 @@ namespace Wavicler
             ));
 
             // Progress bar.
-            progBar.ProgressColor = Globals.DrawColor;
-            progBar.Length = _prov.SamplesPerChannel;
-            progBar.Current = 0;
-            var thumb = wvData.RenderThumbnail(progBar.Width, progBar.Height, Globals.WaveColor, SystemColors.Control, true);
-            progBar.Thumbnail = thumb;
-            progBar.CurrentChanged += (_, __) => { _prov.SampleIndex = progBar.Current; };
+            timeBar.ProgressColor = Globals.DrawColor;
+            timeBar.Length = _prov.SamplesPerChannel;
+            timeBar.Current = 0;
+            var thumb = wvData.RenderThumbnail(timeBar.Width, timeBar.Height, Globals.WaveColor, SystemColors.Control, true);
+            timeBar.Thumbnail = thumb;
+            timeBar.CurrentChanged += (_, __) => { _prov.SampleIndex = timeBar.Current; };
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Wavicler
         public void Rewind()
         {
             SampleProvider.SampleIndex = SampleProvider.SelStart;
-            progBar.Current = SampleProvider.SelStart;
+            timeBar.Current = SampleProvider.SelStart;
         }
         #endregion
 

@@ -20,7 +20,7 @@ namespace Wavicler
         {
             this.components = new System.ComponentModel.Container();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.progBar = new Ephemera.AudioLib.ProgressBar();
+            this.timeBar = new Ephemera.AudioLib.TimeBar();
             this.wvData = new Ephemera.AudioLib.WaveViewer();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
@@ -34,19 +34,19 @@ namespace Wavicler
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
-            // progBar
+            // timeBar
             // 
-            this.progBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.timeBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.progBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.progBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.progBar.Location = new System.Drawing.Point(3, 31);
-            this.progBar.Name = "progBar";
-            this.progBar.Size = new System.Drawing.Size(1051, 49);
-            this.progBar.TabIndex = 43;
-            this.progBar.Thumbnail = null;
-            this.toolTip.SetToolTip(this.progBar, "Zoom zoom");
+            this.timeBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.timeBar.FontLarge = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.timeBar.FontSmall = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.timeBar.Location = new System.Drawing.Point(3, 31);
+            this.timeBar.Name = "timeBar";
+            this.timeBar.Size = new System.Drawing.Size(1051, 49);
+            this.timeBar.TabIndex = 43;
+            this.timeBar.Thumbnail = null;
+            this.toolTip.SetToolTip(this.timeBar, "Zoom zoom");
             // 
             // wvData
             // 
@@ -115,7 +115,7 @@ namespace Wavicler
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.progBar);
+            this.Controls.Add(this.timeBar);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.wvData);
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -141,7 +141,7 @@ namespace Wavicler
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        private ProgressBar progBar;
+        private TimeBar timeBar;
         private System.Windows.Forms.Timer timer;
     }
 }
