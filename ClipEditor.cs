@@ -37,6 +37,25 @@ namespace Wavicler
         public string FileName { get; private set; } = "";
         #endregion
 
+        /// <summary>Selection mode.</summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public WaveSelectionMode SelectionMode { set { wvData.SelectionMode = value; timeBar.SelectionMode = value; } }
+
+        //WaveSelectionMode
+
+        #region Properties TODO2 from ??
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Color DrawColor { get; set; } = Color.MediumOrchid;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Color WaveColor { get; set; } = Color.ForestGreen;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Color GridColor { get; set; } = Color.LightGray;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Color MarkColor { get; set; } = Color.Red;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Color TextColor { get; set; } = Color.DimGray;
+        #endregion
+
         #region Events
         /// <summary>Ask the owner to do something.</summary>
         public event EventHandler<ServiceRequestEventArgs>? ServiceRequest;
@@ -65,10 +84,10 @@ namespace Wavicler
             // Hook up provider and UI.
             _prov = prov;
             wvData.Init(_prov);
-            wvData.WaveColor = Globals.WaveColor;
-            wvData.GridColor = Globals.GridColor;
-            wvData.MarkColor = Globals.MarkColor;
-            wvData.TextColor = Globals.TextColor;
+            wvData.WaveColor = WaveColor;
+            wvData.GridColor = GridColor;
+            wvData.MarkColor = MarkColor;
+            wvData.TextColor = TextColor;
 
             _prov.Rewind();
             //_prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
@@ -76,7 +95,7 @@ namespace Wavicler
             timer.Enabled = true;
 
             // Viewer events.
-            wvData.ViewerChange += ProcessViewerChange;
+            wvData.StateChange += ProcessViewerStateChange;
 
             // Add some stuff to viewer context menu.
             wvData.ExtraMenuItems.Add(new ToolStripSeparator());
@@ -92,10 +111,10 @@ namespace Wavicler
             ));
 
             // Progress bar.
-            timeBar.ProgressColor = Globals.DrawColor;
+            timeBar.ProgressColor = DrawColor;
             timeBar.Length = _prov.SamplesPerChannel;
             timeBar.Current = 0;
-            var thumb = wvData.RenderThumbnail(timeBar.Width, timeBar.Height, Globals.WaveColor, SystemColors.Control, true);
+            var thumb = wvData.RenderThumbnail(timeBar.Width, timeBar.Height, WaveColor, SystemColors.Control, true);
             timeBar.Thumbnail = thumb;
             timeBar.CurrentChanged += (_, __) => { _prov.SampleIndex = timeBar.Current; };
         }
@@ -133,26 +152,25 @@ namespace Wavicler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void ProcessViewerChange(object? sender, WaveViewer.ViewerChangeEventArgs e)
+        void ProcessViewerStateChange(object? sender, WaveViewer.StateChangeEventArgs e)
         {
-            switch (e.Change)
+            if (e.Gain is not null)
             {
-                case ParamChange.SelStart when sender == wvData:
-                    SampleProvider.SelStart = wvData.SelStart;
-                    SampleProvider.Rewind();
-                    break;
-
-                case ParamChange.SelLength when sender == wvData:
-                    SampleProvider.SelLength = wvData.SelLength;
-                    break;
-
-                case ParamChange.Gain when sender == wvData:
-                    SampleProvider.Gain = wvData.Gain;
-                    break;
-
-                case ParamChange.Marker when sender == wvData:
-                    break;
-            };
+                SampleProvider.Gain = wvData.Gain;
+            }
+            if (e.SelStart is not null)
+            {
+                SampleProvider.SelStart = wvData.SelStart;
+                SampleProvider.Rewind();
+            }
+            if (e.SelLength is not null)
+            {
+                SampleProvider.SelLength = wvData.SelLength;
+            }
+            if (e.Marker is not null)
+            {
+                //timeBar.SelLength = wv1.SelLength;
+            }
         }
         #endregion
     }

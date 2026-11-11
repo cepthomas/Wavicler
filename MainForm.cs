@@ -13,7 +13,7 @@ using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 using Ephemera.AudioLib;
 
-// TODO1 timeline and editor don't line up.
+// TODO2 timeline and editor don't line up.
 
 
 namespace Wavicler
@@ -93,10 +93,9 @@ namespace Wavicler
             sldVolume.Value = _settings.Volume;
             sldVolume.ValueChanged += (_, __) => _player.Volume = (float)sldVolume.Value;
 
-            Globals.BPM = _settings.BPM;
-            txtBPM.Text = Globals.BPM.ToString();
+            txtBPM.Text = _settings.BPM.ToString();
             txtBPM.KeyPress += (sender, e) => TestForNumber_KeyPress(sender!, e);
-            txtBPM.LostFocus += (_, __) => Globals.BPM = double.Parse(txtBPM.Text);
+            txtBPM.LostFocus += (_, __) => _settings.BPM = double.Parse(txtBPM.Text);
 
             // FilTree settings. Collections are ref-bound and don't need updating.
             ftree.RootDirs = _settings.RootDirs;
@@ -108,20 +107,7 @@ namespace Wavicler
             cmbSelMode.Items.Add(WaveSelectionMode.Time);
             cmbSelMode.Items.Add(WaveSelectionMode.Bar);
             cmbSelMode.Items.Add(WaveSelectionMode.Sample);
-            cmbSelMode.SelectedIndexChanged += (_, __) =>
-            {
-                if (cmbSelMode.SelectedItem is not null)
-                {
-                    _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
-                    switch (_settings.SelectionMode)
-                    {
-                        case WaveSelectionMode.Time: Globals.ConverterOps = new TimeOps(); break;
-                        case WaveSelectionMode.Bar: Globals.ConverterOps = new BarOps(); break;
-                        case WaveSelectionMode.Sample: Globals.ConverterOps = new SampleOps(); break;
-                    }
-                    ActiveClipEditor()?.Invalidate();
-                }
-            };
+            cmbSelMode.SelectedIndexChanged += CmbSelMode_SelectedIndexChanged;
             cmbSelMode.SelectedItem = _settings.SelectionMode;
 
             btnRewind.Click += (_, __) => UpdateState(AppState.Rewind);
@@ -689,7 +675,7 @@ namespace Wavicler
         /// <param name="tabName"></param>
         void CreateTab(ClipSampleProvider prov, string fn, string tabName)
         {
-            ClipEditor cled = new(prov, fn) { Dock = DockStyle.Fill };
+            ClipEditor cled = new(prov, fn) { Dock = DockStyle.Fill, SelectionMode = _settings.SelectionMode };
             cled.ServiceRequest += ClipEditor_ServiceRequest;
             _waveOutSwapper.SetInput(cled.SampleProvider);
             statusInfo.Text = cled.SampleProvider.GetInfoString();
@@ -772,6 +758,28 @@ namespace Wavicler
                     break;
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        void CmbSelMode_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (cmbSelMode.SelectedItem is not null)
+            {
+                _settings.SelectionMode = (WaveSelectionMode)cmbSelMode.SelectedItem;
+                foreach (TabPage tab in TabControl.TabPages)
+                {
+                    if (tab.Controls.Count > 0)
+                    {
+                        var cled = tab.Controls[0] as ClipEditor;
+                        cled!.SelectionMode = _settings.SelectionMode;
+                    }
+                }
+            }
+        }
         #endregion
 
         #region Settings
@@ -824,7 +832,7 @@ namespace Wavicler
         void SaveSettings()
         {
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
-            _settings.BPM = Globals.BPM;
+            //_settings.BPM = Globals.BPM;
             _settings.Save();
         }
         #endregion
@@ -838,7 +846,7 @@ namespace Wavicler
             var fn = GetUserFileName(true);
             if (fn != "")
             {
-                var ok = NAudioEx.Convert(Conversion.Resample, fn);
+                var ok = Hold.Convert(Conversion.Resample, fn);
                 if (!ok)
                 {
                     _logger.Warn($"{fn} is already 44.1k");
@@ -854,7 +862,7 @@ namespace Wavicler
             var fn = GetUserFileName(false);
             if (fn != "")
             {
-                var ok = NAudioEx.Convert(Conversion.SplitStereo, fn);
+                var ok = Hold.Convert(Conversion.SplitStereo, fn);
                 if (!ok)
                 {
                     _logger.Warn($"{fn} is a mono file");
@@ -870,7 +878,7 @@ namespace Wavicler
             var fn = GetUserFileName(false);
             if (fn != "")
             {
-                var ok = NAudioEx.Convert(Conversion.ToMonoWav, fn);
+                var ok = Hold.Convert(Conversion.ToMonoWav, fn);
                 if (!ok)
                 {
                     _logger.Warn($"{fn} is already 44.1k");
