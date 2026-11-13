@@ -846,7 +846,7 @@ namespace Wavicler
             var fn = GetUserFileName(true);
             if (fn != "")
             {
-                var ok = Hold.Convert(Conversion.Resample, fn);
+                var ok = Utils.Convert(Conversion.Resample, fn);
                 if (!ok)
                 {
                     _logger.Warn($"{fn} is already 44.1k");
@@ -862,7 +862,7 @@ namespace Wavicler
             var fn = GetUserFileName(false);
             if (fn != "")
             {
-                var ok = Hold.Convert(Conversion.SplitStereo, fn);
+                var ok = Utils.Convert(Conversion.SplitStereo, fn);
                 if (!ok)
                 {
                     _logger.Warn($"{fn} is a mono file");
@@ -878,7 +878,7 @@ namespace Wavicler
             var fn = GetUserFileName(false);
             if (fn != "")
             {
-                var ok = Hold.Convert(Conversion.ToMonoWav, fn);
+                var ok = Utils.Convert(Conversion.ToMonoWav, fn);
                 if (!ok)
                 {
                     _logger.Warn($"{fn} is already 44.1k");
