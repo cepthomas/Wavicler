@@ -27,6 +27,28 @@ namespace Wavicler
         [JsonConverter(typeof(JsonColorConverter))]
         public Color WaveColor { get; set; } = Color.ForestGreen;
 
+
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DisplayName("Grid Color")]
+        [Description("Pick what you like.")]
+        [Browsable(true)]
+        [JsonConverter(typeof(JsonColorConverter))]
+        public Color GridColor { get; set; } = Color.LightGray;
+
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DisplayName("Marker Color")]
+        [Description("Pick what you like.")]
+        [Browsable(true)]
+        [JsonConverter(typeof(JsonColorConverter))]
+        public Color MarkColor { get; set; } = Color.Red;
+
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DisplayName("Text Color")]
+        [Description("Pick what you like.")]
+        [Browsable(true)]
+        [JsonConverter(typeof(JsonColorConverter))]
+        public Color TextColor { get; set; } = Color.DimGray;
+
         [DisplayName("Auto Convert Stereo")]
         [Description("Automatically convert stereo files to mono otherwise ask.")]
         [Browsable(true)]

@@ -13,7 +13,7 @@ using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 using Ephemera.AudioLib;
 
-// TODO2 timeline and editor don't line up.
+// TODO2 bug timeline and editor don't line up.
 
 
 namespace Wavicler
@@ -676,6 +676,7 @@ namespace Wavicler
         void CreateTab(ClipSampleProvider prov, string fn, string tabName)
         {
             ClipEditor cled = new(prov, fn) { Dock = DockStyle.Fill, SelectionMode = _settings.SelectionMode };
+            cled.UpdateSettings(_settings);
             cled.ServiceRequest += ClipEditor_ServiceRequest;
             _waveOutSwapper.SetInput(cled.SampleProvider);
             statusInfo.Text = cled.SampleProvider.GetInfoString();

@@ -1,18 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Windows.Forms;
-using System.Diagnostics;
-using System.Drawing.Design;
 using System.ComponentModel;
-using System.Xml.Linq;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-using Ephemera.NBagOfTricks;
-using Ephemera.NBagOfUis;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Linq;
 using Ephemera.AudioLib;
 
 
@@ -35,25 +26,10 @@ namespace Wavicler
 
         /// <summary>Current file.</summary>
         public string FileName { get; private set; } = "";
-        #endregion
 
         /// <summary>Selection mode.</summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public WaveSelectionMode SelectionMode { set { wvData.SelectionMode = value; timeBar.SelectionMode = value; } }
-
-        //WaveSelectionMode
-
-        #region Properties TODO2 from ??
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color DrawColor { get; set; } = Color.MediumOrchid;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color WaveColor { get; set; } = Color.ForestGreen;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color GridColor { get; set; } = Color.LightGray;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color MarkColor { get; set; } = Color.Red;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color TextColor { get; set; } = Color.DimGray;
         #endregion
 
         #region Events
@@ -84,10 +60,6 @@ namespace Wavicler
             // Hook up provider and UI.
             _prov = prov;
             wvData.Init(_prov);
-            wvData.WaveColor = WaveColor;
-            wvData.GridColor = GridColor;
-            wvData.MarkColor = MarkColor;
-            wvData.TextColor = TextColor;
 
             _prov.Rewind();
             //_prov.ClipProgress += (object? sender, ClipSampleProvider.ClipProgressEventArgs e) => progBar.Current = (int)e.Position;
@@ -111,11 +83,8 @@ namespace Wavicler
             ));
 
             // Progress bar.
-            timeBar.ProgressColor = DrawColor;
             timeBar.Length = _prov.SamplesPerChannel;
             timeBar.Current = 0;
-            var thumb = wvData.RenderThumbnail(timeBar.Width, timeBar.Height, WaveColor, SystemColors.Control, true);
-            timeBar.Thumbnail = thumb;
             timeBar.CurrentChanged += (_, __) => { _prov.SampleIndex = timeBar.Current; };
         }
 
@@ -143,6 +112,23 @@ namespace Wavicler
         {
             SampleProvider.SampleIndex = SampleProvider.SelStart;
             timeBar.Current = SampleProvider.SelStart;
+        }
+
+        /// <summary>
+        /// Make a pretty.
+        /// </summary>
+        /// <param name="settings"></param>
+        public void UpdateSettings(UserSettings settings)
+        {
+            wvData.WaveColor = settings.WaveColor;
+            wvData.GridColor = settings.GridColor;
+            wvData.MarkColor = settings.MarkColor;
+            wvData.TextColor = settings.TextColor;
+            timeBar.ProgressColor = settings.DrawColor;
+            wvData.SelectionMode = settings.SelectionMode;
+            timeBar.SelectionMode = settings.SelectionMode;
+            var thumb = wvData.RenderThumbnail(timeBar.Width, timeBar.Height, settings.WaveColor, SystemColors.Control, true);
+            timeBar.Thumbnail = thumb;
         }
         #endregion
 
