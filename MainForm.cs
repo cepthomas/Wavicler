@@ -13,7 +13,7 @@ using Ephemera.NBagOfTricks;
 using Ephemera.NBagOfUis;
 using Ephemera.AudioLib;
 
-// TODO2 bug timeline and editor don't line up.
+// TODO1 bug timeline and editor don't line up.
 
 
 namespace Wavicler

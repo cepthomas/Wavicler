@@ -33,14 +33,11 @@ namespace Wavicler
         #endregion
 
         #region Events
-        /// <summary>Ask the owner to do something.</summary>
+        /// <summary>One or more controls asks the owner to do something.</summary>
         public event EventHandler<ServiceRequestEventArgs>? ServiceRequest;
         public enum ServiceRequestType { CopySelectionToNewClip, Close }
 
-        public class ServiceRequestEventArgs : EventArgs
-        {
-            public ServiceRequestType Request { get; set; }
-        }
+        public class ServiceRequestEventArgs : EventArgs { public ServiceRequestType Request { get; set; } }
         #endregion
 
         #region Lifecycle
@@ -140,22 +137,27 @@ namespace Wavicler
         /// <param name="e"></param>
         void ProcessViewerStateChange(object? sender, WaveViewer.StateChangeEventArgs e)
         {
-            if (e.Gain is not null)
+            switch (e.Which)
             {
-                SampleProvider.Gain = wvData.Gain;
-            }
-            if (e.SelStart is not null)
-            {
-                SampleProvider.SelStart = wvData.SelStart;
-                SampleProvider.Rewind();
-            }
-            if (e.SelLength is not null)
-            {
-                SampleProvider.SelLength = wvData.SelLength;
-            }
-            if (e.Marker is not null)
-            {
-                //timeBar.SelLength = wv1.SelLength;
+                case WaveViewer.UiChange.Gain:
+                    SampleProvider.Gain = wvData.Gain;
+                    break;
+
+                case WaveViewer.UiChange.SelStart:
+                    SampleProvider.SelStart = wvData.SelStart;
+                    SampleProvider.Rewind();
+                    break;
+
+                case WaveViewer.UiChange.SelLength:
+                    SampleProvider.SelLength = wvData.SelLength;
+                    break;
+
+                case WaveViewer.UiChange.Marker:
+                    //timeBar.SelLength = wv1.SelLength;
+                    break;
+
+                default:
+                    break;
             }
         }
         #endregion
