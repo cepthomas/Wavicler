@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Wavicler.csproj" />
+  <Project Path="..\..\Libs\AudioLib\AudioLib.csproj" />
 </Solution>

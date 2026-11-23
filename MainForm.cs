@@ -40,6 +40,8 @@ namespace Wavicler
         const string DIRTY_FILE_IND = "*";
         #endregion
 
+
+
         #region Types
         /// <summary>What are we doing.</summary>
         public enum AppState { Stop, Play, Rewind, Complete, Dead }
@@ -125,9 +127,9 @@ namespace Wavicler
             // Tools.
             AboutMenuItem.Click += (_, __) => Tools.ShowReadme("Wavicler");
             SettingsMenuItem.Click += (_, __) => EditSettings();
-            ResampleMenuItem.Click += (_, __) => Resample();
-            SplitStereoMenuItem.Click += (_, __) => SplitStereo();
-            ToMonoMenuItem.Click += (_, __) => ToMono();
+//ResampleMenuItem.Click += (_, __) => Resample();
+//SplitStereoMenuItem.Click += (_, __) => SplitStereo();
+//ToMonoMenuItem.Click += (_, __) => ToMono();
 
             // Tab control.
             TabControl.TabPages.Clear();
@@ -208,14 +210,8 @@ namespace Wavicler
             {
                 case AppState.Complete:
                     Rewind();
-                    if (_settings.Loop)
-                    {
-                        Play();
-                    }
-                    else
-                    {
-                        Stop();
-                    }
+                    if (_settings.Loop) { Play(); }
+                    else { Stop(); }
                     break;
 
                 case AppState.Play:
@@ -372,9 +368,9 @@ namespace Wavicler
             AboutMenuItem.Enabled = true;
             SettingsMenuItem.Enabled = true;
 
-            ResampleMenuItem.Enabled = true;
-            SplitStereoMenuItem.Enabled = true;
-            ToMonoMenuItem.Enabled = true;
+            ResampleMenuItem.Enabled = false; //true;
+            SplitStereoMenuItem.Enabled = false; //true;
+            ToMonoMenuItem.Enabled = false; //true;
         }
         #endregion
 
@@ -408,17 +404,12 @@ namespace Wavicler
 
                 // Valid file name.
                 _logger.Info($"Opening file: {fn}");
-
-                // Find out about the requested file.
-                using var reader = new AudioFileReader(fn);
-
-                // Check sample rate etc.
-                reader.Validate(false);
-
+                using var reader = new ResamplingAudioFileReader(fn, AudioLibDefs.SAMPLE_RATE);
+//              using var reader = new AudioFileReader(fn);
                 // Create a tab page or select if it already exists.
                 var coerce = StereoCoercion.None;
 
-                if (reader.WaveFormat.Channels == 2)
+                if (reader.WaveFormat.Channels == 2) //TODO1 maybe better to have two views?
                 {
                     if (!_settings.AutoConvert)
                     {
@@ -679,7 +670,7 @@ namespace Wavicler
             cled.UpdateSettings(_settings);
             cled.ServiceRequest += ClipEditor_ServiceRequest;
             _waveOutSwapper.SetInput(cled.SampleProvider);
-            statusInfo.Text = cled.SampleProvider.GetInfoString();
+            statusInfo.Text = cled.SampleProvider.GetInfo();
 
             TabPage page = new() { Text = tabName };
             page.Controls.Add(cled);
@@ -700,7 +691,7 @@ namespace Wavicler
             if (cled is not null)
             {
                 _waveOutSwapper.SetInput(cled.SampleProvider);
-                statusInfo.Text = cled.SampleProvider.GetInfoString();
+                statusInfo.Text = cled.SampleProvider.GetInfo();
             }
             else
             {
@@ -833,59 +824,58 @@ namespace Wavicler
         void SaveSettings()
         {
             _settings.FormGeometry = new Rectangle(Location.X, Location.Y, Width, Height);
-            //_settings.BPM = Globals.BPM;
             _settings.Save();
         }
         #endregion
 
-        #region Utilities
-        /// <summary>
-        /// 
-        /// </summary>
-        void Resample()
-        {
-            var fn = GetUserFileName(true);
-            if (fn != "")
-            {
-                var ok = AudioUtils.Convert(Conversion.Resample, fn);
-                if (!ok)
-                {
-                    _logger.Warn($"{fn} is already 44.1k");
-                }
-            }
-        }
+        //#region Utilities  TODO1 what to do with these?
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //void Resample()
+        //{
+        //    var fn = GetUserFileName(true);
+        //    if (fn != "")
+        //    {
+        //        var ok = AudioUtils.Convert(Conversion.Resample, fn);
+        //        if (!ok)
+        //        {
+        //            _logger.Warn($"{fn} is already 44.1k");
+        //        }
+        //    }
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        void SplitStereo()
-        {
-            var fn = GetUserFileName(false);
-            if (fn != "")
-            {
-                var ok = AudioUtils.Convert(Conversion.SplitStereo, fn);
-                if (!ok)
-                {
-                    _logger.Warn($"{fn} is a mono file");
-                }
-            }
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //void SplitStereo()
+        //{
+        //    var fn = GetUserFileName(false);
+        //    if (fn != "")
+        //    {
+        //        var ok = AudioUtils.Convert(Conversion.SplitStereo, fn);
+        //        if (!ok)
+        //        {
+        //            _logger.Warn($"{fn} is a mono file");
+        //        }
+        //    }
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        void ToMono()
-        {
-            var fn = GetUserFileName(false);
-            if (fn != "")
-            {
-                var ok = AudioUtils.Convert(Conversion.ToMonoWav, fn);
-                if (!ok)
-                {
-                    _logger.Warn($"{fn} is already 44.1k");
-                }
-            }
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //void ToMono()
+        //{
+        //    var fn = GetUserFileName(false);
+        //    if (fn != "")
+        //    {
+        //        var ok = AudioUtils.Convert(Conversion.ToMonoWav, fn);
+        //        if (!ok)
+        //        {
+        //            _logger.Warn($"{fn} is already 44.1k");
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Utility to get filename from the user.
@@ -915,9 +905,9 @@ namespace Wavicler
                 fn = openDlg.FileName;
             }
 
-            return fn;           
+            return fn;
         }
-        #endregion
+        //#endregion
 
         #region Helpers
         /// <summary>
@@ -926,9 +916,7 @@ namespace Wavicler
         /// <returns></returns>
         TabPage? ActivePage()
         {
-            TabPage? page = TabControl.TabPages.Count > 0 ?
-                TabControl.SelectedTab :
-                null;
+            TabPage? page = TabControl.TabPages.Count > 0 ? TabControl.SelectedTab : null;
             return page;
         }
 
